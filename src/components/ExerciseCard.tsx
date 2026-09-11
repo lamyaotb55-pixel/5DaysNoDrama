@@ -46,13 +46,14 @@ export function ExerciseCard({
             {exercise.perSide ? " per side" : ""}
           </p>
           <span
+            key={complete ? "done" : "todo"}
             className={
               "mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase " +
-              (complete ? "bg-success text-ink" : "bg-secondary text-ink")
+              (complete ? "bg-success text-ink check-pop" : "bg-secondary text-ink")
             }
           >
             {complete && <Check className="size-3" aria-hidden />}
-            {complete ? "Exercise complete" : `${doneSets}/${exercise.sets} sets`}
+            {complete ? "✓ Exercise complete" : `${doneSets}/${exercise.sets} sets`}
           </span>
         </div>
       </div>
