@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check, Clock, Dumbbell, LineChart } from "lucide-react";
+import { Check, Clock, Dumbbell, LineChart, Pencil } from "lucide-react";
 import { estimateMinutes, getPlan } from "@/lib/program";
-import { choosePlan, sessionKey, useStore } from "@/lib/store";
+import { choosePlan, effectivePlan, sessionKey, useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/plan/$planId")({
   head: ({ params }) => {
@@ -24,8 +24,9 @@ export const Route = createFileRoute("/plan/$planId")({
 
 function PlanPage() {
   const { planId } = Route.useParams();
-  const plan = getPlan(planId);
   const state = useStore();
+  const basePlan = getPlan(planId);
+  const plan = basePlan ? effectivePlan(basePlan, state.customDays) : undefined;
 
   if (!plan) {
     return (
@@ -49,15 +50,25 @@ function PlanPage() {
     <main className="mx-auto max-w-2xl px-5 pb-16">
       <div className="flex items-center justify-between gap-3 pt-8">
         <Link to="/" className="text-xs font-semibold text-muted-foreground">
-          ← Plans
+          ← Home
         </Link>
-        <Link
-          to="/progress"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground"
-        >
-          <LineChart className="size-3.5 text-rose" aria-hidden /> Progress
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            to="/customize/$planId"
+            params={{ planId: plan.id }}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground"
+          >
+            <Pencil className="size-3.5 text-rose" aria-hidden /> Plan details
+          </Link>
+          <Link
+            to="/progress"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground"
+          >
+            <LineChart className="size-3.5 text-rose" aria-hidden /> Progress
+          </Link>
+        </div>
       </div>
+
 
       <header className="mt-4">
         <p className="eyebrow text-rose">{plan.label}</p>

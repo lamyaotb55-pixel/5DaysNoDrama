@@ -4,6 +4,7 @@ import { Check, Flame, Trophy } from "lucide-react";
 import { ExerciseCard } from "@/components/ExerciseCard";
 import { getDay, getPlan } from "@/lib/program";
 import {
+  effectiveDay,
   finishSession,
   sessionKey,
   setCardio,
@@ -39,10 +40,12 @@ export const Route = createFileRoute("/workout/$planId/$day")({
 function WorkoutPage() {
   const { planId, day: dayParam } = Route.useParams();
   const plan = getPlan(planId);
-  const day = plan ? getDay(plan, Number(dayParam)) : undefined;
   const state = useStore();
+  const rawDay = plan ? getDay(plan, Number(dayParam)) : undefined;
+  const day = plan && rawDay ? effectiveDay(plan.id, rawDay, state.customDays) : undefined;
   const navigate = useNavigate();
   const [review, setReview] = useState(false);
+  const [cheer, setCheer] = useState<string | null>(null);
 
   useEffect(() => {
     if (plan && day) startSession(plan.id, day.day);
@@ -73,6 +76,37 @@ function WorkoutPage() {
   ).length;
   const pct = Math.round((doneExercises / total) * 100);
   const restSeconds = plan.id === "build-muscle" ? 120 : plan.id === "tone-up" ? 90 : 60;
+
+  if (cheer) {
+    return (
+      <main className="mx-auto grid min-h-screen max-w-md place-items-center px-5">
+        <div className="surface p-7 text-center">
+          <span className="text-4xl" aria-hidden>
+            🎉
+          </span>
+          <h1 className="mt-3 text-3xl font-semibold uppercase">Smashed it!</h1>
+          <p className="mt-1 text-sm font-semibold text-rose">
+            Day {day.day} · {day.title}
+          </p>
+          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{cheer}</p>
+          <div className="mt-6 space-y-3">
+            <button
+              onClick={() => navigate({ to: "/" })}
+              className="w-full rounded-full bg-ink px-6 py-3.5 text-sm font-semibold text-primary-foreground"
+            >
+              Back to my plan
+            </button>
+            <button
+              onClick={() => navigate({ to: "/progress" })}
+              className="w-full rounded-full border border-border px-6 py-3 text-sm font-semibold"
+            >
+              See my progress
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   if (review) {
     return (
@@ -127,8 +161,8 @@ function WorkoutPage() {
 
           <button
             onClick={() => {
-              finishSession(plan.id, day.day);
-              navigate({ to: "/plan/$planId", params: { planId: plan.id } });
+              const message = finishSession(plan.id, day.day);
+              setCheer(message ?? "Day done. Strong work.");
             }}
             className="mt-5 w-full rounded-full bg-ink px-6 py-3.5 text-sm font-semibold text-primary-foreground"
           >
