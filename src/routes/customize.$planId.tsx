@@ -43,7 +43,7 @@ function CustomizePage() {
           <h1 className="text-2xl font-semibold">Plan not found</h1>
           <Link
             to="/"
-            className="mt-5 inline-flex rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-primary-foreground"
+            className="mt-5 inline-flex rounded-full bg-spicy px-5 py-3 text-xs font-bold uppercase text-accent-foreground"
           >
             Choose a plan
           </Link>
@@ -88,7 +88,7 @@ function CustomizePage() {
       </div>
 
       <header className="mt-3">
-        <p className="eyebrow text-rose">Plan details</p>
+        <p className="eyebrow text-spicy">Plan details</p>
         <h1 className="mt-1 text-3xl font-semibold uppercase sm:text-4xl">{basePlan.name}</h1>
         <p className="mt-1.5 text-sm text-muted-foreground">
           Rename any workout, change sets and reps, add a demo image link or remove what you don't do.
@@ -145,7 +145,7 @@ function CustomizePage() {
                       type="button"
                       aria-label={`Remove ${ex.name}`}
                       onClick={() => setPending({ day: day.day, index: i, name: ex.name })}
-                      className="grid size-9 place-items-center rounded-full border border-border text-rose"
+                      className="grid size-9 place-items-center rounded-full border border-border text-spicy"
                     >
                       <Trash2 className="size-4" aria-hidden />
                     </button>
@@ -163,7 +163,7 @@ function CustomizePage() {
                 }
                 className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-xs font-semibold"
               >
-                <Plus className="size-3.5 text-rose" aria-hidden /> Add exercise
+                <Plus className="size-3.5 text-spicy" aria-hidden /> Add exercise
               </button>
             </section>
           );
@@ -171,7 +171,7 @@ function CustomizePage() {
       </div>
 
       {draft && (
-        <div className="fixed inset-0 z-20 grid place-items-end bg-ink/40 p-0 sm:place-items-center sm:p-5">
+        <div className="fixed inset-0 z-20 grid place-items-end bg-ink/50 p-0 sm:place-items-center sm:p-5">
           <div className="w-full max-w-md rounded-t-2xl border border-border bg-card p-5 sm:rounded-2xl">
             <h2 className="text-lg font-semibold">
               {draft.ex.name ? "Edit exercise" : "New exercise"}
@@ -227,7 +227,7 @@ function CustomizePage() {
                   onChange={(e) =>
                     setDraft({ ...draft, ex: { ...draft.ex, perSide: e.target.checked || undefined } })
                   }
-                  className="size-4 accent-[var(--rose)]"
+                  className="size-4 accent-[var(--spicy)]"
                 />
                 Reps are per side
               </label>
@@ -245,7 +245,7 @@ function CustomizePage() {
                 type="button"
                 disabled={!draft.ex.name.trim()}
                 onClick={saveDraft}
-                className="flex-1 rounded-full bg-ink px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-40"
+                className="flex-1 rounded-full bg-ink px-4 py-3 text-xs font-bold uppercase text-paper disabled:opacity-40"
               >
                 Save
               </button>
@@ -255,7 +255,7 @@ function CustomizePage() {
       )}
 
       {pending && (
-        <div className="fixed inset-0 z-30 grid place-items-center bg-ink/40 p-5">
+        <div className="fixed inset-0 z-30 grid place-items-center bg-ink/50 p-5">
           <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-5 text-center">
             <h2 className="text-lg font-semibold">Remove this workout?</h2>
             <p className="mt-1.5 text-sm text-muted-foreground">
@@ -272,7 +272,7 @@ function CustomizePage() {
               <button
                 type="button"
                 onClick={confirmRemove}
-                className="flex-1 rounded-full bg-rose px-4 py-3 text-sm font-semibold text-accent-foreground"
+                className="flex-1 rounded-full bg-spicy px-4 py-3 text-sm font-semibold text-accent-foreground"
               >
                 Remove
               </button>
@@ -293,7 +293,7 @@ function CustomizePage() {
                 commit(undo.day, undo.list);
                 setUndo(null);
               }}
-              className="inline-flex items-center gap-1 rounded-full bg-ink px-3.5 py-1.5 text-xs font-semibold text-primary-foreground"
+              className="inline-flex items-center gap-1 rounded-full bg-ink px-3.5 py-1.5 text-xs font-bold uppercase text-paper"
             >
               <Undo2 className="size-3.5" aria-hidden /> Undo
             </button>
