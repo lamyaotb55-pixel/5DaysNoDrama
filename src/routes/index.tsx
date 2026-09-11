@@ -1,7 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, CalendarDays, Dumbbell, LineChart } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, CalendarDays, Dumbbell, LineChart, Play } from "lucide-react";
 import { PLANS, WEEKS, getPlan } from "@/lib/plans";
-import { activeRun, startPlan, useTracker } from "@/lib/tracker";
+import { activeRun, dayKey, startPlan, useTracker } from "@/lib/tracker";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
