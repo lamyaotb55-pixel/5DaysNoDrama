@@ -285,9 +285,10 @@ function WorkoutPage() {
           </div>
           <button
             onClick={() => setReview(true)}
+            key={allDone ? "done" : "todo"}
             className={
               "inline-flex items-center gap-2 rounded-full px-5 py-3.5 text-xs font-bold tracking-wide uppercase shadow-[var(--shadow-lift)] " +
-              (allDone ? "bg-success text-ink" : "bg-spicy text-accent-foreground")
+              (allDone ? "bg-success text-ink check-pop" : "bg-spicy text-accent-foreground")
             }
           >
             <Check className="size-4" aria-hidden /> Complete Workout
