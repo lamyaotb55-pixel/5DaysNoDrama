@@ -1,5 +1,13 @@
 import { useSyncExternalStore } from "react";
-import { getDay, getPlan, repRange, type Day, type PlanId } from "./program";
+import {
+  getDay,
+  getPlan,
+  repRange,
+  type Day,
+  type Exercise,
+  type Plan,
+  type PlanId,
+} from "./program";
 
 export type SetLog = { weight: number; reps: number; done: boolean };
 
@@ -35,6 +43,8 @@ export type State = {
   lastSets: Record<string, { weight: number; reps: number }[]>; // `${planId}|${exName}`
   prs: Record<string, BestSet>; // exercise name
   trend: Record<string, BestSet[]>; // exercise name -> best set per session
+  customDays: Record<string, Exercise[]>; // `${planId}|${day}` -> edited exercise list
+  rounds: Record<string, number>; // `${planId}` -> how many times the plan was restarted
 };
 
 const KEY = "five-days-no-drama-v1";
@@ -47,6 +57,8 @@ const empty: State = {
   lastSets: {},
   prs: {},
   trend: {},
+  customDays: {},
+  rounds: {},
 };
 
 let state: State = empty;
