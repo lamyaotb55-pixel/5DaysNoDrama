@@ -78,7 +78,7 @@ function Home() {
                   to="/plan/$planId"
                   params={{ planId: plan.id }}
                   onClick={() => choosePlan(plan.id)}
-                  className="mt-4 inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-primary-foreground"
+                  className="mt-4 inline-flex items-center gap-2 rounded-full bg-rose px-5 py-2.5 text-sm font-semibold text-accent-foreground"
                 >
                   Start Plan
                   <ArrowRight className="size-4" aria-hidden />
