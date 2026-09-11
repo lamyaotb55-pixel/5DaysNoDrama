@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProgressRouteImport } from './routes/progress'
+import { Route as ThemeRouteImport } from './routes/theme'
 import { Route as CustomizePlanIdRouteImport } from './routes/customize.$planId'
 import { Route as PlanPlanIdRouteImport } from './routes/plan.$planId'
 import { Route as WorkoutPlanIdDayRouteImport } from './routes/workout.$planId.$day'
@@ -23,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
 const ProgressRoute = ProgressRouteImport.update({
   id: '/progress',
   path: '/progress',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ThemeRoute = ThemeRouteImport.update({
+  id: '/theme',
+  path: '/theme',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CustomizePlanIdRoute = CustomizePlanIdRouteImport.update({
@@ -44,6 +50,7 @@ const WorkoutPlanIdDayRoute = WorkoutPlanIdDayRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/progress': typeof ProgressRoute
+  '/theme': typeof ThemeRoute
   '/customize/$planId': typeof CustomizePlanIdRoute
   '/plan/$planId': typeof PlanPlanIdRoute
   '/workout/$planId/$day': typeof WorkoutPlanIdDayRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/progress': typeof ProgressRoute
+  '/theme': typeof ThemeRoute
   '/customize/$planId': typeof CustomizePlanIdRoute
   '/plan/$planId': typeof PlanPlanIdRoute
   '/workout/$planId/$day': typeof WorkoutPlanIdDayRoute
@@ -59,6 +67,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/progress': typeof ProgressRoute
+  '/theme': typeof ThemeRoute
   '/customize/$planId': typeof CustomizePlanIdRoute
   '/plan/$planId': typeof PlanPlanIdRoute
   '/workout/$planId/$day': typeof WorkoutPlanIdDayRoute
@@ -68,6 +77,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/progress'
+    | '/theme'
     | '/customize/$planId'
     | '/plan/$planId'
     | '/workout/$planId/$day'
@@ -75,6 +85,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/progress'
+    | '/theme'
     | '/customize/$planId'
     | '/plan/$planId'
     | '/workout/$planId/$day'
@@ -82,6 +93,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/progress'
+    | '/theme'
     | '/customize/$planId'
     | '/plan/$planId'
     | '/workout/$planId/$day'
@@ -90,6 +102,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ProgressRoute: typeof ProgressRoute
+  ThemeRoute: typeof ThemeRoute
   CustomizePlanIdRoute: typeof CustomizePlanIdRoute
   PlanPlanIdRoute: typeof PlanPlanIdRoute
   WorkoutPlanIdDayRoute: typeof WorkoutPlanIdDayRoute
@@ -109,6 +122,13 @@ declare module '@tanstack/react-router' {
       path: '/progress'
       fullPath: '/progress'
       preLoaderRoute: typeof ProgressRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/theme': {
+      id: '/theme'
+      path: '/theme'
+      fullPath: '/theme'
+      preLoaderRoute: typeof ThemeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/customize/$planId': {
@@ -138,6 +158,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ProgressRoute: ProgressRoute,
+  ThemeRoute: ThemeRoute,
   CustomizePlanIdRoute: CustomizePlanIdRoute,
   PlanPlanIdRoute: PlanPlanIdRoute,
   WorkoutPlanIdDayRoute: WorkoutPlanIdDayRoute,
