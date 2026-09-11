@@ -28,6 +28,7 @@ function ProgressPage() {
   const plan = getPlan(state.activePlanId ?? undefined);
   const consistency = weeklyConsistency(state.history);
   const volume = totalVolume(state.history);
+  const week = weeklyHighlights(state.history);
   const prs = Object.entries(state.prs).sort((a, b) => b[1].weight - a[1].weight);
 
   return (
@@ -64,6 +65,51 @@ function ProgressPage() {
         <Stat label="This week" value={`${consistency.thisWeek}/5 · ${consistency.pct}%`} />
         <Stat label="Total volume" value={`${volume.toLocaleString()} kg`} />
         <Stat label="Personal records" value={String(prs.length)} />
+      </section>
+
+      <section className="surface mt-4 p-5">
+        <p className="eyebrow text-rose">This week</p>
+        <h2 className="mt-1 text-lg font-semibold">Weekly highlights</h2>
+        {week.workouts === 0 ? (
+          <p className="mt-2 text-sm text-muted-foreground">
+            Nothing logged in the last 7 days yet — finish a day and it shows up here.
+          </p>
+        ) : (
+          <>
+            <div className="mt-3 grid grid-cols-3 gap-3">
+              <div className="rounded-xl bg-secondary p-3">
+                <p className="eyebrow text-muted-foreground">Workouts</p>
+                <p className="mt-0.5 text-lg font-semibold">{week.workouts}/5</p>
+              </div>
+              <div className="rounded-xl bg-secondary p-3">
+                <p className="eyebrow text-muted-foreground">Volume</p>
+                <p className="mt-0.5 text-lg font-semibold">{week.volume.toLocaleString()} kg</p>
+              </div>
+              <div className="rounded-xl bg-secondary p-3">
+                <p className="eyebrow text-muted-foreground">Sets</p>
+                <p className="mt-0.5 text-lg font-semibold">{week.sets}</p>
+              </div>
+            </div>
+            <p className="mt-3 text-xs font-semibold text-muted-foreground">
+              {week.minutes} min trained
+              {week.bestDay ? ` · biggest day: ${week.bestDay.title}` : ""}
+            </p>
+            <div className="mt-3 rounded-xl bg-rose/10 p-3">
+              <p className="eyebrow text-rose">Records this week</p>
+              {week.prs.length === 0 ? (
+                <p className="mt-1 text-xs font-semibold text-muted-foreground">
+                  No new records yet — add a little weight next session.
+                </p>
+              ) : (
+                <ul className="mt-1 space-y-0.5 text-xs font-semibold">
+                  {week.prs.map((pr) => (
+                    <li key={pr}>🏆 {pr}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </>
+        )}
       </section>
 
       <section className="surface mt-4 p-5">
