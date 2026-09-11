@@ -305,3 +305,125 @@ export function weeklyConsistency(history: FinishedSession[]) {
 export function totalVolume(history: FinishedSession[]) {
   return history.reduce((n, h) => n + h.volume, 0);
 }
+
+/* ---------- Plan customization (names, reps, sets, media) ---------- */
+
+/** The day as the user has it: their edited exercise list when present. */
+export function effectiveDay(planId: string, day: Day, custom: State["customDays"]): Day {
+  const override = custom[sessionKey(planId, day.day)];
+  return override ? { ...day, exercises: override } : day;
+}
+
+export function effectivePlan(plan: Plan, custom: State["customDays"]): Plan {
+  return { ...plan, days: plan.days.map((d) => effectiveDay(plan.id, d, custom)) };
+}
+
+export function saveDayExercises(planId: string, day: number, exercises: Exercise[]) {
+  set({ ...state, customDays: { ...state.customDays, [sessionKey(planId, day)]: exercises } });
+}
+
+export function resetDayExercises(planId: string, day: number) {
+  const customDays = { ...state.customDays };
+  delete customDays[sessionKey(planId, day)];
+  set({ ...state, customDays });
+}
+
+/* ---------- Restart / change plan ---------- */
+
+/** Clear day completion + in-progress sessions for a plan, keeping all history and records. */
+export function restartPlan(planId: PlanId) {
+  const completed = { ...state.completed };
+  const active = { ...state.active };
+  const prefix = `${planId}|`;
+  Object.keys(completed).forEach((k) => k.startsWith(prefix) && delete completed[k]);
+  Object.keys(active).forEach((k) => k.startsWith(prefix) && delete active[k]);
+  set({
+    ...state,
+    completed,
+    active,
+    rounds: { ...state.rounds, [planId]: (state.rounds[planId] ?? 1) + 1 },
+  });
+}
+
+export function clearPlan() {
+  set({ ...state, activePlanId: null });
+}
+
+/* ---------- Next workout ---------- */
+
+export function nextWorkout(plan: Plan, completedMap: Record<string, number>): Day {
+  const next = plan.days.find((d) => !completedMap[sessionKey(plan.id, d.day)]);
+  return next ?? plan.days[0]!;
+}
+
+export function planProgress(plan: Plan, completedMap: Record<string, number>) {
+  const done = plan.days.filter((d) => completedMap[sessionKey(plan.id, d.day)]).length;
+  return { done, total: plan.days.length, pct: Math.round((done / plan.days.length) * 100) };
+}
+
+/* ---------- Encouragement ---------- */
+
+const PLAN_LINES: Record<PlanId, string[]> = {
+  "lose-weight": [
+    "That's movement, sweat and strength in one session.",
+    "Every burn session stacks up — fat loss loves consistency.",
+    "You showed up and kept moving. That's the whole plan.",
+  ],
+  "tone-up": [
+    "Controlled reps, real definition. Shape is being built.",
+    "Strong and shaped — exactly what this plan is for.",
+    "That's the kind of clean work that shows in the mirror.",
+  ],
+  "build-muscle": [
+    "Heavy work done. That's growth signalled.",
+    "Progressive overload in action — muscle is being built.",
+    "You lifted, you progressed. Next session goes heavier.",
+  ],
+};
+
+/**
+ * Encouragement for a finished day, tuned to the plan and the user's consistency.
+ * Called after the session is saved, so history already includes it.
+ */
+export function encouragement(planId: PlanId, dayNo: number, s: State): string {
+  const plan = getPlan(planId);
+  const planLines = PLAN_LINES[planId];
+  const base = planLines[(dayNo - 1) % planLines.length]!;
+  const week = weeklyConsistency(s.history);
+  const streak = currentStreak(s.history);
+  const done = plan ? planProgress(plan, s.completed).done : 0;
+  const total = plan?.days.length ?? 5;
+  const remaining = total - done;
+
+  const parts = [`Day ${dayNo} of ${plan?.name ?? "your plan"} — done. ${base}`];
+
+  if (done >= total) {
+    parts.push("All 5 days complete. Restart the plan whenever you're ready to go again.");
+  } else if (remaining === 1) {
+    parts.push("One day left to close out the plan. No drama.");
+  } else {
+    parts.push(`${remaining} days left in this round.`);
+  }
+
+  if (streak >= 3) parts.push(`${streak} days in a row — that streak is doing the work.`);
+  else if (week.thisWeek >= 5) parts.push("Five workouts this week. Full consistency.");
+  else if (week.thisWeek >= 2) parts.push(`${week.thisWeek} workouts this week — momentum is real.`);
+  else if (s.history.length === 1) parts.push("First one logged. The hardest one is behind you.");
+
+  return parts.join(" ");
+}
+
+/** Consecutive calendar days with at least one finished workout, ending today or yesterday. */
+export function currentStreak(history: FinishedSession[]): number {
+  const days = new Set(history.map((h) => new Date(h.at).toDateString()));
+  if (!days.size) return 0;
+  const oneDay = 86400000;
+  let cursor = new Date();
+  if (!days.has(cursor.toDateString())) cursor = new Date(cursor.getTime() - oneDay);
+  let streak = 0;
+  while (days.has(cursor.toDateString())) {
+    streak += 1;
+    cursor = new Date(cursor.getTime() - oneDay);
+  }
+  return streak;
+}
