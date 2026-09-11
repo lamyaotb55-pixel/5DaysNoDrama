@@ -270,7 +270,7 @@ function PlanPage() {
                       onClick={() => setSkipTarget(day)}
                       className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-card px-5 py-3 text-[11px] font-bold uppercase disabled:opacity-40"
                     >
-                      <Footprints className="size-3.5 text-ice-foreground" aria-hidden />
+                      <Footprints className="size-3.5 text-spicy" aria-hidden />
                       {skipAllowed ? "Skip But Will Walk +10K Steps!!" : "Skip already used this week"}
                     </button>
                   )}
