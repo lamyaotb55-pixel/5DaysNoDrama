@@ -219,22 +219,16 @@ function WorkoutPage() {
         </div>
       </header>
 
-      {skipAllowed && !allDone && (
+      {option && optionAvailable && (
         <button
           type="button"
           onClick={() => {
-            if (
-              window.confirm(
-                "Skip this day? It's your one skip this week — and the deal is you walk +10K steps!!",
-              )
-            ) {
-              skipDay(plan.id, day.day);
-              navigate({ to: "/plan/$planId", params: { planId: plan.id } });
-            }
+            chooseAlt(plan.id, day.day);
+            navigate({ to: "/plan/$planId", params: { planId: plan.id } });
           }}
-          className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-card px-5 py-3 text-[11px] font-bold uppercase"
+          className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-full border-2 border-pink px-5 py-3 text-[11px] font-bold text-pink uppercase"
         >
-          <Footprints className="size-3.5 text-spicy" aria-hidden /> Skip But Will Walk +10K Steps!!
+          <Footprints className="size-3.5" aria-hidden /> {option.button} instead
         </button>
       )}
 
