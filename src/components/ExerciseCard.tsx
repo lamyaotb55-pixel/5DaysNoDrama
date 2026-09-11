@@ -34,7 +34,7 @@ export function ExerciseCard({
     >
       <div className="flex gap-3">
         <div className="w-20 shrink-0 sm:w-24">
-          <MediaBox name={exercise.name} compact />
+          <MediaBox name={exercise.name} compact src={exercise.media} />
         </div>
         <div className="min-w-0 flex-1">
           {exercise.superset && (

@@ -6,6 +6,8 @@ export type Exercise = {
   reps: string;
   perSide?: boolean;
   superset?: string;
+  /** Optional image/GIF URL used by the exercise demo box. */
+  media?: string;
 };
 
 export type Circuit = {
