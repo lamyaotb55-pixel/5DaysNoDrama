@@ -1,19 +1,26 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Check, Clock, Dumbbell, Footprints, LineChart, Pencil, Undo2 } from "lucide-react";
-import { WEEKS, dayInWeek, estimateMinutes, getPlan, weekDays, type Day } from "@/lib/program";
+import { Check, Clock, Dumbbell, Footprints, LineChart, Pencil } from "lucide-react";
+import {
+  WEEKS,
+  dayInWeek,
+  dayOption,
+  estimateMinutes,
+  getPlan,
+  weekDays,
+  type Day,
+} from "@/lib/program";
 import { planAccent } from "@/lib/plan-theme";
 import {
-  canSkip,
+  altAllowed,
+  chooseAlt,
   choosePlan,
+  chooseTrain,
+  completeAlt,
   completedWeeks,
   effectiveDay,
-  markWalkDone,
   planProgress,
   sessionKey,
-  skipDay,
-  skippedDayInWeek,
-  unskipDay,
   useStore,
   weekProgress,
 } from "@/lib/store";
@@ -42,13 +49,13 @@ function PlanPage() {
   const state = useStore();
   const basePlan = getPlan(planId);
   const accent = planAccent(planId);
-  const [skipTarget, setSkipTarget] = useState<Day | null>(null);
+  const [altTarget, setAltTarget] = useState<Day | null>(null);
 
   const firstOpenWeek = (() => {
     if (!basePlan) return 1;
     for (let w = 1; w <= WEEKS; w++) {
-      const p = weekProgress(basePlan, w, state.completed, state.skips);
-      if (p.done + p.skipped < p.total) return w;
+      const p = weekProgress(basePlan, w, state.completed, state.walks);
+      if (p.done < p.total) return w;
     }
     return WEEKS;
   })();
@@ -73,11 +80,11 @@ function PlanPage() {
 
   const plan = basePlan;
   const days = weekDays(plan, shownWeek).map((d) => effectiveDay(plan.id, d, state.customDays));
-  const wp = weekProgress(plan, shownWeek, state.completed, state.skips);
-  const overall = planProgress(plan, state.completed, state.skips);
-  const weeksDone = completedWeeks(plan, state.completed, state.skips);
-  const weekDone = wp.done + wp.skipped >= wp.total;
-  const skippedThisWeek = skippedDayInWeek(plan.id, shownWeek, state.skips);
+  const wp = weekProgress(plan, shownWeek, state.completed, state.walks);
+  const overall = planProgress(plan, state.completed, state.walks);
+  const weeksDone = completedWeeks(plan, state.completed, state.walks);
+  const weekDone = wp.done >= wp.total;
+  const altTargetOption = altTarget ? dayOption(plan.id, altTarget.day) : undefined;
 
   return (
     <main className="mx-auto max-w-2xl px-5 pb-16">
@@ -124,8 +131,8 @@ function PlanPage() {
       <nav aria-label="Weeks" className="-mx-5 mt-6 overflow-x-auto px-5">
         <ul className="flex gap-2 pb-1">
           {Array.from({ length: WEEKS }, (_, i) => i + 1).map((w) => {
-            const p = weekProgress(plan, w, state.completed, state.skips);
-            const full = p.done + p.skipped >= p.total;
+            const p = weekProgress(plan, w, state.completed, state.walks);
+            const full = p.done >= p.total;
             const isActive = w === shownWeek;
             return (
               <li key={w}>
@@ -143,9 +150,7 @@ function PlanPage() {
                   }
                 >
                   <span className="font-display text-base leading-none">W{w}</span>
-                  <span className="mt-1">
-                    {full ? "✓ done" : `${p.done + p.skipped}/${p.total}`}
-                  </span>
+                  <span className="mt-1">{full ? "✓ done" : `${p.done}/${p.total}`}</span>
                 </button>
               </li>
             );
@@ -160,20 +165,15 @@ function PlanPage() {
               Week {shownWeek} of {WEEKS}
             </p>
             <p className="mt-1 text-xl">
-              {wp.done + wp.skipped}/{wp.total} days {weekDone ? "✓ that's the week" : "done"}
+              {wp.done}/{wp.total} days {weekDone ? "✓ that's the week" : "done"}
             </p>
           </div>
-          <span
-            className={
-              "rounded-full px-2.5 py-1 text-[10px] font-bold uppercase " +
-              (skippedThisWeek ? "bg-ice text-ink" : "bg-secondary text-muted-foreground")
-            }
-          >
-            {skippedThisWeek ? "Skip used" : "1 skip left"}
+          <span className="rounded-full bg-ice px-2.5 py-1 text-[10px] font-bold text-ink uppercase">
+            Day 5, your call
           </span>
         </div>
         <p className="mt-2 text-[11px] font-semibold text-muted-foreground uppercase">
-          One skip per week — but you walk 10K steps instead. No drama.
+          On day 5 you choose how you show up. No drama.
         </p>
       </section>
 
@@ -182,16 +182,17 @@ function PlanPage() {
           const key = sessionKey(plan.id, day.day);
           const completed = Boolean(state.completed[key]);
           const inProgress = Boolean(state.active[key]);
-          const skipped = Boolean(state.skips[key]);
-          const walked = Boolean(state.walks[key]);
+          const option = dayOption(plan.id, day.day);
+          const optionChosen = Boolean(state.skips[key]) && Boolean(option);
+          const optionDone = Boolean(state.walks[key]) && Boolean(option);
           const count = day.exercises.length + (day.circuit ? 1 : 0);
-          const skipAllowed = canSkip(plan.id, day.day, state);
+          const showChoice = Boolean(option) && altAllowed(day.day) && !completed && !optionChosen;
           return (
-            <article key={day.day} className={"surface p-5 " + (skipped ? "opacity-90" : "")}>
+            <article key={day.day} className="surface p-5">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
                   <span
-                    className={`day-number ${completed ? "text-success" : skipped ? "text-ice" : accent.text}`}
+                    className={`day-number ${completed || optionDone ? "text-success" : optionChosen ? "text-hot" : accent.text}`}
                   >
                     {String(dayInWeek(day.day)).padStart(2, "0")}
                   </span>
@@ -209,12 +210,12 @@ function PlanPage() {
                   </div>
                 </div>
                 {completed ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-success px-2.5 py-1 text-[10px] font-bold text-ink uppercase">
+                  <span className="check-pop inline-flex items-center gap-1 rounded-full bg-success px-2.5 py-1 text-[10px] font-bold text-ink uppercase">
                     <Check className="size-3" aria-hidden /> Complete
                   </span>
-                ) : skipped ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-ice px-2.5 py-1 text-[10px] font-bold text-ink uppercase">
-                    <Footprints className="size-3" aria-hidden /> Skipped
+                ) : optionDone && option ? (
+                  <span className="check-pop inline-flex items-center gap-1 rounded-full bg-success px-2.5 py-1 text-[10px] font-bold text-ink uppercase">
+                    <Check className="size-3" aria-hidden /> {option.doneLabel}
                   </span>
                 ) : inProgress ? (
                   <span className="rounded-full bg-bubblegum px-2.5 py-1 text-[10px] font-bold text-ink uppercase">
@@ -223,87 +224,119 @@ function PlanPage() {
                 ) : null}
               </div>
 
-              {skipped ? (
-                <div className="mt-4 rounded-2xl bg-ice/40 p-4">
-                  <p className="text-xs font-bold text-ink uppercase">
-                    Skipped — but you walk +10K steps!!
+              {showChoice && option ? (
+                <div className="mt-4">
+                  <p className="text-[11px] font-bold tracking-wide text-muted-foreground uppercase">
+                    What's the plan today?
                   </p>
-                  <label className="mt-2.5 flex items-center gap-2 text-xs font-bold uppercase">
-                    <input
-                      type="checkbox"
-                      checked={walked}
-                      onChange={(e) => markWalkDone(plan.id, day.day, e.target.checked)}
-                      className="size-4 accent-[var(--success)]"
-                    />
-                    {walked ? "✓ 10K steps done" : "Mark 10K steps done"}
-                  </label>
+                  <div className="mt-2.5 flex gap-2.5">
+                    <Link
+                      to="/workout/$planId/$day"
+                      params={{ planId: plan.id, day: String(day.day) }}
+                      onClick={() => choosePlan(plan.id)}
+                      className="flex-1 rounded-full bg-spicy px-4 py-3.5 text-center text-xs font-bold tracking-wide text-accent-foreground uppercase"
+                    >
+                      I'll Train
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => setAltTarget(day)}
+                      className="flex-1 rounded-full border-2 border-hot px-4 py-3 text-xs font-bold tracking-wide text-hot uppercase"
+                    >
+                      {option.button}
+                    </button>
+                  </div>
+                </div>
+              ) : optionChosen && option ? (
+                <div className="mt-4 rounded-2xl bg-bubblegum/35 p-4">
+                  <p className="font-display text-lg leading-tight">{option.headline}</p>
+                  <p className="mt-1 text-xs font-bold text-muted-foreground uppercase">
+                    {option.goal}
+                  </p>
+                  {option.items && (
+                    <ul className="mt-3 space-y-1.5">
+                      {option.items.map((it) => (
+                        <li
+                          key={it.name}
+                          className="flex items-center justify-between gap-3 text-xs font-semibold"
+                        >
+                          <span>{it.name}</span>
+                          <span className="text-muted-foreground">{it.reps}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                   <button
                     type="button"
-                    onClick={() => unskipDay(plan.id, day.day)}
-                    className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2.5 text-[11px] font-bold uppercase"
+                    onClick={() => completeAlt(plan.id, day.day, !optionDone)}
+                    className={
+                      "mt-3.5 inline-flex w-full items-center justify-center gap-1.5 rounded-full px-5 py-3.5 text-xs font-bold uppercase " +
+                      (optionDone ? "bg-success text-ink" : "bg-spicy text-accent-foreground")
+                    }
                   >
-                    <Undo2 className="size-3.5 text-spicy" aria-hidden /> Undo skip
+                    {optionDone ? (
+                      <>
+                        <Check className="size-3.5" aria-hidden /> {option.doneLabel}
+                      </>
+                    ) : (
+                      <>
+                        <Footprints className="size-3.5" aria-hidden /> Mark it done
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => chooseTrain(plan.id, day.day)}
+                    className="mt-2 inline-flex w-full items-center justify-center rounded-full border border-border bg-card px-5 py-3 text-[11px] font-bold uppercase"
+                  >
+                    Actually, I'll train
                   </button>
                 </div>
               ) : (
-                <>
-                  <Link
-                    to="/workout/$planId/$day"
-                    params={{ planId: plan.id, day: String(day.day) }}
-                    onClick={() => choosePlan(plan.id)}
-                    className={
-                      "mt-4 inline-flex w-full items-center justify-center rounded-full px-5 py-3.5 text-xs font-bold tracking-wide uppercase " +
-                      (completed ? "bg-secondary text-ink" : "bg-spicy text-accent-foreground")
-                    }
-                  >
-                    {completed ? "Repeat Workout" : inProgress ? "Resume Workout" : "Start Workout"}
-                  </Link>
-                  {!completed && (
-                    <button
-                      type="button"
-                      disabled={!skipAllowed}
-                      onClick={() => setSkipTarget(day)}
-                      className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-card px-5 py-3 text-[11px] font-bold uppercase disabled:opacity-40"
-                    >
-                      <Footprints className="size-3.5 text-spicy" aria-hidden />
-                      {skipAllowed
-                        ? "Skip But Will Walk +10K Steps!!"
-                        : "Skip already used this week"}
-                    </button>
-                  )}
-                </>
+                <Link
+                  to="/workout/$planId/$day"
+                  params={{ planId: plan.id, day: String(day.day) }}
+                  onClick={() => choosePlan(plan.id)}
+                  className={
+                    "mt-4 inline-flex w-full items-center justify-center rounded-full px-5 py-3.5 text-xs font-bold tracking-wide uppercase " +
+                    (completed ? "bg-secondary text-ink" : "bg-spicy text-accent-foreground")
+                  }
+                >
+                  {completed ? "Repeat Workout" : inProgress ? "Resume Workout" : "Start Workout"}
+                </Link>
               )}
             </article>
           );
         })}
       </div>
 
-      {skipTarget && (
+      {altTarget && altTargetOption && (
         <div className="fixed inset-0 z-30 grid place-items-center bg-ink/50 p-5">
           <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-5 text-center">
-            <Footprints className="mx-auto size-7 text-spicy" aria-hidden />
-            <h2 className="mt-2 text-xl">Skip But Will Walk +10K Steps!!</h2>
-            <p className="mt-1.5 text-sm text-muted-foreground">
-              Week {weekOfSafe(skipTarget.day)}, Day {dayInWeek(skipTarget.day)} —{" "}
-              {skipTarget.title}. This is your one skip this week, and the deal is 10,000 steps.
-            </p>
+            <Footprints className="mx-auto size-7 text-hot" aria-hidden />
+            <h2 className="mt-2 text-xl">{altTargetOption.headline}</h2>
+            <p className="mt-1.5 text-sm text-muted-foreground">{altTargetOption.goal}</p>
             <div className="mt-5 flex gap-3">
-              <button
-                type="button"
-                onClick={() => setSkipTarget(null)}
-                className="flex-1 rounded-full border border-border px-4 py-3 text-xs font-bold uppercase"
-              >
-                I'll train
-              </button>
-              <button
-                type="button"
+              <Link
+                to="/workout/$planId/$day"
+                params={{ planId: plan.id, day: String(altTarget.day) }}
                 onClick={() => {
-                  skipDay(plan.id, skipTarget.day);
-                  setSkipTarget(null);
+                  choosePlan(plan.id);
+                  setAltTarget(null);
                 }}
                 className="flex-1 rounded-full bg-spicy px-4 py-3 text-xs font-bold text-accent-foreground uppercase"
               >
-                Deal — I'll walk
+                I'll Train
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  chooseAlt(plan.id, altTarget.day);
+                  setAltTarget(null);
+                }}
+                className="flex-1 rounded-full border-2 border-hot px-4 py-3 text-xs font-bold text-hot uppercase"
+              >
+                {altTargetOption.button}
               </button>
             </div>
           </div>
@@ -311,8 +344,4 @@ function PlanPage() {
       )}
     </main>
   );
-}
-
-function weekOfSafe(absDayNo: number) {
-  return Math.ceil(absDayNo / 5);
 }
