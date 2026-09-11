@@ -1,23 +1,21 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { ArrowRight, CalendarDays, Dumbbell, LineChart, Play } from "lucide-react";
-import { PLANS, WEEKS, getPlan } from "@/lib/plans";
-import { activeRun, dayKey, startPlan, streakStats, useTracker } from "@/lib/tracker";
-
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight, LineChart, Sparkles } from "lucide-react";
+import { PLANS } from "@/lib/program";
+import { choosePlan, useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "FitFlow — 8-Week Workout Plans & Progress Tracker" },
+      { title: "5 Days No Drama — 5-Day Workout Plans & Tracker" },
       {
         name: "description",
         content:
-          "Pick a plan — Lose Weight, Tone Up or Build Muscle — and track reps, rounds and weight across 8 weeks with a weekly progress dashboard.",
+          "Choose Lose Weight, Tone Up or Build Muscle. Five focused training days, set-by-set tracking and clear progress — no drama.",
       },
-      { property: "og:title", content: "FitFlow — 8-Week Workout Plans & Progress Tracker" },
+      { property: "og:title", content: "5 Days No Drama — 5-Day Workout Plans & Tracker" },
       {
         property: "og:description",
-        content: "Choose your 8-week plan, log every set and watch your weekly progress grow.",
+        content: "Three plans, five training days, every set tracked. Strong, simple, premium.",
       },
     ],
   }),
@@ -25,182 +23,65 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const state = useTracker();
-  const run = activeRun(state);
-  const navigate = useNavigate();
-  const current = run ? getPlan(run.planId) : undefined;
-  const [picking, setPicking] = useState(false);
-
-  const streak = run ? streakStats(run) : null;
-  const doneCount = run ? Object.keys(run.done).length : 0;
-  const totalDays = WEEKS * 5;
-  const pct = Math.round((doneCount / totalDays) * 100);
-
-  let nextWeek = 1;
-  let nextDay = 1;
-  if (run) {
-    outer: for (let w = 1; w <= WEEKS; w++) {
-      for (let d = 1; d <= 5; d++) {
-        if (!run.done[dayKey(w, d)]) {
-          nextWeek = w;
-          nextDay = d;
-          break outer;
-        }
-      }
-    }
-  }
-  const allDone = doneCount >= totalDays;
-  const showActive = Boolean(run && current) && !picking;
+  const state = useStore();
 
   return (
-    <main className="min-h-screen">
-      <section className="relative overflow-hidden px-5 pt-14 pb-10 sm:pt-20">
-        <div className="absolute inset-0 grid-fade" aria-hidden />
-        <div className="relative mx-auto max-w-4xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold">
-            <Dumbbell className="size-3.5 text-pink" aria-hidden />
-            {WEEKS} weeks · 5 training days each
-          </span>
-          <h1 className="mt-5 text-4xl leading-tight font-extrabold sm:text-6xl">
-            {showActive ? (
-              <>
-                Keep going.
-                <br />
-                <span className="gradient-text">One day at a time.</span>
-              </>
-            ) : (
-              <>
-                Choose your plan.
-                <br />
-                <span className="gradient-text">Track every rep.</span>
-              </>
-            )}
-          </h1>
-          <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
-            {showActive
-              ? "Your active plan and next workout are right here. The full progress dashboard lives on its own page."
-               : "خلج خوش وحدة والتزمي"}
-          </p>
-        </div>
+    <main className="mx-auto max-w-2xl px-5 pb-16">
+      <section className="pt-12 pb-8 text-center">
+        <span className="eyebrow inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-muted-foreground">
+          <Sparkles className="size-3 text-rose" aria-hidden /> 3 plans · 5 training days
+        </span>
+        <h1 className="mt-5 text-4xl leading-[1.05] font-semibold sm:text-5xl">
+          5 Days
+          <br />
+          <span className="text-rose italic">No Drama</span>
+        </h1>
+        <p className="mx-auto mt-4 max-w-sm text-sm text-muted-foreground">
+          Pick your plan, open the day, log every set. Strong training without the noise.
+        </p>
+        {state.history.length > 0 && (
+          <Link
+            to="/progress"
+            className="mt-5 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs font-semibold"
+          >
+            <LineChart className="size-3.5 text-rose" aria-hidden /> View my progress
+          </Link>
+        )}
       </section>
 
-      {showActive && run && current ? (
-        <section className="mx-auto max-w-2xl px-5 pb-20">
-          <article className="surface p-7 text-center">
-            <span className="text-4xl" aria-hidden>
-              {current.emoji}
-            </span>
-            <h2 className="mt-3 text-2xl font-bold">{current.name}</h2>
-            <p className="mt-1 text-sm text-muted-foreground">{current.tagline}</p>
-
-            <div className="mt-6">
-              <div className="flex items-end justify-between text-xs font-semibold text-muted-foreground">
-                <span>
-                  {doneCount}/{totalDays} days done
-                </span>
-                <span className="gradient-text text-lg font-extrabold">{pct}%</span>
+      <div className="space-y-4">
+        {PLANS.map((plan) => {
+          const isActive = state.activePlanId === plan.id;
+          return (
+            <article key={plan.id} className="surface overflow-hidden">
+              <div className="warm-wash px-5 py-6">
+                <p className="eyebrow text-ink/60">{plan.label}</p>
+                <h2 className="mt-1.5 text-2xl font-semibold uppercase">{plan.name}</h2>
+                <p className="mt-1 text-sm font-medium text-ink/70">{plan.slogan}</p>
               </div>
-              <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full transition-[width] duration-500"
-                  style={{ width: `${pct}%`, background: "var(--gradient-hero)" }}
-                />
+              <div className="px-5 py-5">
+                <p className="text-xs leading-relaxed text-muted-foreground">{plan.style}</p>
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <Link
+                    to="/plan/$planId"
+                    params={{ planId: plan.id }}
+                    onClick={() => choosePlan(plan.id)}
+                    className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-primary-foreground"
+                  >
+                    {isActive ? "Continue Plan" : "Start Plan"}
+                    <ArrowRight className="size-4" aria-hidden />
+                  </Link>
+                  {isActive && (
+                    <span className="rounded-full bg-rose px-3 py-1 text-[10px] font-bold text-accent-foreground">
+                      Current plan
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-
-            {streak && (
-              <p className="mt-4 text-xs font-semibold text-muted-foreground">
-                🔥 {streak.current} day streak · best {streak.longest} · {streak.consistency}%
-                consistency
-              </p>
-            )}
-
-            {!allDone ? (
-              <>
-                <p className="mt-6 text-sm font-semibold">
-                  Up next · Week {nextWeek} · {current.days[nextDay - 1]?.title} —{" "}
-                  <span className="text-muted-foreground">{current.days[nextDay - 1]?.focus}</span>
-                </p>
-                <Link
-                  to="/day/$week/$day"
-                  params={{ week: String(nextWeek), day: String(nextDay) }}
-                  className="mt-4 inline-flex items-center gap-2 rounded-full bg-pink px-6 py-3 text-sm font-semibold text-accent-foreground shadow-[var(--shadow-pop)] transition-transform hover:-translate-y-0.5"
-                >
-                  <Play className="size-4" aria-hidden />
-                  Start Workout
-                </Link>
-              </>
-            ) : (
-              <p className="mt-6 text-sm font-semibold text-pink">
-                All 8 weeks complete — legend. 🏆
-              </p>
-            )}
-
-            <div className="mt-6 flex flex-wrap justify-center gap-3">
-              <Link
-                to="/dashboard"
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold transition-colors hover:border-sky hover:text-sky"
-              >
-                <LineChart className="size-4" aria-hidden />
-                View dashboard
-              </Link>
-              <button
-                onClick={() => setPicking(true)}
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold transition-colors hover:border-pink hover:text-pink"
-              >
-                Switch plan
-              </button>
-            </div>
-          </article>
-        </section>
-      ) : (
-        <section className="mx-auto max-w-5xl px-5 pb-20">
-          {run && current && (
-            <div className="mb-5 text-center">
-              <button
-                onClick={() => setPicking(false)}
-                className="text-xs font-semibold text-muted-foreground hover:text-pink"
-              >
-                ← Back to my active plan
-              </button>
-            </div>
-          )}
-          <div className="grid gap-5 sm:grid-cols-3">
-            {PLANS.map((plan) => (
-              <article
-                key={plan.id}
-                className="surface flex flex-col p-6 transition-transform hover:-translate-y-1"
-              >
-                <span className="text-3xl" aria-hidden>
-                  {plan.emoji}
-                </span>
-                <h2 className="mt-3 text-xl font-bold">{plan.name}</h2>
-                <p className="mt-2 grow text-sm text-muted-foreground">{plan.tagline}</p>
-                <ul className="mt-4 space-y-1.5 text-xs text-muted-foreground">
-                  {plan.days.map((d) => (
-                    <li key={d.title} className="flex items-center gap-2">
-                      <CalendarDays className="size-3.5 text-sky" aria-hidden />
-                      <span className="font-medium text-foreground">{d.title}</span> {d.focus}
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  onClick={() => {
-                    startPlan(plan.id);
-                    setPicking(false);
-                    navigate({ to: "/" });
-                  }}
-                  className="mt-5 inline-flex items-center justify-center gap-2 rounded-full bg-sky px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5"
-                >
-                  Start this plan
-                  <ArrowRight className="size-4" aria-hidden />
-                </button>
-              </article>
-            ))}
-          </div>
-        </section>
-      )}
+            </article>
+          );
+        })}
+      </div>
     </main>
   );
 }
-
