@@ -92,7 +92,9 @@ function ProfilePage() {
           <p className="eyebrow text-spicy">Profile</p>
           <h1 className="mt-1 text-3xl leading-tight">{name || displayNameOf(user)}</h1>
           {user?.email && (
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase">{user.email}</p>
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase">
+              {user.email}
+            </p>
           )}
         </div>
       </header>

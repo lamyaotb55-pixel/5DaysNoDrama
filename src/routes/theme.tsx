@@ -25,8 +25,18 @@ export const Route = createFileRoute("/theme")({
 });
 
 const SWATCHES: { name: string; hex: string; use: string; on: string }[] = [
-  { name: "Spicy Red", hex: "#FF2038", use: "Primary CTAs, active states, progress", on: "text-paper" },
-  { name: "Hot Pink", hex: "#FF4FA3", use: "Secondary highlights, tags, selected cards", on: "text-paper" },
+  {
+    name: "Spicy Red",
+    hex: "#FF2038",
+    use: "Primary CTAs, active states, progress",
+    on: "text-paper",
+  },
+  {
+    name: "Hot Pink",
+    hex: "#FF4FA3",
+    use: "Secondary highlights, tags, selected cards",
+    on: "text-paper",
+  },
   { name: "Bubblegum", hex: "#FFB3D9", use: "Soft accent backgrounds, decoration", on: "text-ink" },
   { name: "Electric Ice", hex: "#70D7FF", use: "Stats, rest timers, information", on: "text-ink" },
   { name: "Acid Yellow", hex: "#F5FF52", use: "PRs, streaks, badges, NEW", on: "text-ink" },

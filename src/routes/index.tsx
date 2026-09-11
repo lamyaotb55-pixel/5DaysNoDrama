@@ -182,7 +182,8 @@ function CurrentPlanCard({
             </span>
           </Link>
           <p className="mt-2 text-[11px] font-bold text-muted-foreground uppercase">
-            {next.exercises.length + (next.circuit ? 1 : 0)} exercises · ~{estimateMinutes(next)} min
+            {next.exercises.length + (next.circuit ? 1 : 0)} exercises · ~{estimateMinutes(next)}{" "}
+            min
           </p>
 
           <Link

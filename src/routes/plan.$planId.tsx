@@ -1,14 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Check, Clock, Dumbbell, Footprints, LineChart, Pencil, Undo2 } from "lucide-react";
-import {
-  WEEKS,
-  dayInWeek,
-  estimateMinutes,
-  getPlan,
-  weekDays,
-  type Day,
-} from "@/lib/program";
+import { WEEKS, dayInWeek, estimateMinutes, getPlan, weekDays, type Day } from "@/lib/program";
 import { planAccent } from "@/lib/plan-theme";
 import {
   canSkip,
@@ -163,7 +156,9 @@ function PlanPage() {
       <section className="surface mt-5 p-5">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="eyebrow text-muted-foreground">Week {shownWeek} of {WEEKS}</p>
+            <p className="eyebrow text-muted-foreground">
+              Week {shownWeek} of {WEEKS}
+            </p>
             <p className="mt-1 text-xl">
               {wp.done + wp.skipped}/{wp.total} days {weekDone ? "✓ that's the week" : "done"}
             </p>
@@ -271,7 +266,9 @@ function PlanPage() {
                       className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-card px-5 py-3 text-[11px] font-bold uppercase disabled:opacity-40"
                     >
                       <Footprints className="size-3.5 text-spicy" aria-hidden />
-                      {skipAllowed ? "Skip But Will Walk +10K Steps!!" : "Skip already used this week"}
+                      {skipAllowed
+                        ? "Skip But Will Walk +10K Steps!!"
+                        : "Skip already used this week"}
                     </button>
                   )}
                 </>

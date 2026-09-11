@@ -28,18 +28,14 @@ export function ExerciseCard({
 
   return (
     <article
-      className={
-        "surface p-4 transition-colors sm:p-5 " + (complete ? "border-success" : "")
-      }
+      className={"surface p-4 transition-colors sm:p-5 " + (complete ? "border-success" : "")}
     >
       <div className="flex gap-3">
         <div className="w-20 shrink-0 sm:w-24">
           <MediaBox name={exercise.name} compact src={exercise.media} />
         </div>
         <div className="min-w-0 flex-1">
-          {exercise.superset && (
-            <span className="eyebrow text-pink">{exercise.superset}</span>
-          )}
+          {exercise.superset && <span className="eyebrow text-pink">{exercise.superset}</span>}
           <h2 className="text-lg leading-tight">{exercise.name}</h2>
           <p className="mt-1 text-xs font-bold text-muted-foreground uppercase">
             {exercise.sets} sets × {exercise.reps}
@@ -63,7 +59,9 @@ export function ExerciseCard({
           <div>
             <p className="eyebrow text-muted-foreground">Last time</p>
             <p className="mt-0.5 font-bold uppercase">
-              {hint.lastBest.weight ? `${hint.lastBest.weight} kg × ${hint.lastBest.reps}` : `${hint.lastBest.reps} reps`}
+              {hint.lastBest.weight
+                ? `${hint.lastBest.weight} kg × ${hint.lastBest.reps}`
+                : `${hint.lastBest.reps} reps`}
             </p>
           </div>
           <div>
@@ -83,7 +81,11 @@ export function ExerciseCard({
           <span className="sr-only">Complete</span>
         </div>
         {Array.from({ length: exercise.sets }).map((_, i) => {
-          const log: SetLog = session?.sets[setKey(exIdx, i)] ?? { weight: 0, reps: 0, done: false };
+          const log: SetLog = session?.sets[setKey(exIdx, i)] ?? {
+            weight: 0,
+            reps: 0,
+            done: false,
+          };
           const prev = hint?.last[i];
           return (
             <div

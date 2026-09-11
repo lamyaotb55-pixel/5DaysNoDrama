@@ -155,7 +155,8 @@ export function startSession(planId: string, day: number) {
 function withSession(planId: string, day: number, patch: (s: ActiveSession) => ActiveSession) {
   const key = sessionKey(planId, day);
   const existing =
-    state.active[key] ?? ({ startedAt: Date.now(), sets: {}, notes: "", cardio: false } as ActiveSession);
+    state.active[key] ??
+    ({ startedAt: Date.now(), sets: {}, notes: "", cardio: false } as ActiveSession);
   set({ ...state, active: { ...state.active, [key]: patch(existing) } });
 }
 
@@ -218,12 +219,21 @@ export function summarize(
     }
     if (best && best.weight > 0) {
       const pr = prs[ex.name];
-      if (!pr || best.weight > pr.weight) records.push(`${ex.name} — ${best.weight} kg × ${best.reps}`);
+      if (!pr || best.weight > pr.weight)
+        records.push(`${ex.name} — ${best.weight} kg × ${best.reps}`);
     }
   });
 
-  const durationMin = session ? Math.max(1, Math.round((Date.now() - session.startedAt) / 60000)) : 0;
-  return { durationMin, exercises: exercisesDone.size, sets, volume: Math.round(volume), prs: records };
+  const durationMin = session
+    ? Math.max(1, Math.round((Date.now() - session.startedAt) / 60000))
+    : 0;
+  return {
+    durationMin,
+    exercises: exercisesDone.size,
+    sets,
+    volume: Math.round(volume),
+    prs: records,
+  };
 }
 
 export function finishSession(planId: PlanId, dayNo: number): string | null {
@@ -337,7 +347,10 @@ export function weeklyHighlights(history: FinishedSession[]) {
     sets: week.reduce((n, h) => n + h.sets, 0),
     minutes: week.reduce((n, h) => n + h.durationMin, 0),
     prs: week.flatMap((h) => h.prs),
-    bestDay: week.reduce<FinishedSession | null>((a, h) => (!a || h.volume > a.volume ? h : a), null),
+    bestDay: week.reduce<FinishedSession | null>(
+      (a, h) => (!a || h.volume > a.volume ? h : a),
+      null,
+    ),
   };
 }
 
@@ -491,7 +504,12 @@ export function weekProgress(
     if (completedMap[key]) done += 1;
     else if (skips[key]) skipped += 1;
   }
-  return { done, skipped, total: DAYS_PER_WEEK, pct: Math.round(((done + skipped) / DAYS_PER_WEEK) * 100) };
+  return {
+    done,
+    skipped,
+    total: DAYS_PER_WEEK,
+    pct: Math.round(((done + skipped) / DAYS_PER_WEEK) * 100),
+  };
 }
 
 /** Weeks where all five days are finished or skipped. */
@@ -544,9 +562,7 @@ export function encouragement(planId: PlanId, dayNo: number, s: State): string {
   const weeksDone = plan ? completedWeeks(plan, s.completed, s.skips) : 0;
   const remaining = wp ? wp.total - (wp.done + wp.skipped) : 0;
 
-  const parts = [
-    `Week ${weekNo}, Day ${inWeek} of ${plan?.name ?? "your plan"} — done. ${base}`,
-  ];
+  const parts = [`Week ${weekNo}, Day ${inWeek} of ${plan?.name ?? "your plan"} — done. ${base}`];
 
   if (weeksDone >= WEEKS) {
     parts.push("All 8 weeks complete. Restart the plan whenever you're ready to go again.");
@@ -560,7 +576,8 @@ export function encouragement(planId: PlanId, dayNo: number, s: State): string {
 
   if (streak >= 3) parts.push(`${streak} days in a row — that streak is doing the work.`);
   else if (week.thisWeek >= 5) parts.push("Five workouts this week. Full consistency.");
-  else if (week.thisWeek >= 2) parts.push(`${week.thisWeek} workouts this week — momentum is real.`);
+  else if (week.thisWeek >= 2)
+    parts.push(`${week.thisWeek} workouts this week — momentum is real.`);
   else if (s.history.length === 1) parts.push("First one logged. The hardest one is behind you.");
 
   return parts.join(" ");

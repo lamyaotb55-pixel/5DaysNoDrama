@@ -89,14 +89,18 @@ function WorkoutPage() {
       <main className="mx-auto grid min-h-screen max-w-md place-items-center px-5">
         <div className="surface overflow-hidden text-center">
           <div className="spicy-wash px-6 py-8">
-            <p className="eyebrow opacity-85">{dayLabel} · {day.title}</p>
+            <p className="eyebrow opacity-85">
+              {dayLabel} · {day.title}
+            </p>
             <h1 className="mt-2 text-4xl leading-[0.9]">Done &amp; dusted.</h1>
           </div>
           <div className="px-6 py-6">
             <span className="check-pop inline-flex items-center gap-1 rounded-full bg-success px-3 py-1 text-[11px] font-bold text-ink uppercase">
               <Check className="size-3.5" aria-hidden /> ✓ Workout complete
             </span>
-            <p className="mt-4 text-sm leading-relaxed font-semibold text-muted-foreground">{cheer}</p>
+            <p className="mt-4 text-sm leading-relaxed font-semibold text-muted-foreground">
+              {cheer}
+            </p>
             <div className="mt-6 space-y-3">
               <button
                 onClick={() => navigate({ to: "/" })}
@@ -275,7 +279,10 @@ function WorkoutPage() {
           <h2 className="mt-1 text-lg">{day.circuit.name}</h2>
           <ul className="mt-3 space-y-2 text-sm">
             {day.circuit.items.map((item) => (
-              <li key={item.name} className="flex justify-between gap-3 border-b border-border pb-2 last:border-0">
+              <li
+                key={item.name}
+                className="flex justify-between gap-3 border-b border-border pb-2 last:border-0"
+              >
                 <span className="font-semibold">{item.name}</span>
                 <span className="font-semibold text-muted-foreground">{item.reps}</span>
               </li>

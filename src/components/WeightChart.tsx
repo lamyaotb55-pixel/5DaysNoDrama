@@ -11,7 +11,9 @@ import {
 import type { BestSet } from "@/lib/store";
 
 export function WeightChart({ trend }: { trend: Record<string, BestSet[]> }) {
-  const names = Object.keys(trend).filter((n) => (trend[n]?.length ?? 0) > 0).sort();
+  const names = Object.keys(trend)
+    .filter((n) => (trend[n]?.length ?? 0) > 0)
+    .sort();
   const [selected, setSelected] = useState(names[0] ?? "");
   const active = names.includes(selected) ? selected : (names[0] ?? "");
   const data = (trend[active] ?? []).map((p, i) => ({

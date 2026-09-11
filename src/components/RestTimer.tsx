@@ -33,7 +33,11 @@ export function RestTimer({ seconds = 90 }: { seconds?: number }) {
         aria-label={running ? "Pause rest timer" : "Start rest timer"}
         className="rounded-full bg-card p-2 text-ink"
       >
-        {running ? <Pause className="size-3.5" aria-hidden /> : <Play className="size-3.5" aria-hidden />}
+        {running ? (
+          <Pause className="size-3.5" aria-hidden />
+        ) : (
+          <Play className="size-3.5" aria-hidden />
+        )}
       </button>
       <button
         type="button"

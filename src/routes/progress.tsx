@@ -35,9 +35,7 @@ function ProgressPage() {
   const weekComplete = week.workouts >= 5;
 
   // PRs set during the most recent finished workout get the celebration treatment.
-  const lastAt = state.history.length
-    ? Math.max(...state.history.map((h) => h.at))
-    : 0;
+  const lastAt = state.history.length ? Math.max(...state.history.map((h) => h.at)) : 0;
   const freshPrs = prs.filter(([, pr]) => lastAt > 0 && pr.at >= lastAt - 2000);
   const freshNames = freshPrs.map(([name]) => name);
   const [celebrate, setCelebrate] = useState(false);
@@ -200,11 +198,16 @@ function ProgressPage() {
       <section className="surface mt-4 p-5">
         <h2 className="text-xl">Workout history</h2>
         {state.history.length === 0 ? (
-          <p className="mt-2 text-sm font-semibold text-muted-foreground">No workouts logged yet.</p>
+          <p className="mt-2 text-sm font-semibold text-muted-foreground">
+            No workouts logged yet.
+          </p>
         ) : (
           <ul className="mt-3 space-y-3">
             {state.history.map((h) => (
-              <li key={`${h.planId}-${h.day}-${h.at}`} className="border-b border-border pb-3 last:border-0">
+              <li
+                key={`${h.planId}-${h.day}-${h.at}`}
+                className="border-b border-border pb-3 last:border-0"
+              >
                 <div className="flex items-baseline justify-between gap-3">
                   <p className="text-sm font-bold uppercase">
                     W{weekOf(h.day)} · Day {dayInWeek(h.day)} · {h.title}
