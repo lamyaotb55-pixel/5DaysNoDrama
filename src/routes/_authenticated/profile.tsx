@@ -33,6 +33,8 @@ function ProfilePage() {
 
   const plan = getPlan(state.activePlanId ?? undefined);
   const streak = currentStreak(state.history);
+  const completedWeeks = Math.floor(state.history.length / 5);
+  const prCount = Object.keys(state.prs).length;
 
   useEffect(() => {
     if (!user) return;
@@ -102,6 +104,18 @@ function ProfilePage() {
       </section>
 
       <section className="surface mt-5 p-5">
+        <p className="eyebrow text-muted-foreground">Quick summary</p>
+        <div className="mt-3 grid grid-cols-3 gap-3">
+          <Mini label="Day streak" value={`${streak}`} />
+          <Mini label="Weeks done" value={`${completedWeeks}`} />
+          <Mini label="Records" value={`${prCount}`} />
+        </div>
+        <p className="mt-3 text-[11px] font-semibold text-muted-foreground uppercase">
+          {streak > 0 ? "No drama. Just reps." : "Log a workout to start your streak."}
+        </p>
+      </section>
+
+      <section className="surface mt-5 p-5">
         <p className="eyebrow text-muted-foreground">Current plan</p>
         <p className="mt-1.5 text-xl">{plan ? plan.name : "No plan picked yet"}</p>
         <div className="mt-4 flex flex-wrap gap-2">
@@ -163,6 +177,17 @@ function ProfilePage() {
         <LogOut className="size-4" aria-hidden /> Sign out
       </button>
     </main>
+  );
+}
+
+function Mini({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl bg-muted px-3 py-3 text-center">
+      <p className="text-xl">{value}</p>
+      <p className="mt-1 text-[10px] font-bold tracking-wide text-muted-foreground uppercase">
+        {label}
+      </p>
+    </div>
   );
 }
 
