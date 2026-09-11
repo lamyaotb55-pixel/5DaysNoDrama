@@ -219,37 +219,47 @@ function Field({
   value,
   onChange,
   step = 1,
+  locked = false,
 }: {
   label: string;
   value: number;
   onChange: (v: number) => void;
   step?: number;
+  locked?: boolean;
 }) {
   return (
     <label className="block">
       <span className="text-[11px] font-bold tracking-wide text-muted-foreground uppercase">
         {label}
       </span>
-      <div className="mt-1 flex items-center rounded-xl border border-input bg-card">
+      <div
+        className={
+          "mt-1 flex items-center rounded-xl border border-input " +
+          (locked ? "bg-muted" : "bg-card")
+        }
+      >
         <button
           type="button"
           aria-label={`Decrease ${label}`}
+          disabled={locked}
           onClick={() => onChange(Math.max(0, value - step))}
-          className="px-2.5 py-2 text-sm font-bold text-muted-foreground hover:text-pink"
+          className="px-2.5 py-2 text-sm font-bold text-muted-foreground hover:text-pink disabled:opacity-40"
         >
           −
         </button>
         <input
           type="number"
           value={value}
+          readOnly={locked}
           onChange={(e) => onChange(Math.max(0, Number(e.target.value) || 0))}
           className="w-full min-w-0 bg-transparent py-2 text-center text-sm font-bold outline-none"
         />
         <button
           type="button"
           aria-label={`Increase ${label}`}
+          disabled={locked}
           onClick={() => onChange(value + step)}
-          className="px-2.5 py-2 text-sm font-bold text-muted-foreground hover:text-pink"
+          className="px-2.5 py-2 text-sm font-bold text-muted-foreground hover:text-pink disabled:opacity-40"
         >
           +
         </button>
