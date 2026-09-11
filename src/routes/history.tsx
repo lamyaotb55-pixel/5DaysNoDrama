@@ -119,12 +119,15 @@ function HistoryPage() {
 
                 <ul className="mt-3 space-y-3">
                   {weekItems.map((item) => (
-                    <li key={`${item.kind}-${item.planId}-${item.day}-${item.at}`} className="surface p-5">
+                    <li
+                      key={`${item.kind}-${item.planId}-${item.day}-${item.at}`}
+                      className="surface p-5"
+                    >
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="eyebrow text-muted-foreground">
-                            {getPlan(item.planId)?.name ?? item.planId} · Week {weekOf(item.day)} Day{" "}
-                            {dayInWeek(item.day)}
+                            {getPlan(item.planId)?.name ?? item.planId} · Week {weekOf(item.day)}{" "}
+                            Day {dayInWeek(item.day)}
                           </p>
                           <h3 className="mt-1 text-xl leading-tight">
                             {item.kind === "trained" ? item.title : item.headline}
