@@ -33,6 +33,8 @@ function ProfilePage() {
 
   const plan = getPlan(state.activePlanId ?? undefined);
   const streak = currentStreak(state.history);
+  const completedWeeks = Math.floor(state.history.length / 5);
+  const prCount = Object.keys(state.prs).length;
 
   useEffect(() => {
     if (!user) return;
@@ -99,6 +101,18 @@ function ProfilePage() {
         <Stat label="Workouts" value={String(state.history.length)} />
         <Stat label="Streak" value={`${streak}`} accent="bg-acid text-ink" />
         <Stat label="Volume" value={`${Math.round(totalVolume(state.history))}`} />
+      </section>
+
+      <section className="surface mt-5 p-5">
+        <p className="eyebrow text-muted-foreground">Quick summary</p>
+        <div className="mt-3 grid grid-cols-3 gap-3">
+          <Mini label="Day streak" value={`${streak}`} />
+          <Mini label="Weeks done" value={`${completedWeeks}`} />
+          <Mini label="Records" value={`${prCount}`} />
+        </div>
+        <p className="mt-3 text-[11px] font-semibold text-muted-foreground uppercase">
+          {streak > 0 ? "No drama. Just reps." : "Log a workout to start your streak."}
+        </p>
       </section>
 
       <section className="surface mt-5 p-5">
