@@ -111,6 +111,10 @@ function Dashboard() {
         </div>
       </section>
 
+      <section className="mt-6">
+        <ProgressChart plan={plan} run={run} />
+      </section>
+
       <section className="mt-8">
         <h2 className="text-lg font-bold">Weekly progress</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
