@@ -108,6 +108,7 @@ function CurrentPlanCard({
   state: ReturnType<typeof useStore>;
 }) {
   const plan = getPlan(planId)!;
+  const [confirm, setConfirm] = useState<"restart" | "change" | null>(null);
   const accent = planAccent(plan.id);
   const progress = planProgress(plan, state.completed, state.walks);
   const next = effectiveDay(
