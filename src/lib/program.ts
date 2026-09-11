@@ -308,8 +308,37 @@ export function getPlan(id: string | undefined): Plan | undefined {
   return PLANS.find((p) => p.id === id);
 }
 
+/* ---------- 8-week structure ----------
+ * Every plan runs for 8 weeks of the same 5-day split. Days are addressed by an
+ * absolute number 1–40; week 1 is days 1–5, week 2 days 6–10, and so on. */
+
+export const WEEKS = 8;
+export const DAYS_PER_WEEK = 5;
+export const TOTAL_DAYS = WEEKS * DAYS_PER_WEEK;
+
+export const weekOf = (absDayNo: number) => Math.ceil(absDayNo / DAYS_PER_WEEK);
+export const dayInWeek = (absDayNo: number) => ((absDayNo - 1) % DAYS_PER_WEEK) + 1;
+export const absDay = (week: number, dayNo: number) => (week - 1) * DAYS_PER_WEEK + dayNo;
+
+/** The template day (1–5) behind any absolute day number. */
+export function templateDay(plan: Plan, absDayNo: number): Day | undefined {
+  return plan.days.find((d) => d.day === dayInWeek(absDayNo));
+}
+
 export function getDay(plan: Plan, day: number): Day | undefined {
-  return plan.days.find((d) => d.day === day);
+  if (!Number.isFinite(day) || day < 1 || day > TOTAL_DAYS) return undefined;
+  const template = plan.days.find((d) => d.day === dayInWeek(day));
+  return template ? { ...template, day } : undefined;
+}
+
+/** The five days of one week, numbered absolutely. */
+export function weekDays(plan: Plan, week: number): Day[] {
+  return plan.days.map((d) => ({ ...d, day: absDay(week, d.day) }));
+}
+
+/** All 40 days of the plan. */
+export function allDays(plan: Plan): Day[] {
+  return Array.from({ length: WEEKS }, (_, i) => weekDays(plan, i + 1)).flat();
 }
 
 /** Rough duration estimate: working sets + circuit + finisher. */
