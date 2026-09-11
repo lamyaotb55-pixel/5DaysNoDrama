@@ -23,7 +23,7 @@ export const Route = createFileRoute("/workout/$planId/$day")({
     const plan = getPlan(params.planId);
     const day = plan ? getDay(plan, Number(params.day)) : undefined;
     const title = day
-      ? `Day ${day.day} ${day.title} — ${day.focus} | 5 Days No Drama`
+      ? `Week ${weekOf(day.day)} Day ${dayInWeek(day.day)} ${day.title} — ${day.focus} | 5 Days No Drama`
       : "Workout | 5 Days No Drama";
     const description = day
       ? `Track sets, reps and weight for ${day.title.toLowerCase()} (${day.focus}) with rest timers and progressive overload targets.`
@@ -202,13 +202,35 @@ function WorkoutPage() {
 
       <header className="mt-4 flex items-end gap-3">
         <span className={`day-number ${allDone ? "text-success" : accent.text}`}>
-          {String(day.day).padStart(2, "0")}
+          {String(dayInWeek(day.day)).padStart(2, "0")}
         </span>
         <div className="min-w-0 pb-1">
+          <p className="eyebrow text-muted-foreground">
+            Week {weekOf(day.day)} of {WEEKS} · Day {dayInWeek(day.day)}
+          </p>
           <h1 className="text-2xl leading-tight sm:text-3xl">{day.title}</h1>
           <p className="text-sm font-semibold text-muted-foreground">{day.focus}</p>
         </div>
       </header>
+
+      {skipAllowed && !allDone && (
+        <button
+          type="button"
+          onClick={() => {
+            if (
+              window.confirm(
+                "Skip this day? It's your one skip this week — and the deal is you walk +10K steps!!",
+              )
+            ) {
+              skipDay(plan.id, day.day);
+              navigate({ to: "/plan/$planId", params: { planId: plan.id } });
+            }
+          }}
+          className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-card px-5 py-3 text-[11px] font-bold uppercase"
+        >
+          <Footprints className="size-3.5 text-spicy" aria-hidden /> Skip But Will Walk +10K Steps!!
+        </button>
+      )}
 
       <div className="mt-4">
         {allDone ? (
