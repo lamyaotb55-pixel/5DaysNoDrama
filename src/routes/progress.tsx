@@ -30,26 +30,27 @@ function ProgressPage() {
   const volume = totalVolume(state.history);
   const week = weeklyHighlights(state.history);
   const prs = Object.entries(state.prs).sort((a, b) => b[1].weight - a[1].weight);
+  const weekComplete = week.workouts >= 5;
 
   return (
     <main className="mx-auto max-w-2xl px-5 pb-16">
       <div className="pt-8">
-        <Link to="/" className="text-xs font-semibold text-muted-foreground">
-          ← Plans
+        <Link to="/" className="text-xs font-bold text-muted-foreground uppercase">
+          ← Home
         </Link>
       </div>
 
-      <header className="mt-3">
-        <p className="eyebrow text-rose">Progress</p>
-        <h1 className="mt-1 text-3xl font-semibold sm:text-4xl">Your numbers</h1>
-        <p className="mt-1.5 text-sm text-muted-foreground">
+      <header className="mt-4">
+        <p className="eyebrow text-spicy">Progress</p>
+        <h1 className="mt-1.5 text-4xl leading-[0.9] sm:text-5xl">You showed up.</h1>
+        <p className="mt-2 text-sm font-bold text-muted-foreground uppercase">
           {plan ? (
             <>
               Current plan:{" "}
               <Link
                 to="/plan/$planId"
                 params={{ planId: plan.id }}
-                className="font-semibold text-ink underline decoration-rose"
+                className="text-ink underline decoration-spicy decoration-2 underline-offset-4"
               >
                 {plan.name}
               </Link>
@@ -61,51 +62,53 @@ function ProgressPage() {
       </header>
 
       <section className="mt-6 grid grid-cols-2 gap-3">
-        <Stat label="Workouts completed" value={String(state.history.length)} />
+        <Stat label="Workouts done" value={String(state.history.length)} />
         <Stat label="This week" value={`${consistency.thisWeek}/5 · ${consistency.pct}%`} />
         <Stat label="Total volume" value={`${volume.toLocaleString()} kg`} />
-        <Stat label="Personal records" value={String(prs.length)} />
+        <Stat label="Personal records" value={String(prs.length)} accent="acid" />
       </section>
 
       <section className="surface mt-4 p-5">
-        <p className="eyebrow text-rose">This week</p>
-        <h2 className="mt-1 text-lg font-semibold">Weekly highlights</h2>
+        <p className="eyebrow text-pink">This week</p>
+        <h2 className="mt-1 text-xl">
+          {weekComplete ? "5/5. That's the week ✓" : "Weekly highlights"}
+        </h2>
         {week.workouts === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">
-            Nothing logged in the last 7 days yet — finish a day and it shows up here.
+          <p className="mt-2 text-sm font-semibold text-muted-foreground">
+            Nothing logged in the last 7 days yet — finish a day and it lands here.
           </p>
         ) : (
           <>
             <div className="mt-3 grid grid-cols-3 gap-3">
-              <div className="rounded-xl bg-icy p-3">
-                <p className="eyebrow text-ink/60">Workouts</p>
-                <p className="mt-0.5 text-lg font-semibold text-ink">{week.workouts}/5</p>
+              <div className={"rounded-lg p-3 " + (weekComplete ? "bg-success" : "bg-ice")}>
+                <p className="eyebrow text-ink/70">Workouts</p>
+                <p className="mt-0.5 font-display text-xl text-ink">{week.workouts}/5</p>
               </div>
-              <div className="rounded-xl bg-icy p-3">
-                <p className="eyebrow text-ink/60">Volume</p>
-                <p className="mt-0.5 text-lg font-semibold text-ink">
-                  {week.volume.toLocaleString()} kg
+              <div className="rounded-lg bg-ice p-3">
+                <p className="eyebrow text-ink/70">Volume</p>
+                <p className="mt-0.5 font-display text-xl text-ink">
+                  {week.volume.toLocaleString()}
                 </p>
               </div>
-              <div className="rounded-xl bg-icy p-3">
-                <p className="eyebrow text-ink/60">Sets</p>
-                <p className="mt-0.5 text-lg font-semibold text-ink">{week.sets}</p>
+              <div className="rounded-lg bg-ice p-3">
+                <p className="eyebrow text-ink/70">Sets</p>
+                <p className="mt-0.5 font-display text-xl text-ink">{week.sets}</p>
               </div>
             </div>
-            <p className="mt-3 text-xs font-semibold text-muted-foreground">
+            <p className="mt-3 text-xs font-bold text-muted-foreground uppercase">
               {week.minutes} min trained
               {week.bestDay ? ` · biggest day: ${week.bestDay.title}` : ""}
             </p>
-            <div className="mt-3 rounded-xl bg-butter/60 p-3">
-              <p className="eyebrow text-ink/70">Records this week</p>
+            <div className="mt-3 rounded-lg bg-acid p-3">
+              <p className="eyebrow text-ink">Records this week</p>
               {week.prs.length === 0 ? (
-                <p className="mt-1 text-xs font-semibold text-ink/60">
-                  No new records yet — add a little weight next session.
+                <p className="mt-1 text-xs font-bold text-ink/70 uppercase">
+                  No new PRs yet — add a little weight next session.
                 </p>
               ) : (
-                <ul className="mt-1 space-y-0.5 text-xs font-semibold text-ink">
+                <ul className="mt-1 space-y-0.5 text-xs font-bold text-ink uppercase">
                   {week.prs.map((pr) => (
-                    <li key={pr}>🏆 {pr}</li>
+                    <li key={pr}>New PR ⚡ {pr}</li>
                   ))}
                 </ul>
               )}
@@ -115,17 +118,17 @@ function ProgressPage() {
       </section>
 
       <section className="surface mt-4 p-5">
-        <h2 className="text-lg font-semibold">Weight progression</h2>
-        <p className="mt-1 mb-4 text-xs text-muted-foreground">
+        <h2 className="text-xl">Weight progression</h2>
+        <p className="mt-1 mb-4 text-xs font-semibold text-muted-foreground">
           Top set per session for each exercise — progressive overload made visible.
         </p>
         <WeightChart trend={state.trend} />
       </section>
 
       <section className="surface mt-4 p-5">
-        <h2 className="text-lg font-semibold">Personal records</h2>
+        <h2 className="text-xl">Personal records</h2>
         {prs.length === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-sm font-semibold text-muted-foreground">
             Your heaviest set for each exercise shows up here after your first workout.
           </p>
         ) : (
@@ -135,11 +138,11 @@ function ProgressPage() {
                 key={name}
                 className="flex items-center justify-between gap-3 border-b border-border pb-2 text-sm last:border-0"
               >
-                <span className="inline-flex items-center gap-2 font-medium">
-                  <Trophy className="size-3.5 text-rose" aria-hidden />
+                <span className="inline-flex items-center gap-2 font-semibold">
+                  <Trophy className="size-3.5 text-ink" aria-hidden />
                   {name}
                 </span>
-                <span className="font-semibold whitespace-nowrap">
+                <span className="rounded-full bg-acid px-2 py-0.5 text-xs font-bold whitespace-nowrap text-ink">
                   {pr.weight} kg × {pr.reps}
                 </span>
               </li>
@@ -149,22 +152,22 @@ function ProgressPage() {
       </section>
 
       <section className="surface mt-4 p-5">
-        <h2 className="text-lg font-semibold">Workout history</h2>
+        <h2 className="text-xl">Workout history</h2>
         {state.history.length === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">No workouts logged yet.</p>
+          <p className="mt-2 text-sm font-semibold text-muted-foreground">No workouts logged yet.</p>
         ) : (
           <ul className="mt-3 space-y-3">
             {state.history.map((h) => (
               <li key={`${h.planId}-${h.day}-${h.at}`} className="border-b border-border pb-3 last:border-0">
                 <div className="flex items-baseline justify-between gap-3">
-                  <p className="text-sm font-semibold">
-                    Day {h.day} · {h.title}
+                  <p className="text-sm font-bold uppercase">
+                    Day {String(h.day).padStart(2, "0")} · {h.title}
                   </p>
-                  <span className="text-[11px] text-muted-foreground">
+                  <span className="text-[11px] font-semibold text-muted-foreground">
                     {new Date(h.at).toLocaleDateString()}
                   </span>
                 </div>
-                <p className="mt-0.5 text-xs text-muted-foreground">
+                <p className="mt-0.5 text-xs font-semibold text-muted-foreground">
                   {h.focus} · {h.sets} sets · {h.volume.toLocaleString()} kg · {h.durationMin} min
                   {h.cardio ? " · cardio ✓" : ""}
                 </p>
@@ -182,11 +185,19 @@ function ProgressPage() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({
+  label,
+  value,
+  accent = "ice",
+}: {
+  label: string;
+  value: string;
+  accent?: "ice" | "acid";
+}) {
   return (
-    <div className="rounded-2xl border border-border bg-icy p-4 shadow-[var(--shadow-soft)]">
-      <p className="eyebrow text-ink/60">{label}</p>
-      <p className="mt-1 text-xl font-semibold text-ink">{value}</p>
+    <div className={"rounded-xl p-4 " + (accent === "acid" ? "bg-acid" : "bg-ice")}>
+      <p className="eyebrow text-ink/70">{label}</p>
+      <p className="mt-1 font-display text-2xl text-ink">{value}</p>
     </div>
   );
 }
