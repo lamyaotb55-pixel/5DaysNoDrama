@@ -5,20 +5,20 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * FitFlow design system — minimalist, colorful, four colors only:
- *   ink   : deep navy text / surfaces
- *   sky   : sky blue (primary)
- *   pink  : electric pink (accent)
- *   paper : off-white background
+ * 5 Days No Drama — premium, minimal, feminine-strong. Four colours only:
+ *   ink   : deep plum-black (text, strong surfaces)
+ *   paper : warm off-white background
+ *   rose  : signature rose accent
+ *   sand  : soft neutral for cards, chips, muted states
  */
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 8px);
+  --radius-md: calc(var(--radius) - 4px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-3xl: calc(var(--radius) + 16px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -39,20 +39,20 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ink: var(--ink);
-  --color-sky: var(--sky);
-  --color-pink: var(--pink);
+  --color-rose: var(--rose);
+  --color-sand: var(--sand);
   --color-paper: var(--paper);
-  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
   --font-sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
-  --radius: 1rem;
+  --radius: 1.25rem;
 
-  --ink: oklch(0.24 0.045 265);
-  --sky: oklch(0.76 0.135 231);
-  --pink: oklch(0.66 0.255 350);
-  --paper: oklch(0.985 0.006 250);
+  --ink: oklch(0.23 0.032 330);
+  --rose: oklch(0.63 0.145 8);
+  --paper: oklch(0.982 0.008 60);
+  --sand: oklch(0.93 0.014 50);
 
   --background: var(--paper);
   --foreground: var(--ink);
@@ -60,23 +60,23 @@
   --card-foreground: var(--ink);
   --popover: oklch(1 0 0);
   --popover-foreground: var(--ink);
-  --primary: var(--sky);
-  --primary-foreground: var(--ink);
-  --secondary: color-mix(in oklab, var(--sky) 14%, var(--paper));
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+  --secondary: var(--sand);
   --secondary-foreground: var(--ink);
-  --muted: color-mix(in oklab, var(--ink) 6%, var(--paper));
-  --muted-foreground: color-mix(in oklab, var(--ink) 55%, var(--paper));
-  --accent: var(--pink);
+  --muted: color-mix(in oklab, var(--sand) 70%, var(--paper));
+  --muted-foreground: color-mix(in oklab, var(--ink) 58%, var(--paper));
+  --accent: var(--rose);
   --accent-foreground: oklch(1 0 0);
-  --destructive: var(--pink);
+  --destructive: var(--rose);
   --destructive-foreground: oklch(1 0 0);
   --border: color-mix(in oklab, var(--ink) 12%, var(--paper));
-  --input: color-mix(in oklab, var(--ink) 16%, var(--paper));
-  --ring: var(--sky);
+  --input: color-mix(in oklab, var(--ink) 18%, var(--paper));
+  --ring: var(--rose);
 
-  --gradient-hero: linear-gradient(120deg, var(--sky), var(--pink));
-  --shadow-soft: 0 12px 32px -18px color-mix(in oklab, var(--ink) 45%, transparent);
-  --shadow-pop: 0 16px 40px -16px color-mix(in oklab, var(--pink) 45%, transparent);
+  --gradient-warm: linear-gradient(140deg, color-mix(in oklab, var(--rose) 22%, var(--paper)), var(--sand));
+  --shadow-soft: 0 14px 40px -24px color-mix(in oklab, var(--ink) 55%, transparent);
+  --shadow-lift: 0 20px 50px -22px color-mix(in oklab, var(--rose) 45%, transparent);
 }
 
 @layer base {
@@ -95,15 +95,15 @@
   h2,
   h3 {
     font-family: var(--font-display);
+    font-weight: 500;
     letter-spacing: -0.02em;
   }
-}
 
-@utility gradient-text {
-  background-image: var(--gradient-hero);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
+  }
 }
 
 @utility surface {
@@ -113,10 +113,13 @@
   box-shadow: var(--shadow-soft);
 }
 
-@utility grid-fade {
-  background-image:
-    linear-gradient(color-mix(in oklab, var(--ink) 7%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in oklab, var(--ink) 7%, transparent) 1px, transparent 1px);
-  background-size: 28px 28px;
-  mask-image: radial-gradient(ellipse at top, black, transparent 70%);
+@utility eyebrow {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+@utility warm-wash {
+  background-image: var(--gradient-warm);
 }
