@@ -81,6 +81,8 @@ function WorkoutPage() {
   const pct = Math.round((doneExercises / total) * 100);
   const allDone = doneExercises === total;
   const restSeconds = plan.id === "build-muscle" ? 120 : plan.id === "tone-up" ? 90 : 60;
+  const skipAllowed = canSkip(plan.id, day.day, state) && summary.sets === 0;
+  const dayLabel = `Week ${weekOf(day.day)} · Day ${dayInWeek(day.day)}`;
 
   if (cheer) {
     return (
