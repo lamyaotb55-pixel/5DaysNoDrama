@@ -343,9 +343,10 @@ export function weeklyHighlights(history: FinishedSession[]) {
 
 /* ---------- Plan customization (names, reps, sets, media) ---------- */
 
-/** The day as the user has it: their edited exercise list when present. */
+/** The day as the user has it: their edited exercise list when present.
+ *  Edits are stored per template day (1–5) so they apply to all 8 weeks. */
 export function effectiveDay(planId: string, day: Day, custom: State["customDays"]): Day {
-  const override = custom[sessionKey(planId, day.day)];
+  const override = custom[sessionKey(planId, dayInWeek(day.day))];
   return override ? { ...day, exercises: override } : day;
 }
 
