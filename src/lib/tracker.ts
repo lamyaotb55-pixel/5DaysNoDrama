@@ -154,3 +154,67 @@ export function switchToRun(id: string) {
   ensureLoaded();
   emit({ ...state, activeRunId: id });
 }
+
+/* ---------- Workout templates (reused across all 8 weeks) ---------- */
+
+export const templateKey = (planId: PlanId, dayNo: number) => `${planId}-${dayNo}`;
+
+export function saveTemplate(planId: PlanId, dayNo: number, exercises: Exercise[]) {
+  ensureLoaded();
+  emit({
+    ...state,
+    templates: { ...(state.templates ?? {}), [templateKey(planId, dayNo)]: exercises },
+  });
+}
+
+export function resetTemplate(planId: PlanId, dayNo: number) {
+  ensureLoaded();
+  const templates = { ...(state.templates ?? {}) };
+  delete templates[templateKey(planId, dayNo)];
+  emit({ ...state, templates });
+}
+
+/** The plan with any saved custom templates applied to its days. */
+export function effectivePlan(plan: Plan, templates?: Record<string, Exercise[]>): Plan {
+  if (!templates) return plan;
+  return {
+    ...plan,
+    days: plan.days.map((day, i) => {
+      const custom = templates[templateKey(plan.id, i + 1)];
+      return custom && custom.length ? { ...day, exercises: custom } : day;
+    }),
+  };
+}
+
+/* ---------- Streak & consistency ---------- */
+
+const dayStamp = (iso: string) => new Date(iso).toISOString().slice(0, 10);
+
+export function streakStats(run: Run) {
+  const days = [...new Set(Object.values(run.done).map(dayStamp))].sort();
+  let longest = 0;
+  let current = 0;
+  let prev: number | null = null;
+  for (const d of days) {
+    const t = new Date(`${d}T00:00:00Z`).getTime();
+    current = prev !== null && t - prev === 86_400_000 ? current + 1 : 1;
+    longest = Math.max(longest, current);
+    prev = t;
+  }
+  // The streak only counts as live if the last session was today or yesterday.
+  const today = new Date(`${new Date().toISOString().slice(0, 10)}T00:00:00Z`).getTime();
+  const live = prev !== null && today - prev <= 86_400_000;
+  const weeksElapsed = Math.max(
+    1,
+    Math.ceil((Date.now() - new Date(run.startedAt).getTime()) / (7 * 86_400_000)),
+  );
+  const expected = Math.min(40, weeksElapsed * 5);
+  const doneCount = Object.keys(run.done).length;
+  return {
+    current: live ? current : 0,
+    longest,
+    activeDays: days.length,
+    consistency: Math.min(100, Math.round((doneCount / expected) * 100)),
+    expected,
+  };
+}
