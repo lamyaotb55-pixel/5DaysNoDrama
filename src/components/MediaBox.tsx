@@ -42,9 +42,11 @@ export function MediaBox({
           <span className="font-display text-3xl text-ink/45">{initials}</span>
         </div>
       )}
-      <span className="absolute bottom-1.5 left-1.5 inline-flex items-center gap-1 rounded-full bg-card/85 px-2 py-0.5 text-[9px] font-semibold text-muted-foreground">
-        <Play className="size-2.5" aria-hidden /> Demo
-      </span>
+      {!compact && (
+        <span className="absolute bottom-1.5 left-1.5 inline-flex items-center gap-1 rounded-full bg-card/85 px-2 py-0.5 text-[9px] font-semibold text-muted-foreground">
+          <Play className="size-2.5" aria-hidden /> Demo
+        </span>
+      )}
     </div>
   );
 }
