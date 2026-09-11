@@ -40,10 +40,12 @@ export const Route = createFileRoute("/workout/$planId/$day")({
 function WorkoutPage() {
   const { planId, day: dayParam } = Route.useParams();
   const plan = getPlan(planId);
-  const day = plan ? getDay(plan, Number(dayParam)) : undefined;
   const state = useStore();
+  const rawDay = plan ? getDay(plan, Number(dayParam)) : undefined;
+  const day = plan && rawDay ? effectiveDay(plan.id, rawDay, state.customDays) : undefined;
   const navigate = useNavigate();
   const [review, setReview] = useState(false);
+  const [cheer, setCheer] = useState<string | null>(null);
 
   useEffect(() => {
     if (plan && day) startSession(plan.id, day.day);
