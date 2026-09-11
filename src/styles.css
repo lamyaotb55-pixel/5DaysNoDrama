@@ -51,10 +51,11 @@
 :root {
   --radius: 1.25rem;
 
-  --ink: oklch(0.23 0.032 330);
-  --rose: oklch(0.63 0.145 8);
-  --paper: oklch(0.982 0.008 60);
-  --sand: oklch(0.93 0.014 50);
+  --ink: oklch(0.245 0.048 302);
+  --rose: oklch(0.615 0.125 300);
+  --mint: oklch(0.79 0.128 165);
+  --paper: oklch(0.982 0.008 300);
+  --sand: oklch(0.932 0.018 300);
 
   --background: var(--paper);
   --foreground: var(--ink);
