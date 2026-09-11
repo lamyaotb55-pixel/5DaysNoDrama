@@ -79,7 +79,7 @@ function Home() {
           <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
             {showActive
               ? "Your active plan and next workout are right here. The full progress dashboard lives on its own page."
-              : "Three focused programs, weekly progression built in, and a dashboard that shows exactly how far you have come."}
+               : "خلج خوش وحدة والتزمي"}
           </p>
         </div>
       </section>
