@@ -5,12 +5,13 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * 5 Days No Drama — Lilac & Mint, minimal and colourful. Four colours only:
- *   ink   : deep plum-violet (text, strong surfaces)
- *   paper : cool white background
- *   rose  : signature lilac accent
- *   mint  : fresh mint highlight
- *   sand  : soft lilac-tinted neutral for cards, chips, muted states
+ * 5 Days No Drama palette:
+ *   ink    #171717 : typography, navigation, strong contrast
+ *   paper  #FFF9F2 : cream app background
+ *   rose   #FF3B30 : flash red — logo, Start Workout, active states, bars, PRs
+ *   icy    #BDE7FF : info cards, rest timer, stats, secondary tags
+ *   butter #FFE66D : streaks, achievements, NEW — sparingly
+ *   sand           : soft warm neutral for chips and muted states
  */
 
 @theme inline {
