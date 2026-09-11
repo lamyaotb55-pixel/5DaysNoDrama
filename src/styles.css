@@ -139,6 +139,18 @@
   text-transform: uppercase;
 }
 
+@utility input-field {
+  display: block;
+  width: 100%;
+  border-radius: 9999px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-secondary);
+  padding: 0.85rem 1.1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+}
+
 @utility spicy-wash {
   background-image: var(--gradient-spicy);
   color: #ffffff;
