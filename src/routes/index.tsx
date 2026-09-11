@@ -167,9 +167,12 @@ function CurrentPlanCard({
             className="mt-1.5 flex items-end gap-3"
           >
             <span className="day-number text-spicy">
-              {String(next.day).padStart(2, "0")}
+              {String(dayInWeek(next.day)).padStart(2, "0")}
             </span>
             <span className="min-w-0 pb-1">
+              <span className="block text-[11px] font-bold text-muted-foreground uppercase">
+                Week {weekOf(next.day)} · Day {dayInWeek(next.day)}
+              </span>
               <span className="block text-xl leading-tight font-display uppercase">
                 {next.title}
               </span>
