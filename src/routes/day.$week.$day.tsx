@@ -52,6 +52,7 @@ function DayPage() {
 
   const day = plan.days[dayNo - 1]!;
   const isDone = Boolean(run.done[dayKey(week, dayNo)]);
+  const locked = isDone && !editing;
 
   return (
     <main className="mx-auto max-w-3xl px-5 py-10">
@@ -68,11 +69,39 @@ function DayPage() {
           </h1>
         </div>
         {isDone && (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-pink px-3 py-1.5 text-xs font-bold text-accent-foreground">
-            <Check className="size-3.5" aria-hidden /> Smashed
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-pink px-3 py-1.5 text-xs font-bold text-accent-foreground">
+              <Check className="size-3.5" aria-hidden /> Smashed
+            </span>
+            <button
+              onClick={() => setEditing((v) => !v)}
+              className={
+                "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition-colors " +
+                (editing
+                  ? "border-sky bg-sky text-primary-foreground"
+                  : "border-border bg-card hover:border-sky")
+              }
+            >
+              {editing ? (
+                <>
+                  <Lock className="size-3.5" aria-hidden /> Done editing
+                </>
+              ) : (
+                <>
+                  <Pencil className="size-3.5" aria-hidden /> Edit numbers
+                </>
+              )}
+            </button>
+          </div>
         )}
       </header>
+
+      {locked && (
+        <p className="mt-3 text-xs font-medium text-muted-foreground">
+          This day is completed and locked. Tap “Edit numbers” to update your reps, rounds or weight.
+        </p>
+      )}
+
 
       <div className="mt-6 space-y-5">
         {day.exercises.map((ex, idx) => {
