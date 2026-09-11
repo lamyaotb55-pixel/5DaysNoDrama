@@ -29,7 +29,7 @@ export function ExerciseCard({
   return (
     <article
       className={
-        "surface p-4 transition-opacity sm:p-5 " + (complete ? "border-rose/40 opacity-95" : "")
+        "surface p-4 transition-colors sm:p-5 " + (complete ? "border-success" : "")
       }
     >
       <div className="flex gap-3">
@@ -38,44 +38,44 @@ export function ExerciseCard({
         </div>
         <div className="min-w-0 flex-1">
           {exercise.superset && (
-            <span className="eyebrow text-rose">{exercise.superset}</span>
+            <span className="eyebrow text-pink">{exercise.superset}</span>
           )}
-          <h2 className="text-lg leading-tight font-semibold">{exercise.name}</h2>
-          <p className="mt-1 text-xs font-semibold text-muted-foreground">
-            Target: {exercise.sets} × {exercise.reps}
+          <h2 className="text-lg leading-tight">{exercise.name}</h2>
+          <p className="mt-1 text-xs font-bold text-muted-foreground uppercase">
+            {exercise.sets} sets × {exercise.reps}
             {exercise.perSide ? " per side" : ""}
           </p>
           <span
             className={
-              "mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold " +
-              (complete ? "bg-rose text-accent-foreground" : "bg-secondary text-muted-foreground")
+              "mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase " +
+              (complete ? "bg-success text-ink" : "bg-secondary text-ink")
             }
           >
             {complete && <Check className="size-3" aria-hidden />}
-            {doneSets}/{exercise.sets} sets
+            {complete ? "Exercise complete" : `${doneSets}/${exercise.sets} sets`}
           </span>
         </div>
       </div>
 
       {hint && (
-        <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl bg-secondary/70 p-3 text-xs">
+        <div className="mt-3 grid grid-cols-2 gap-2 rounded-lg bg-secondary p-3 text-xs">
           <div>
-            <p className="eyebrow text-muted-foreground">Last session</p>
-            <p className="mt-0.5 font-bold">
+            <p className="eyebrow text-muted-foreground">Last time</p>
+            <p className="mt-0.5 font-bold uppercase">
               {hint.lastBest.weight ? `${hint.lastBest.weight} kg × ${hint.lastBest.reps}` : `${hint.lastBest.reps} reps`}
             </p>
           </div>
           <div>
-            <p className="eyebrow text-muted-foreground">Today's target</p>
-            <p className={"mt-0.5 font-bold " + (hint.progress ? "text-rose" : "")}>
-              {hint.target ? `Try ${hint.target} kg × ${hint.range}` : `${hint.range} reps`}
+            <p className="eyebrow text-muted-foreground">Today</p>
+            <p className={"mt-0.5 font-bold uppercase " + (hint.progress ? "text-spicy" : "")}>
+              {hint.target ? `${hint.target} kg × ${hint.range}` : `${hint.range} reps`}
             </p>
           </div>
         </div>
       )}
 
       <div className="mt-4 space-y-2">
-        <div className="grid grid-cols-[1.6rem_1fr_1fr_2rem] items-center gap-2 px-1">
+        <div className="grid grid-cols-[2.6rem_1fr_1fr_2.5rem] items-center gap-2 px-1">
           <span className="eyebrow text-muted-foreground">Set</span>
           <span className="eyebrow text-muted-foreground">Weight</span>
           <span className="eyebrow text-muted-foreground">Reps</span>
@@ -87,9 +87,14 @@ export function ExerciseCard({
           return (
             <div
               key={i}
-              className="grid grid-cols-[1.6rem_1fr_1fr_2rem] items-center gap-2 rounded-xl border border-border bg-card px-1 py-1.5"
+              className={
+                "grid grid-cols-[2.6rem_1fr_1fr_2.5rem] items-center gap-2 rounded-lg border px-1.5 py-2 transition-colors " +
+                (log.done ? "border-success bg-success/10" : "border-border bg-card")
+              }
             >
-              <span className="text-center text-sm font-bold">{i + 1}</span>
+              <span className="text-center text-xs font-bold tabular-nums">
+                {String(i + 1).padStart(2, "0")}
+              </span>
               <label className="flex flex-col">
                 <input
                   type="number"
@@ -102,10 +107,10 @@ export function ExerciseCard({
                   onChange={(e) =>
                     updateSet(planId, day, exIdx, i, { weight: Number(e.target.value) || 0 })
                   }
-                  className="w-full rounded-lg bg-secondary/60 px-2 py-2 text-center text-sm font-semibold outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full rounded-lg bg-secondary px-2 py-3 text-center text-base font-bold outline-none focus:ring-2 focus:ring-ring"
                 />
                 {prev && (
-                  <span className="mt-0.5 text-center text-[10px] text-muted-foreground">
+                  <span className="mt-0.5 text-center text-[10px] font-semibold text-muted-foreground">
                     prev {prev.weight} kg
                   </span>
                 )}
@@ -121,10 +126,10 @@ export function ExerciseCard({
                   onChange={(e) =>
                     updateSet(planId, day, exIdx, i, { reps: Number(e.target.value) || 0 })
                   }
-                  className="w-full rounded-lg bg-secondary/60 px-2 py-2 text-center text-sm font-semibold outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full rounded-lg bg-secondary px-2 py-3 text-center text-base font-bold outline-none focus:ring-2 focus:ring-ring"
                 />
                 {prev && (
-                  <span className="mt-0.5 text-center text-[10px] text-muted-foreground">
+                  <span className="mt-0.5 text-center text-[10px] font-semibold text-muted-foreground">
                     prev × {prev.reps}
                   </span>
                 )}
@@ -135,9 +140,9 @@ export function ExerciseCard({
                 aria-pressed={log.done}
                 onClick={() => updateSet(planId, day, exIdx, i, { done: !log.done })}
                 className={
-                  "grid size-8 place-items-center rounded-full border transition-colors " +
+                  "grid size-10 place-items-center rounded-full border transition-colors " +
                   (log.done
-                    ? "border-rose bg-rose text-accent-foreground"
+                    ? "border-success bg-success text-ink"
                     : "border-input bg-card text-muted-foreground")
                 }
               >

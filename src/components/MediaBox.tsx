@@ -24,7 +24,7 @@ export function MediaBox({
   return (
     <div
       className={
-        "warm-wash relative w-full overflow-hidden rounded-xl border border-border " +
+        "relative w-full overflow-hidden rounded-lg bg-secondary " +
         (compact ? "aspect-square" : "aspect-[4/3]")
       }
       role="img"
@@ -39,11 +39,11 @@ export function MediaBox({
         />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="font-display text-3xl text-ink/45">{initials}</span>
+          <span className="font-display text-2xl text-ink/25">{initials}</span>
         </div>
       )}
       {!compact && (
-        <span className="absolute bottom-1.5 left-1.5 inline-flex items-center gap-1 rounded-full bg-card/85 px-2 py-0.5 text-[9px] font-semibold text-muted-foreground">
+        <span className="absolute bottom-1.5 left-1.5 inline-flex items-center gap-1 rounded-full bg-card px-2 py-0.5 text-[9px] font-bold text-ink uppercase">
           <Play className="size-2.5" aria-hidden /> Demo
         </span>
       )}
