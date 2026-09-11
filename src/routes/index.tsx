@@ -212,26 +212,69 @@ function CurrentPlanCard({
       <div className="mt-4 flex flex-wrap gap-3">
         <button
           type="button"
-          onClick={() => {
-            if (
-              window.confirm(
-                "Restart this plan? Your day check-marks reset and your history, records and progress are kept.",
-              )
-            )
-              restartPlan(plan.id);
-          }}
+          onClick={() => setConfirm("restart")}
           className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-3.5 text-xs font-bold uppercase"
         >
           <RotateCcw className="size-4 text-spicy" aria-hidden /> Restart plan
         </button>
         <button
           type="button"
-          onClick={() => clearPlan()}
+          onClick={() => setConfirm("change")}
           className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-3.5 text-xs font-bold uppercase"
         >
           <Shuffle className="size-4 text-pink" aria-hidden /> Change plan
         </button>
       </div>
+
+      {confirm && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-30 grid place-items-center bg-ink/50 p-5"
+        >
+          <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-5 text-center">
+            {confirm === "restart" ? (
+              <RotateCcw className="mx-auto size-7 text-spicy" aria-hidden />
+            ) : (
+              <Shuffle className="mx-auto size-7 text-pink" aria-hidden />
+            )}
+            <h2 className="mt-2 text-xl leading-tight">
+              {confirm === "restart" ? "Start this plan again?" : "Switch to another plan?"}
+            </h2>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              {confirm === "restart"
+                ? "Your day check-marks reset for a fresh round. Your history, records and progress are kept."
+                : `You'll pick a new plan. ${plan.name} stays saved with all your history and records.`}
+            </p>
+            <div className="mt-5 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setConfirm(null)}
+                className="flex-1 rounded-full border border-border bg-card px-4 py-3 text-xs font-bold uppercase"
+              >
+                Not now
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm === "restart") restartPlan(plan.id);
+                  else clearPlan();
+                  setConfirm(null);
+                }}
+                className={
+                  "flex-1 rounded-full px-4 py-3 text-xs font-bold uppercase " +
+                  (confirm === "restart"
+                    ? "bg-spicy text-accent-foreground"
+                    : "border-2 border-pink text-pink")
+                }
+              >
+                {confirm === "restart" ? "Yes, restart" : "Yes, change plan"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </>
   );
 }
