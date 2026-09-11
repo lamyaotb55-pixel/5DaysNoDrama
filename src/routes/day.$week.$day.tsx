@@ -3,7 +3,15 @@ import { useState } from "react";
 import { Check, Lock, PartyPopper, Pencil, RotateCcw } from "lucide-react";
 import { MediaBox } from "@/components/MediaBox";
 import { buildEncouragement, WEEKS, getPlan, progress } from "@/lib/plans";
-import { activeRun, dayKey, logKey, saveLog, toggleDayDone, useTracker } from "@/lib/tracker";
+import {
+  activeRun,
+  dayKey,
+  logKey,
+  saveLog,
+  saveNote,
+  toggleDayDone,
+  useTracker,
+} from "@/lib/tracker";
 
 export const Route = createFileRoute("/day/$week/$day")({
   head: () => ({
@@ -150,6 +158,21 @@ function DayPage() {
           );
         })}
       </div>
+
+      <section className="surface mt-6 p-5">
+        <label className="block">
+          <span className="text-[11px] font-bold tracking-wide text-muted-foreground uppercase">
+            Session notes (optional)
+          </span>
+          <textarea
+            value={run.notes?.[dayKey(week, dayNo)] ?? ""}
+            onChange={(e) => saveNote(week, dayNo, e.target.value)}
+            rows={3}
+            placeholder="How did this session feel? Energy, form, soreness…"
+            className="mt-2 w-full resize-y rounded-xl border border-input bg-card px-3 py-2 text-sm outline-none focus:border-sky"
+          />
+        </label>
+      </section>
 
       <div className="surface mt-8 p-6 text-center">
         {cheer && (

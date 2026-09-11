@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check, Flame, History, RotateCcw, Trophy } from "lucide-react";
+import { Check, Flame, History, NotebookPen, RotateCcw, Trophy } from "lucide-react";
 import { ProgressChart } from "@/components/ProgressChart";
 import { WEEKS, getPlan } from "@/lib/plans";
 import { activeRun, dayKey, restartPlan, useTracker } from "@/lib/tracker";
@@ -162,6 +162,40 @@ function Dashboard() {
           })}
         </div>
       </section>
+
+      {Object.keys(run.notes ?? {}).length > 0 && (
+        <section className="mt-10">
+          <h2 className="flex items-center gap-2 text-lg font-bold">
+            <NotebookPen className="size-5 text-muted-foreground" aria-hidden />
+            Session notes
+          </h2>
+          <ul className="mt-4 space-y-3">
+            {Object.entries(run.notes ?? {})
+              .sort(([a], [b]) => {
+                const [aw, ad] = a.split("-").map(Number);
+                const [bw, bd] = b.split("-").map(Number);
+                return aw! - bw! || ad! - bd!;
+              })
+              .map(([key, note]) => {
+                const [w, d] = key.split("-").map(Number);
+                const dayInfo = plan.days[(d ?? 1) - 1];
+                return (
+                  <li key={key} className="surface p-4">
+                    <Link
+                      to="/day/$week/$day"
+                      params={{ week: String(w), day: String(d) }}
+                      className="text-xs font-bold text-sky hover:underline"
+                    >
+                      Week {w} · {dayInfo?.title ?? `Day ${d}`}
+                      {dayInfo ? ` — ${dayInfo.focus}` : ""}
+                    </Link>
+                    <p className="mt-1.5 text-sm whitespace-pre-wrap text-foreground">{note}</p>
+                  </li>
+                );
+              })}
+          </ul>
+        </section>
+      )}
 
       {history.length > 0 && (
         <section className="mt-10">
