@@ -77,17 +77,19 @@ function ProgressPage() {
         ) : (
           <>
             <div className="mt-3 grid grid-cols-3 gap-3">
-              <div className="rounded-xl bg-secondary p-3">
-                <p className="eyebrow text-muted-foreground">Workouts</p>
-                <p className="mt-0.5 text-lg font-semibold">{week.workouts}/5</p>
+              <div className="rounded-xl bg-icy p-3">
+                <p className="eyebrow text-ink/60">Workouts</p>
+                <p className="mt-0.5 text-lg font-semibold text-ink">{week.workouts}/5</p>
               </div>
-              <div className="rounded-xl bg-secondary p-3">
-                <p className="eyebrow text-muted-foreground">Volume</p>
-                <p className="mt-0.5 text-lg font-semibold">{week.volume.toLocaleString()} kg</p>
+              <div className="rounded-xl bg-icy p-3">
+                <p className="eyebrow text-ink/60">Volume</p>
+                <p className="mt-0.5 text-lg font-semibold text-ink">
+                  {week.volume.toLocaleString()} kg
+                </p>
               </div>
-              <div className="rounded-xl bg-secondary p-3">
-                <p className="eyebrow text-muted-foreground">Sets</p>
-                <p className="mt-0.5 text-lg font-semibold">{week.sets}</p>
+              <div className="rounded-xl bg-icy p-3">
+                <p className="eyebrow text-ink/60">Sets</p>
+                <p className="mt-0.5 text-lg font-semibold text-ink">{week.sets}</p>
               </div>
             </div>
             <p className="mt-3 text-xs font-semibold text-muted-foreground">
