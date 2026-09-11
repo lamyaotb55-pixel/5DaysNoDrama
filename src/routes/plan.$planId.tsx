@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check, Clock, Dumbbell, LineChart } from "lucide-react";
+import { Check, Clock, Dumbbell, LineChart, Pencil } from "lucide-react";
 import { estimateMinutes, getPlan } from "@/lib/program";
-import { choosePlan, sessionKey, useStore } from "@/lib/store";
+import { choosePlan, effectivePlan, sessionKey, useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/plan/$planId")({
   head: ({ params }) => {
