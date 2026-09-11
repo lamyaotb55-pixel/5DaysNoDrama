@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Check, PartyPopper, RotateCcw } from "lucide-react";
+import { Check, Lock, PartyPopper, Pencil, RotateCcw } from "lucide-react";
 import { MediaBox } from "@/components/MediaBox";
-import { ENCOURAGEMENTS, WEEKS, getPlan, progress } from "@/lib/plans";
+import { buildEncouragement, WEEKS, getPlan, progress } from "@/lib/plans";
 import { activeRun, dayKey, logKey, saveLog, toggleDayDone, useTracker } from "@/lib/tracker";
 
 export const Route = createFileRoute("/day/$week/$day")({
@@ -32,6 +32,7 @@ function DayPage() {
   const run = activeRun(state);
   const plan = run ? getPlan(run.planId) : undefined;
   const [cheer, setCheer] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
 
   if (!run || !plan) {
     return (
@@ -98,17 +99,20 @@ function DayPage() {
                   <Field
                     label="Reps"
                     value={value.reps}
+                    locked={locked}
                     onChange={(v) => set({ reps: v })}
                   />
                   <Field
                     label="Rounds"
                     value={value.rounds}
+                    locked={locked}
                     onChange={(v) => set({ rounds: v })}
                   />
                   <Field
                     label="Weight (kg)"
                     value={value.weight}
                     step={2.5}
+                    locked={locked}
                     onChange={(v) => set({ weight: v })}
                   />
                 </div>
