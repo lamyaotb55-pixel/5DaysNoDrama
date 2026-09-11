@@ -11,7 +11,6 @@ import {
   nextWorkout,
   planProgress,
   restartPlan,
-  skippedDayInWeek,
   useStore,
   weekProgress,
 } from "@/lib/store";
