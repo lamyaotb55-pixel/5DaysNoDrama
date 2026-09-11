@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Flame, History, RotateCcw, Trophy } from "lucide-react";
+import { ProgressChart } from "@/components/ProgressChart";
 import { WEEKS, getPlan } from "@/lib/plans";
 import { activeRun, dayKey, restartPlan, useTracker } from "@/lib/tracker";
 
