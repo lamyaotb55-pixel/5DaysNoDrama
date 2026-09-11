@@ -11,7 +11,6 @@ import {
   nextWorkout,
   planProgress,
   restartPlan,
-  skippedDayInWeek,
   useStore,
   weekProgress,
 } from "@/lib/store";
@@ -110,19 +109,18 @@ function CurrentPlanCard({
 }) {
   const plan = getPlan(planId)!;
   const accent = planAccent(plan.id);
-  const progress = planProgress(plan, state.completed, state.skips);
+  const progress = planProgress(plan, state.completed, state.walks);
   const next = effectiveDay(
     plan.id,
-    nextWorkout(plan, state.completed, state.skips),
+    nextWorkout(plan, state.completed, state.walks),
     state.customDays,
   );
   const streak = currentStreak(state.history);
   const round = state.rounds[plan.id] ?? 1;
-  const planDone = progress.done + progress.skipped >= progress.total;
-  const weeksDone = completedWeeks(plan, state.completed, state.skips);
+  const planDone = progress.done >= progress.total;
+  const weeksDone = completedWeeks(plan, state.completed, state.walks);
   const currentWeek = weekOf(next.day);
-  const wp = weekProgress(plan, currentWeek, state.completed, state.skips);
-  const skipUsed = Boolean(skippedDayInWeek(plan.id, currentWeek, state.skips));
+  const wp = weekProgress(plan, currentWeek, state.completed, state.walks);
 
   return (
     <>
@@ -146,11 +144,9 @@ function CurrentPlanCard({
               {planDone ? " ✓ all 8 weeks" : ""}
             </span>
             <span className="rounded-full bg-paper/25 px-2 py-0.5">
-              {wp.done + wp.skipped}/{wp.total} this week
+              {wp.done}/{wp.total} this week
             </span>
-            <span className="rounded-full bg-paper/25 px-2 py-0.5">
-              {skipUsed ? "Skip used" : "1 skip left"}
-            </span>
+            <span className="rounded-full bg-paper/25 px-2 py-0.5">Day 5, your call</span>
             {streak > 0 && (
               <span className="rounded-full bg-acid px-2 py-0.5 text-ink">
                 ⚡ {streak} day streak

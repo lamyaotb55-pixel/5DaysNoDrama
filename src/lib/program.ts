@@ -389,7 +389,7 @@ const DAY_OPTIONS: Record<PlanId, DayOption> = {
   "build-muscle": {
     kind: "mini",
     button: "I'll Mini",
-    headline: "The Mini — glute challenge 🍑",
+    headline: "The Mini — 10–15 minute glute challenge",
     goal: "10–15 minutes, no equipment needed",
     doneLabel: "Mini Done",
     items: [
