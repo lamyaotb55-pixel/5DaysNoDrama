@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
-import { getPlan } from "@/lib/program";
+import { dayInWeek, getPlan, weekOf } from "@/lib/program";
 import { useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/history")({
