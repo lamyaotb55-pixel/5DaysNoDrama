@@ -552,9 +552,9 @@ export function encouragement(planId: PlanId, dayNo: number, s: State): string {
   const base = planLines[(inWeek - 1) % planLines.length]!;
   const week = weeklyConsistency(s.history);
   const streak = currentStreak(s.history);
-  const wp = plan ? weekProgress(plan, weekNo, s.completed, s.skips) : null;
-  const weeksDone = plan ? completedWeeks(plan, s.completed, s.skips) : 0;
-  const remaining = wp ? wp.total - (wp.done + wp.skipped) : 0;
+  const wp = plan ? weekProgress(plan, weekNo, s.completed, s.walks) : null;
+  const weeksDone = plan ? completedWeeks(plan, s.completed, s.walks) : 0;
+  const remaining = wp ? wp.total - wp.done : 0;
 
   const parts = [`Week ${weekNo}, Day ${inWeek} of ${plan?.name ?? "your plan"} — done. ${base}`];
 
