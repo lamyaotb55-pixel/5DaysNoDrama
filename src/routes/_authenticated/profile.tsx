@@ -180,6 +180,17 @@ function ProfilePage() {
   );
 }
 
+function Mini({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl bg-muted px-3 py-3 text-center">
+      <p className="text-xl">{value}</p>
+      <p className="mt-1 text-[10px] font-bold tracking-wide text-muted-foreground uppercase">
+        {label}
+      </p>
+    </div>
+  );
+}
+
 function Stat({ label, value, accent }: { label: string; value: string; accent?: string }) {
   return (
     <div className={"surface px-4 py-4 " + (accent ?? "")}>
