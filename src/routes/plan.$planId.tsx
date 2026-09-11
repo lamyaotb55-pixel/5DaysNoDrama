@@ -50,15 +50,25 @@ function PlanPage() {
     <main className="mx-auto max-w-2xl px-5 pb-16">
       <div className="flex items-center justify-between gap-3 pt-8">
         <Link to="/" className="text-xs font-semibold text-muted-foreground">
-          ← Plans
+          ← Home
         </Link>
-        <Link
-          to="/progress"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground"
-        >
-          <LineChart className="size-3.5 text-rose" aria-hidden /> Progress
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            to="/customize/$planId"
+            params={{ planId: plan.id }}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground"
+          >
+            <Pencil className="size-3.5 text-rose" aria-hidden /> Plan details
+          </Link>
+          <Link
+            to="/progress"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground"
+          >
+            <LineChart className="size-3.5 text-rose" aria-hidden /> Progress
+          </Link>
+        </div>
       </div>
+
 
       <header className="mt-4">
         <p className="eyebrow text-rose">{plan.label}</p>
