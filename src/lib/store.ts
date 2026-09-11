@@ -91,12 +91,20 @@ function set(next: State) {
   listeners.forEach((l) => l());
 }
 
+let announced = false;
+
 function subscribe(cb: () => void) {
   if (!loaded) {
     loaded = true;
     state = load();
   }
   listeners.add(cb);
+  // After hydration the server snapshot was empty; nudge subscribers so the
+  // stored progress renders without needing a second interaction.
+  if (!announced) {
+    announced = true;
+    queueMicrotask(() => listeners.forEach((l) => l()));
+  }
   return () => listeners.delete(cb);
 }
 
