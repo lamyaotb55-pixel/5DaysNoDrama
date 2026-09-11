@@ -192,7 +192,7 @@ function PlanPage() {
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
                   <span
-                    className={`day-number ${completed || optionDone ? "text-success" : optionChosen ? "text-hot" : accent.text}`}
+                    className={`day-number ${completed || optionDone ? "text-success" : optionChosen ? "text-pink" : accent.text}`}
                   >
                     {String(dayInWeek(day.day)).padStart(2, "0")}
                   </span>
@@ -241,7 +241,7 @@ function PlanPage() {
                     <button
                       type="button"
                       onClick={() => setAltTarget(day)}
-                      className="flex-1 rounded-full border-2 border-hot px-4 py-3 text-xs font-bold tracking-wide text-hot uppercase"
+                      className="flex-1 rounded-full border-2 border-pink px-4 py-3 text-xs font-bold tracking-wide text-pink uppercase"
                     >
                       {option.button}
                     </button>
@@ -313,7 +313,7 @@ function PlanPage() {
       {altTarget && altTargetOption && (
         <div className="fixed inset-0 z-30 grid place-items-center bg-ink/50 p-5">
           <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-5 text-center">
-            <Footprints className="mx-auto size-7 text-hot" aria-hidden />
+            <Footprints className="mx-auto size-7 text-pink" aria-hidden />
             <h2 className="mt-2 text-xl">{altTargetOption.headline}</h2>
             <p className="mt-1.5 text-sm text-muted-foreground">{altTargetOption.goal}</p>
             <div className="mt-5 flex gap-3">
@@ -334,7 +334,7 @@ function PlanPage() {
                   chooseAlt(plan.id, altTarget.day);
                   setAltTarget(null);
                 }}
-                className="flex-1 rounded-full border-2 border-hot px-4 py-3 text-xs font-bold text-hot uppercase"
+                className="flex-1 rounded-full border-2 border-pink px-4 py-3 text-xs font-bold text-pink uppercase"
               >
                 {altTargetOption.button}
               </button>
