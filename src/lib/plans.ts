@@ -217,11 +217,23 @@ export function progress(ex: Exercise, week: number) {
   };
 }
 
-export const ENCOURAGEMENTS = [
-  "Smashed it! That's another one in the bank. 💥",
-  "Strong work — future you says thank you. ✨",
-  "You showed up and finished. That's the whole secret. 🔥",
-  "Consistency looks good on you. Keep going! 🚀",
-  "One day stronger than yesterday. 💪",
-  "That's how progress is built — rep by rep. 🏆",
-];
+/** Personalised cheer that names the plan, week, day and how far along you are. */
+export function buildEncouragement(opts: {
+  plan: Plan;
+  week: number;
+  dayNo: number;
+  focus: string;
+  doneCount: number;
+}) {
+  const { plan, week, dayNo, focus, doneCount } = opts;
+  const total = WEEKS * 5;
+  const left = Math.max(0, total - doneCount);
+  const templates = [
+    `Day ${dayNo} of Week ${week} — smashed! Your ${plan.name} plan is ${Math.round((doneCount / total) * 100)}% complete. ${plan.emoji}`,
+    `${focus} done and dusted. That's ${doneCount} ${plan.name} session${doneCount === 1 ? "" : "s"} in the bank — ${left} to go! 🔥`,
+    `Week ${week}, Day ${dayNo} ✅ You're getting stronger every ${plan.name} session. Keep the streak alive! 💪`,
+    `Nailed Day ${dayNo}. ${focus} is exactly what ${plan.name} is built on — future you says thank you. ✨`,
+    `That's Week ${week} Day ${dayNo} logged. ${doneCount}/${total} days of your ${plan.name} journey done. 🚀`,
+  ];
+  return templates[Math.floor(Math.random() * templates.length)] ?? templates[0]!;
+}
