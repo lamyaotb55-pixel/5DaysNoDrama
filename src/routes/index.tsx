@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, LineChart, Pencil, RotateCcw, Shuffle, Zap } from "lucide-react";
 import { PLANS, WEEKS, dayInWeek, estimateMinutes, getPlan, weekOf } from "@/lib/program";
