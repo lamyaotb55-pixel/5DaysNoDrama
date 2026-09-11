@@ -182,9 +182,9 @@ function ProgressPage() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="surface p-4">
-      <p className="eyebrow text-muted-foreground">{label}</p>
-      <p className="mt-1 text-xl font-semibold">{value}</p>
+    <div className="rounded-2xl border border-border bg-icy p-4 shadow-[var(--shadow-soft)]">
+      <p className="eyebrow text-ink/60">{label}</p>
+      <p className="mt-1 text-xl font-semibold text-ink">{value}</p>
     </div>
   );
 }
