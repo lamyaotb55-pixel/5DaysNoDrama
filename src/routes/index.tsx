@@ -38,7 +38,7 @@ function Home() {
 
   return (
     <main className="mx-auto max-w-2xl px-5 pb-16">
-      <div className="flex items-center justify-between gap-3 pt-6">
+      <div className="flex items-center justify-between gap-3 pt-6 pr-14">
         <Link to="/theme" className="eyebrow text-spicy">
           5 Days No Drama
         </Link>
