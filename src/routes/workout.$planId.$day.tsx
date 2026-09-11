@@ -130,8 +130,8 @@ function WorkoutPage() {
 
           <button
             onClick={() => {
-              finishSession(plan.id, day.day);
-              navigate({ to: "/plan/$planId", params: { planId: plan.id } });
+              const message = finishSession(plan.id, day.day);
+              setCheer(message ?? "Day done. Strong work.");
             }}
             className="mt-5 w-full rounded-full bg-ink px-6 py-3.5 text-sm font-semibold text-primary-foreground"
           >
