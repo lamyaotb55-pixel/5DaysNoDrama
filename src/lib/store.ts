@@ -535,21 +535,27 @@ const PLAN_LINES: Record<PlanId, string[]> = {
 export function encouragement(planId: PlanId, dayNo: number, s: State): string {
   const plan = getPlan(planId);
   const planLines = PLAN_LINES[planId];
-  const base = planLines[(dayNo - 1) % planLines.length]!;
+  const inWeek = dayInWeek(dayNo);
+  const weekNo = weekOf(dayNo);
+  const base = planLines[(inWeek - 1) % planLines.length]!;
   const week = weeklyConsistency(s.history);
   const streak = currentStreak(s.history);
-  const done = plan ? planProgress(plan, s.completed).done : 0;
-  const total = plan?.days.length ?? 5;
-  const remaining = total - done;
+  const wp = plan ? weekProgress(plan, weekNo, s.completed, s.skips) : null;
+  const weeksDone = plan ? completedWeeks(plan, s.completed, s.skips) : 0;
+  const remaining = wp ? wp.total - (wp.done + wp.skipped) : 0;
 
-  const parts = [`Day ${dayNo} of ${plan?.name ?? "your plan"} — done. ${base}`];
+  const parts = [
+    `Week ${weekNo}, Day ${inWeek} of ${plan?.name ?? "your plan"} — done. ${base}`,
+  ];
 
-  if (done >= total) {
-    parts.push("All 5 days complete. Restart the plan whenever you're ready to go again.");
+  if (weeksDone >= WEEKS) {
+    parts.push("All 8 weeks complete. Restart the plan whenever you're ready to go again.");
+  } else if (remaining <= 0) {
+    parts.push(`Week ${weekNo} closed out — ${WEEKS - weeksDone} weeks to go.`);
   } else if (remaining === 1) {
-    parts.push("One day left to close out the plan. No drama.");
+    parts.push(`One day left in week ${weekNo}. No drama.`);
   } else {
-    parts.push(`${remaining} days left in this round.`);
+    parts.push(`${remaining} days left in week ${weekNo}.`);
   }
 
   if (streak >= 3) parts.push(`${streak} days in a row — that streak is doing the work.`);
