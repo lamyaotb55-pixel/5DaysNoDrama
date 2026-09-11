@@ -150,6 +150,127 @@
   color: #ffffff;
 }
 
+/* ---- Micro-interactions ---- */
+
+@keyframes pr-pop {
+  0% {
+    transform: scale(0.6) rotate(-6deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.12) rotate(2deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes bolt-zap {
+  0%,
+  100% {
+    transform: rotate(-8deg) scale(1);
+  }
+  25% {
+    transform: rotate(10deg) scale(1.18);
+  }
+  50% {
+    transform: rotate(-6deg) scale(1.05);
+  }
+}
+
+@keyframes acid-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--acid) 90%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 18px color-mix(in oklab, var(--acid) 0%, transparent);
+  }
+}
+
+@keyframes check-pop {
+  0% {
+    transform: scale(0.5);
+  }
+  55% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes success-flash {
+  0% {
+    background-color: color-mix(in oklab, var(--success) 70%, #ffffff);
+  }
+  100% {
+    background-color: color-mix(in oklab, var(--success) 10%, #ffffff);
+  }
+}
+
+@keyframes success-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--success) 85%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 14px color-mix(in oklab, var(--success) 0%, transparent);
+  }
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-30px) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(70vh) rotate(540deg);
+    opacity: 0;
+  }
+}
+
+@utility pr-pop {
+  animation: pr-pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+@utility pr-bolt {
+  display: inline-block;
+  animation: bolt-zap 0.9s ease-in-out infinite;
+}
+
+@utility pr-ring {
+  animation: acid-ring 1.4s ease-out infinite;
+}
+
+@utility check-pop {
+  animation: check-pop 0.35s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+
+@utility success-flash {
+  animation:
+    success-flash 0.6s ease-out both,
+    success-ring 0.7s ease-out both;
+}
+
+@utility confetti-bit {
+  animation: confetti-fall 1.8s linear forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pr-pop,
+  .pr-bolt,
+  .pr-ring,
+  .check-pop,
+  .success-flash,
+  .confetti-bit {
+    animation: none !important;
+  }
+}
+
 @utility day-number {
   font-family: var(--font-display);
   font-size: clamp(3rem, 16vw, 4.5rem);

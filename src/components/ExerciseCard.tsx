@@ -46,13 +46,14 @@ export function ExerciseCard({
             {exercise.perSide ? " per side" : ""}
           </p>
           <span
+            key={complete ? "done" : "todo"}
             className={
               "mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase " +
-              (complete ? "bg-success text-ink" : "bg-secondary text-ink")
+              (complete ? "bg-success text-ink check-pop" : "bg-secondary text-ink")
             }
           >
             {complete && <Check className="size-3" aria-hidden />}
-            {complete ? "Exercise complete" : `${doneSets}/${exercise.sets} sets`}
+            {complete ? "✓ Exercise complete" : `${doneSets}/${exercise.sets} sets`}
           </span>
         </div>
       </div>
@@ -86,10 +87,10 @@ export function ExerciseCard({
           const prev = hint?.last[i];
           return (
             <div
-              key={i}
+              key={`${i}-${log.done ? "done" : "todo"}`}
               className={
                 "grid grid-cols-[2.6rem_1fr_1fr_2.5rem] items-center gap-2 rounded-lg border px-1.5 py-2 transition-colors " +
-                (log.done ? "border-success bg-success/10" : "border-border bg-card")
+                (log.done ? "border-success bg-success/10 success-flash" : "border-border bg-card")
               }
             >
               <span className="text-center text-xs font-bold tabular-nums">
@@ -146,7 +147,11 @@ export function ExerciseCard({
                     : "border-input bg-card text-muted-foreground")
                 }
               >
-                <Check className="size-4" aria-hidden />
+                <Check
+                  key={log.done ? "done" : "todo"}
+                  className={"size-4 " + (log.done ? "check-pop" : "")}
+                  aria-hidden
+                />
               </button>
             </div>
           );

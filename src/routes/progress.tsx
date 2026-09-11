@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Trophy } from "lucide-react";
+import { PrCelebration } from "@/components/PrCelebration";
 import { WeightChart } from "@/components/WeightChart";
 import { getPlan } from "@/lib/program";
 import { totalVolume, useStore, weeklyConsistency, weeklyHighlights } from "@/lib/store";
@@ -32,11 +34,39 @@ function ProgressPage() {
   const prs = Object.entries(state.prs).sort((a, b) => b[1].weight - a[1].weight);
   const weekComplete = week.workouts >= 5;
 
+  // PRs set during the most recent finished workout get the celebration treatment.
+  const lastAt = state.history.length
+    ? Math.max(...state.history.map((h) => h.at))
+    : 0;
+  const freshPrs = prs.filter(([, pr]) => lastAt > 0 && pr.at >= lastAt - 2000);
+  const freshNames = freshPrs.map(([name]) => name);
+  const [celebrate, setCelebrate] = useState(false);
+
+  useEffect(() => {
+    if (!freshNames.length) return;
+    const sig = `pr-cheered:${lastAt}`;
+    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem(sig)) return;
+    sessionStorage.setItem(sig, "1");
+    setCelebrate(true);
+  }, [lastAt, freshNames.length]);
+
   return (
     <main className="mx-auto max-w-2xl px-5 pb-16">
-      <div className="pt-8">
+      {celebrate && (
+        <PrCelebration
+          prs={freshPrs.map(([name, pr]) => `${name} · ${pr.weight} kg × ${pr.reps}`)}
+          onDone={() => setCelebrate(false)}
+        />
+      )}
+      <div className="flex items-center justify-between pt-8">
         <Link to="/" className="text-xs font-bold text-muted-foreground uppercase">
           ← Home
+        </Link>
+        <Link
+          to="/theme"
+          className="rounded-full bg-secondary px-3 py-1.5 text-[11px] font-bold uppercase"
+        >
+          Palette
         </Link>
       </div>
 
@@ -133,20 +163,36 @@ function ProgressPage() {
           </p>
         ) : (
           <ul className="mt-3 space-y-2">
-            {prs.map(([name, pr]) => (
-              <li
-                key={name}
-                className="flex items-center justify-between gap-3 border-b border-border pb-2 text-sm last:border-0"
-              >
-                <span className="inline-flex items-center gap-2 font-semibold">
-                  <Trophy className="size-3.5 text-ink" aria-hidden />
-                  {name}
-                </span>
-                <span className="rounded-full bg-acid px-2 py-0.5 text-xs font-bold whitespace-nowrap text-ink">
-                  {pr.weight} kg × {pr.reps}
-                </span>
-              </li>
-            ))}
+            {prs.map(([name, pr]) => {
+              const isNew = freshNames.includes(name);
+              return (
+                <li
+                  key={name}
+                  className="flex items-center justify-between gap-3 border-b border-border pb-2 text-sm last:border-0"
+                >
+                  <span className="inline-flex items-center gap-2 font-semibold">
+                    <Trophy
+                      className={"size-3.5 " + (isNew ? "text-spicy" : "text-ink")}
+                      aria-hidden
+                    />
+                    {name}
+                    {isNew && (
+                      <span className="pr-pop inline-flex items-center gap-0.5 rounded-full bg-acid px-1.5 py-0.5 text-[10px] font-bold text-ink uppercase">
+                        New <span className="pr-bolt">⚡</span>
+                      </span>
+                    )}
+                  </span>
+                  <span
+                    className={
+                      "rounded-full bg-acid px-2 py-0.5 text-xs font-bold whitespace-nowrap text-ink " +
+                      (isNew ? "pr-ring" : "")
+                    }
+                  >
+                    {pr.weight} kg × {pr.reps}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>
