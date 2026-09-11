@@ -357,3 +357,54 @@ export function repRange(reps: string): { min: number; max: number } {
   const max = nums[1] ?? min;
   return { min, max };
 }
+
+/* ---------- Day 5 "how will you show up today?" option ---------- */
+
+export type DayOption = {
+  /** 'walk' = 10K step challenge, 'mini' = short glute challenge */
+  kind: "walk" | "mini";
+  /** Secondary button label */
+  button: string;
+  headline: string;
+  goal: string;
+  doneLabel: string;
+  items?: { name: string; reps: string }[];
+};
+
+const DAY_OPTIONS: Record<PlanId, DayOption> = {
+  "lose-weight": {
+    kind: "walk",
+    button: "I'll Walk",
+    headline: "10K. That's the deal. 🚶",
+    goal: "Goal: 10,000+ steps",
+    doneLabel: "10K & Done",
+  },
+  "tone-up": {
+    kind: "walk",
+    button: "I'll Walk",
+    headline: "10K. That's the deal. 🚶",
+    goal: "Goal: 10,000+ steps",
+    doneLabel: "10K & Done",
+  },
+  "build-muscle": {
+    kind: "mini",
+    button: "I'll Mini",
+    headline: "The Mini — glute challenge 🍑",
+    goal: "10–15 minutes, no equipment needed",
+    doneLabel: "Mini Done",
+    items: [
+      { name: "Glute Bridge", reps: "20 reps" },
+      { name: "Hip Thrust (bodyweight)", reps: "20 reps" },
+      { name: "Reverse Lunge", reps: "10 per side" },
+      { name: "Kickback", reps: "15 per side" },
+      { name: "Fire Hydrant", reps: "15 per side" },
+      { name: "Glute Bridge Hold", reps: "45 seconds" },
+    ],
+  },
+};
+
+/** The alternative way to show up on day 5 of a plan. */
+export function dayOption(planId: string | undefined, absDayNo: number): DayOption | undefined {
+  if (!planId || dayInWeek(absDayNo) !== DAYS_PER_WEEK) return undefined;
+  return DAY_OPTIONS[planId as PlanId];
+}
