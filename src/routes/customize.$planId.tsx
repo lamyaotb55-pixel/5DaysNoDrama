@@ -33,6 +33,8 @@ function CustomizePage() {
   const basePlan = getPlan(planId);
   const state = useStore();
   const [draft, setDraft] = useState<{ day: number; ex: Draft } | null>(null);
+  const [pending, setPending] = useState<{ day: number; index: number; name: string } | null>(null);
+  const [undo, setUndo] = useState<{ day: number; name: string; list: Exercise[] } | null>(null);
 
   if (!basePlan) {
     return (
