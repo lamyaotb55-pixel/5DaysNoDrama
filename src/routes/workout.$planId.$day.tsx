@@ -209,11 +209,15 @@ function WorkoutPage() {
       </header>
 
       <div className="mt-4">
-        <p className="text-[11px] font-bold tracking-wide text-muted-foreground uppercase">
-          {allDone
-            ? "All exercises complete ✓"
-            : `${doneExercises} / ${total} exercises · one more set.`}
-        </p>
+        {allDone ? (
+          <span className="check-pop inline-flex items-center gap-1 rounded-full bg-success px-3 py-1 text-[11px] font-bold text-ink uppercase">
+            <Check className="size-3.5" aria-hidden /> ✓ Day complete
+          </span>
+        ) : (
+          <p className="text-[11px] font-bold tracking-wide text-muted-foreground uppercase">
+            {doneExercises} / {total} exercises · one more set.
+          </p>
+        )}
         <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-secondary">
           <div
             className={
