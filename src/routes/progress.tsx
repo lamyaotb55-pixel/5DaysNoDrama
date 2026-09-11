@@ -96,14 +96,14 @@ function ProgressPage() {
               {week.minutes} min trained
               {week.bestDay ? ` · biggest day: ${week.bestDay.title}` : ""}
             </p>
-            <div className="mt-3 rounded-xl bg-rose/10 p-3">
-              <p className="eyebrow text-rose">Records this week</p>
+            <div className="mt-3 rounded-xl bg-butter/60 p-3">
+              <p className="eyebrow text-ink/70">Records this week</p>
               {week.prs.length === 0 ? (
-                <p className="mt-1 text-xs font-semibold text-muted-foreground">
+                <p className="mt-1 text-xs font-semibold text-ink/60">
                   No new records yet — add a little weight next session.
                 </p>
               ) : (
-                <ul className="mt-1 space-y-0.5 text-xs font-semibold">
+                <ul className="mt-1 space-y-0.5 text-xs font-semibold text-ink">
                   {week.prs.map((pr) => (
                     <li key={pr}>🏆 {pr}</li>
                   ))}
