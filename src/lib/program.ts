@@ -4,10 +4,10 @@ export type Exercise = {
   name: string;
   sets: number;
   reps: string;
-  perSide?: boolean;
-  superset?: string;
+  perSide?: boolean | undefined;
+  superset?: string | undefined;
   /** Optional image/GIF URL used by the exercise demo box. */
-  media?: string;
+  media?: string | undefined;
 };
 
 export type Circuit = {

@@ -11,7 +11,7 @@ export function MediaBox({
 }: {
   name: string;
   compact?: boolean;
-  src?: string;
+  src?: string | undefined;
 }) {
   const initials = name
     .replace(/[^a-zA-Z ]/g, "")
