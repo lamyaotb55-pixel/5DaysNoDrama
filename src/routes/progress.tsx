@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Trophy } from "lucide-react";
 import { WeightChart } from "@/components/WeightChart";
 import { getPlan } from "@/lib/program";
-import { totalVolume, useStore, weeklyConsistency } from "@/lib/store";
+import { totalVolume, useStore, weeklyConsistency, weeklyHighlights } from "@/lib/store";
 
 export const Route = createFileRoute("/progress")({
   head: () => ({
