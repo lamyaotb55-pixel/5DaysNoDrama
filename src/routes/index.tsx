@@ -149,7 +149,7 @@ function CurrentPlanCard({
           <Link
             to="/workout/$planId/$day"
             params={{ planId: plan.id, day: String(next.day) }}
-            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-ink px-5 py-3.5 text-sm font-semibold text-primary-foreground"
+            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-rose px-5 py-3.5 text-sm font-semibold text-accent-foreground shadow-[var(--shadow-lift)]"
           >
             Start Workout <ArrowRight className="size-4" aria-hidden />
           </Link>
