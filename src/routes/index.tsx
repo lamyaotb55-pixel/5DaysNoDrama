@@ -145,11 +145,9 @@ function CurrentPlanCard({
               {planDone ? " ✓ all 8 weeks" : ""}
             </span>
             <span className="rounded-full bg-paper/25 px-2 py-0.5">
-              {wp.done + wp.skipped}/{wp.total} this week
+              {wp.done}/{wp.total} this week
             </span>
-            <span className="rounded-full bg-paper/25 px-2 py-0.5">
-              {skipUsed ? "Skip used" : "1 skip left"}
-            </span>
+            <span className="rounded-full bg-paper/25 px-2 py-0.5">Day 5, your call</span>
             {streak > 0 && (
               <span className="rounded-full bg-acid px-2 py-0.5 text-ink">
                 ⚡ {streak} day streak
