@@ -89,7 +89,7 @@ function ThemePage() {
                   <span className={"font-display text-lg " + a.on}>{p.name.slice(0, 1)}</span>
                 </span>
                 <div className="min-w-0">
-                  <p className={"eyebrow " + a.text}>{p.tagline ?? p.focus ?? "Plan"}</p>
+                  <p className={"eyebrow " + a.text}>{p.label}</p>
                   <p className="text-sm font-bold uppercase">{p.name}</p>
                 </div>
               </div>

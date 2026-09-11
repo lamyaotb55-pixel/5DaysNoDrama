@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Trophy } from "lucide-react";
+import { PrCelebration } from "@/components/PrCelebration";
 import { WeightChart } from "@/components/WeightChart";
 import { getPlan } from "@/lib/program";
 import { totalVolume, useStore, weeklyConsistency, weeklyHighlights } from "@/lib/store";
