@@ -118,9 +118,15 @@ function CurrentPlanCard({
               style={{ width: `${progress.pct}%` }}
             />
           </div>
-          <p className="mt-2 text-[11px] font-semibold text-ink/60">
-            {progress.done}/{progress.total} days completed
-            {streak > 0 ? ` · ${streak} day streak` : ""}
+          <p className="mt-2 flex flex-wrap items-center gap-2 text-[11px] font-semibold text-ink/60">
+            <span>
+              {progress.done}/{progress.total} days completed
+            </span>
+            {streak > 0 && (
+              <span className="rounded-full bg-butter px-2 py-0.5 text-ink">
+                🔥 {streak} day streak
+              </span>
+            )}
           </p>
         </div>
 
