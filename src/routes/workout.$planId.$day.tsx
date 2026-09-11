@@ -1,16 +1,18 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Check, Flame, Trophy } from "lucide-react";
+import { Check, Flame, Footprints, Trophy } from "lucide-react";
 import { ExerciseCard } from "@/components/ExerciseCard";
-import { getDay, getPlan } from "@/lib/program";
+import { WEEKS, dayInWeek, getDay, getPlan, weekOf } from "@/lib/program";
 import { planAccent } from "@/lib/plan-theme";
 import {
+  canSkip,
   effectiveDay,
   finishSession,
   sessionKey,
   setCardio,
   setKey,
   setNotes,
+  skipDay,
   startSession,
   summarize,
   useStore,
