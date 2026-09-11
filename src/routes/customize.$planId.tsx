@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Pencil, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Pencil, Plus, RotateCcw, Trash2, Undo2 } from "lucide-react";
 import { MediaBox } from "@/components/MediaBox";
 import { getPlan, type Exercise } from "@/lib/program";
 import { effectiveDay, resetDayExercises, saveDayExercises, useStore } from "@/lib/store";
