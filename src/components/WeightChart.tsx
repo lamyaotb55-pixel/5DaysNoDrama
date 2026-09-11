@@ -63,8 +63,8 @@ export function WeightChart({ trend }: { trend: Record<string, BestSet[]> }) {
             <Line
               type="monotone"
               dataKey="weight"
-              stroke="var(--rose)"
-              strokeWidth={2.5}
+              stroke="var(--spicy)"
+              strokeWidth={3}
               dot={{ r: 3 }}
             />
           </LineChart>
