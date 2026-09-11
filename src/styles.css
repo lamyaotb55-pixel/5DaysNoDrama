@@ -5,11 +5,12 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * 5 Days No Drama — premium, minimal, feminine-strong. Four colours only:
- *   ink   : deep plum-black (text, strong surfaces)
- *   paper : warm off-white background
- *   rose  : signature rose accent
- *   sand  : soft neutral for cards, chips, muted states
+ * 5 Days No Drama — Lilac & Mint, minimal and colourful. Four colours only:
+ *   ink   : deep plum-violet (text, strong surfaces)
+ *   paper : cool white background
+ *   rose  : signature lilac accent
+ *   mint  : fresh mint highlight
+ *   sand  : soft lilac-tinted neutral for cards, chips, muted states
  */
 
 @theme inline {
