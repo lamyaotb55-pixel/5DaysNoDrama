@@ -5,12 +5,13 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * 5 Days No Drama — Lilac & Mint, minimal and colourful. Four colours only:
- *   ink   : deep plum-violet (text, strong surfaces)
- *   paper : cool white background
- *   rose  : signature lilac accent
- *   mint  : fresh mint highlight
- *   sand  : soft lilac-tinted neutral for cards, chips, muted states
+ * 5 Days No Drama palette:
+ *   ink    #171717 : typography, navigation, strong contrast
+ *   paper  #FFF9F2 : cream app background
+ *   rose   #FF3B30 : flash red — logo, Start Workout, active states, bars, PRs
+ *   icy    #BDE7FF : info cards, rest timer, stats, secondary tags
+ *   butter #FFE66D : streaks, achievements, NEW — sparingly
+ *   sand           : soft warm neutral for chips and muted states
  */
 
 @theme inline {
@@ -41,7 +42,8 @@
   --color-ring: var(--ring);
   --color-ink: var(--ink);
   --color-rose: var(--rose);
-  --color-mint: var(--mint);
+  --color-icy: var(--icy);
+  --color-butter: var(--butter);
   --color-sand: var(--sand);
   --color-paper: var(--paper);
   --font-display: "Fraunces", ui-serif, Georgia, serif;
@@ -51,11 +53,12 @@
 :root {
   --radius: 1.25rem;
 
-  --ink: oklch(0.245 0.048 302);
-  --rose: oklch(0.615 0.125 300);
-  --mint: oklch(0.79 0.128 165);
-  --paper: oklch(0.982 0.008 300);
-  --sand: oklch(0.932 0.018 300);
+  --ink: #171717;
+  --rose: #ff3b30;
+  --icy: #bde7ff;
+  --butter: #ffe66d;
+  --paper: #fff9f2;
+  --sand: oklch(0.945 0.018 70);
 
   --background: var(--paper);
   --foreground: var(--ink);
@@ -77,7 +80,7 @@
   --input: color-mix(in oklab, var(--ink) 18%, var(--paper));
   --ring: var(--rose);
 
-  --gradient-warm: linear-gradient(140deg, color-mix(in oklab, var(--rose) 24%, var(--paper)), color-mix(in oklab, var(--mint) 28%, var(--paper)));
+  --gradient-warm: linear-gradient(140deg, color-mix(in oklab, var(--rose) 20%, var(--paper)), color-mix(in oklab, var(--icy) 55%, var(--paper)));
   --shadow-soft: 0 14px 40px -24px color-mix(in oklab, var(--ink) 55%, transparent);
   --shadow-lift: 0 20px 50px -22px color-mix(in oklab, var(--rose) 45%, transparent);
 }

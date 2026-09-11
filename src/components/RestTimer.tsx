@@ -23,10 +23,10 @@ export function RestTimer({ seconds = 90 }: { seconds?: number }) {
   }, [running]);
 
   return (
-    <div className="mt-3 flex items-center gap-2 rounded-full bg-secondary px-3 py-1.5">
+    <div className="mt-3 flex items-center gap-2 rounded-full bg-icy px-3 py-1.5">
       <Timer className="size-3.5 text-rose" aria-hidden />
-      <span className="text-xs font-semibold text-muted-foreground">Rest</span>
-      <span className="ml-auto font-mono text-sm font-bold tabular-nums">{fmt(left)}</span>
+      <span className="text-xs font-semibold text-ink/70">Rest</span>
+      <span className="ml-auto font-mono text-sm font-bold text-ink tabular-nums">{fmt(left)}</span>
       <button
         type="button"
         onClick={() => setRunning((r) => !r)}

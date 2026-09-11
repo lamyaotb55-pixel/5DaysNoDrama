@@ -78,7 +78,7 @@ function Home() {
                   to="/plan/$planId"
                   params={{ planId: plan.id }}
                   onClick={() => choosePlan(plan.id)}
-                  className="mt-4 inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-primary-foreground"
+                  className="mt-4 inline-flex items-center gap-2 rounded-full bg-rose px-5 py-2.5 text-sm font-semibold text-accent-foreground"
                 >
                   Start Plan
                   <ArrowRight className="size-4" aria-hidden />
@@ -118,9 +118,15 @@ function CurrentPlanCard({
               style={{ width: `${progress.pct}%` }}
             />
           </div>
-          <p className="mt-2 text-[11px] font-semibold text-ink/60">
-            {progress.done}/{progress.total} days completed
-            {streak > 0 ? ` · ${streak} day streak` : ""}
+          <p className="mt-2 flex flex-wrap items-center gap-2 text-[11px] font-semibold text-ink/60">
+            <span>
+              {progress.done}/{progress.total} days completed
+            </span>
+            {streak > 0 && (
+              <span className="rounded-full bg-butter px-2 py-0.5 text-ink">
+                🔥 {streak} day streak
+              </span>
+            )}
           </p>
         </div>
 
@@ -143,7 +149,7 @@ function CurrentPlanCard({
           <Link
             to="/workout/$planId/$day"
             params={{ planId: plan.id, day: String(next.day) }}
-            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-ink px-5 py-3.5 text-sm font-semibold text-primary-foreground"
+            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-rose px-5 py-3.5 text-sm font-semibold text-accent-foreground shadow-[var(--shadow-lift)]"
           >
             Start Workout <ArrowRight className="size-4" aria-hidden />
           </Link>

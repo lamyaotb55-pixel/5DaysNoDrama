@@ -121,7 +121,7 @@ function PlanPage() {
                 to="/workout/$planId/$day"
                 params={{ planId: plan.id, day: String(day.day) }}
                 onClick={() => choosePlan(plan.id)}
-                className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-ink px-5 py-3 text-sm font-semibold text-primary-foreground"
+                className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-rose px-5 py-3 text-sm font-semibold text-accent-foreground"
               >
                 {completed ? "Repeat Workout" : inProgress ? "Resume Workout" : "Start Workout"}
               </Link>

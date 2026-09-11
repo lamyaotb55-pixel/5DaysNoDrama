@@ -77,31 +77,33 @@ function ProgressPage() {
         ) : (
           <>
             <div className="mt-3 grid grid-cols-3 gap-3">
-              <div className="rounded-xl bg-secondary p-3">
-                <p className="eyebrow text-muted-foreground">Workouts</p>
-                <p className="mt-0.5 text-lg font-semibold">{week.workouts}/5</p>
+              <div className="rounded-xl bg-icy p-3">
+                <p className="eyebrow text-ink/60">Workouts</p>
+                <p className="mt-0.5 text-lg font-semibold text-ink">{week.workouts}/5</p>
               </div>
-              <div className="rounded-xl bg-secondary p-3">
-                <p className="eyebrow text-muted-foreground">Volume</p>
-                <p className="mt-0.5 text-lg font-semibold">{week.volume.toLocaleString()} kg</p>
+              <div className="rounded-xl bg-icy p-3">
+                <p className="eyebrow text-ink/60">Volume</p>
+                <p className="mt-0.5 text-lg font-semibold text-ink">
+                  {week.volume.toLocaleString()} kg
+                </p>
               </div>
-              <div className="rounded-xl bg-secondary p-3">
-                <p className="eyebrow text-muted-foreground">Sets</p>
-                <p className="mt-0.5 text-lg font-semibold">{week.sets}</p>
+              <div className="rounded-xl bg-icy p-3">
+                <p className="eyebrow text-ink/60">Sets</p>
+                <p className="mt-0.5 text-lg font-semibold text-ink">{week.sets}</p>
               </div>
             </div>
             <p className="mt-3 text-xs font-semibold text-muted-foreground">
               {week.minutes} min trained
               {week.bestDay ? ` · biggest day: ${week.bestDay.title}` : ""}
             </p>
-            <div className="mt-3 rounded-xl bg-rose/10 p-3">
-              <p className="eyebrow text-rose">Records this week</p>
+            <div className="mt-3 rounded-xl bg-butter/60 p-3">
+              <p className="eyebrow text-ink/70">Records this week</p>
               {week.prs.length === 0 ? (
-                <p className="mt-1 text-xs font-semibold text-muted-foreground">
+                <p className="mt-1 text-xs font-semibold text-ink/60">
                   No new records yet — add a little weight next session.
                 </p>
               ) : (
-                <ul className="mt-1 space-y-0.5 text-xs font-semibold">
+                <ul className="mt-1 space-y-0.5 text-xs font-semibold text-ink">
                   {week.prs.map((pr) => (
                     <li key={pr}>🏆 {pr}</li>
                   ))}
@@ -182,9 +184,9 @@ function ProgressPage() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="surface p-4">
-      <p className="eyebrow text-muted-foreground">{label}</p>
-      <p className="mt-1 text-xl font-semibold">{value}</p>
+    <div className="rounded-2xl border border-border bg-icy p-4 shadow-[var(--shadow-soft)]">
+      <p className="eyebrow text-ink/60">{label}</p>
+      <p className="mt-1 text-xl font-semibold text-ink">{value}</p>
     </div>
   );
 }
