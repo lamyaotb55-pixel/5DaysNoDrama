@@ -110,11 +110,19 @@ function CurrentPlanCard({
 }) {
   const plan = getPlan(planId)!;
   const accent = planAccent(plan.id);
-  const progress = planProgress(plan, state.completed);
-  const next = effectiveDay(plan.id, nextWorkout(plan, state.completed), state.customDays);
+  const progress = planProgress(plan, state.completed, state.skips);
+  const next = effectiveDay(
+    plan.id,
+    nextWorkout(plan, state.completed, state.skips),
+    state.customDays,
+  );
   const streak = currentStreak(state.history);
   const round = state.rounds[plan.id] ?? 1;
-  const weekDone = progress.done >= progress.total;
+  const planDone = progress.done + progress.skipped >= progress.total;
+  const weeksDone = completedWeeks(plan, state.completed, state.skips);
+  const currentWeek = weekOf(next.day);
+  const wp = weekProgress(plan, currentWeek, state.completed, state.skips);
+  const skipUsed = Boolean(skippedDayInWeek(plan.id, currentWeek, state.skips));
 
   return (
     <>
