@@ -161,11 +161,17 @@ function DayPage() {
         <button
           onClick={() => {
             toggleDayDone(week, dayNo);
+            setEditing(false);
             setCheer(
               isDone
                 ? null
-                : (ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)] ??
-                  ENCOURAGEMENTS[0]!),
+                : buildEncouragement({
+                    plan,
+                    week,
+                    dayNo,
+                    focus: day.focus,
+                    doneCount: Object.keys(run.done).length + 1,
+                  }),
             );
           }}
           className={
