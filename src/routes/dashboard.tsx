@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check, Flame, History, NotebookPen, RotateCcw, Trophy } from "lucide-react";
+import { Check, Flame, History, NotebookPen, RotateCcw, Sliders, Target, Trophy, Zap } from "lucide-react";
 import { ProgressChart } from "@/components/ProgressChart";
 import { WEEKS, getPlan } from "@/lib/plans";
-import { activeRun, dayKey, restartPlan, useTracker } from "@/lib/tracker";
+import { activeRun, dayKey, effectivePlan, restartPlan, streakStats, useTracker } from "@/lib/tracker";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -26,7 +26,8 @@ export const Route = createFileRoute("/dashboard")({
 function Dashboard() {
   const state = useTracker();
   const run = activeRun(state);
-  const plan = run ? getPlan(run.planId) : undefined;
+  const basePlan = run ? getPlan(run.planId) : undefined;
+  const plan = basePlan && run ? effectivePlan(basePlan, state.templates) : undefined;
   const history = state.runs.filter((r) => r.id !== state.activeRunId);
 
   if (!run || !plan) {
@@ -51,6 +52,7 @@ function Dashboard() {
   const totalDays = WEEKS * 5;
   const doneCount = Object.keys(run.done).length;
   const pct = Math.round((doneCount / totalDays) * 100);
+  const streak = streakStats(run);
   const volume = Object.values(run.logs).reduce(
     (sum, l) => sum + l.reps * l.rounds * (l.weight || 0),
     0,
@@ -70,6 +72,14 @@ function Dashboard() {
             Started {new Date(run.startedAt).toLocaleDateString()} · 8-week track
           </p>
         </div>
+        <div className="flex flex-wrap gap-3">
+        <Link
+          to="/templates"
+          className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold transition-colors hover:border-sky hover:text-sky"
+        >
+          <Sliders className="size-4" aria-hidden />
+          Customize workouts
+        </Link>
         <button
           onClick={() => {
             if (confirm("Start a fresh 8-week track? Your current progress is saved to history."))
@@ -80,6 +90,7 @@ function Dashboard() {
           <RotateCcw className="size-4" aria-hidden />
           Restart plan
         </button>
+        </div>
       </header>
 
       <section className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -107,6 +118,37 @@ function Dashboard() {
             <Trophy className="size-6 text-sky" aria-hidden />
             {volume.toLocaleString()}
             <span className="text-base font-medium text-muted-foreground">kg</span>
+          </p>
+        </div>
+      </section>
+
+      <section className="mt-4 grid gap-4 sm:grid-cols-3">
+        <div className="surface p-5">
+          <p className="text-xs font-semibold text-muted-foreground">Current streak</p>
+          <p className="mt-1 flex items-center gap-2 text-3xl font-extrabold">
+            <Zap className="size-6 text-pink" aria-hidden />
+            {streak.current}
+            <span className="text-base font-medium text-muted-foreground">
+              day{streak.current === 1 ? "" : "s"} in a row
+            </span>
+          </p>
+        </div>
+        <div className="surface p-5">
+          <p className="text-xs font-semibold text-muted-foreground">Longest streak</p>
+          <p className="mt-1 flex items-center gap-2 text-3xl font-extrabold">
+            <Flame className="size-6 text-sky" aria-hidden />
+            {streak.longest}
+            <span className="text-base font-medium text-muted-foreground">days</span>
+          </p>
+        </div>
+        <div className="surface p-5">
+          <p className="text-xs font-semibold text-muted-foreground">Consistency</p>
+          <p className="mt-1 flex items-center gap-2 text-3xl font-extrabold gradient-text">
+            <Target className="size-6 text-pink" aria-hidden />
+            {streak.consistency}%
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {doneCount} of {streak.expected} days expected so far
           </p>
         </div>
       </section>

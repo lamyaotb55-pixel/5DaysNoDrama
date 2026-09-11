@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowRight, CalendarDays, Dumbbell, LineChart, Play } from "lucide-react";
 import { PLANS, WEEKS, getPlan } from "@/lib/plans";
-import { activeRun, dayKey, startPlan, useTracker } from "@/lib/tracker";
+import { activeRun, dayKey, startPlan, streakStats, useTracker } from "@/lib/tracker";
 
 
 export const Route = createFileRoute("/")({
@@ -31,6 +31,7 @@ function Home() {
   const current = run ? getPlan(run.planId) : undefined;
   const [picking, setPicking] = useState(false);
 
+  const streak = run ? streakStats(run) : null;
   const doneCount = run ? Object.keys(run.done).length : 0;
   const totalDays = WEEKS * 5;
   const pct = Math.round((doneCount / totalDays) * 100);
@@ -106,6 +107,13 @@ function Home() {
                 />
               </div>
             </div>
+
+            {streak && (
+              <p className="mt-4 text-xs font-semibold text-muted-foreground">
+                🔥 {streak.current} day streak · best {streak.longest} · {streak.consistency}%
+                consistency
+              </p>
+            )}
 
             {!allDone ? (
               <>
