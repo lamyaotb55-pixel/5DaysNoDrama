@@ -102,7 +102,7 @@ export function ProgressChart({ plan, run }: { plan: Plan; run: Run }) {
                 background: "var(--card)",
                 fontSize: 12,
               }}
-              formatter={(v: number | null) => (v === null ? "—" : `${v} kg`)}
+              formatter={(v) => (v === null || v === undefined ? "—" : `${v} kg`)}
             />
             <Legend wrapperStyle={{ fontSize: 11 }} />
             <Line
