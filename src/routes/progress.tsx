@@ -34,11 +34,39 @@ function ProgressPage() {
   const prs = Object.entries(state.prs).sort((a, b) => b[1].weight - a[1].weight);
   const weekComplete = week.workouts >= 5;
 
+  // PRs set during the most recent finished workout get the celebration treatment.
+  const lastAt = state.history.length
+    ? Math.max(...state.history.map((h) => h.at))
+    : 0;
+  const freshPrs = prs.filter(([, pr]) => lastAt > 0 && pr.at >= lastAt - 2000);
+  const freshNames = freshPrs.map(([name]) => name);
+  const [celebrate, setCelebrate] = useState(false);
+
+  useEffect(() => {
+    if (!freshNames.length) return;
+    const sig = `pr-cheered:${lastAt}`;
+    if (typeof sessionStorage !== "undefined" && sessionStorage.getItem(sig)) return;
+    sessionStorage.setItem(sig, "1");
+    setCelebrate(true);
+  }, [lastAt, freshNames.length]);
+
   return (
     <main className="mx-auto max-w-2xl px-5 pb-16">
-      <div className="pt-8">
+      {celebrate && (
+        <PrCelebration
+          prs={freshPrs.map(([name, pr]) => `${name} · ${pr.weight} kg × ${pr.reps}`)}
+          onDone={() => setCelebrate(false)}
+        />
+      )}
+      <div className="flex items-center justify-between pt-8">
         <Link to="/" className="text-xs font-bold text-muted-foreground uppercase">
           ← Home
+        </Link>
+        <Link
+          to="/theme"
+          className="rounded-full bg-secondary px-3 py-1.5 text-[11px] font-bold uppercase"
+        >
+          Palette
         </Link>
       </div>
 
