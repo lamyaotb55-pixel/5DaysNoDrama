@@ -89,8 +89,8 @@ function WorkoutPage() {
             <h1 className="mt-2 text-4xl leading-[0.9]">Done &amp; dusted.</h1>
           </div>
           <div className="px-6 py-6">
-            <span className="inline-flex items-center gap-1 rounded-full bg-success px-3 py-1 text-[11px] font-bold text-ink uppercase">
-              <Check className="size-3.5" aria-hidden /> Workout complete
+            <span className="check-pop inline-flex items-center gap-1 rounded-full bg-success px-3 py-1 text-[11px] font-bold text-ink uppercase">
+              <Check className="size-3.5" aria-hidden /> ✓ Workout complete
             </span>
             <p className="mt-4 text-sm leading-relaxed font-semibold text-muted-foreground">{cheer}</p>
             <div className="mt-6 space-y-3">
@@ -131,8 +131,10 @@ function WorkoutPage() {
           </dl>
 
           {summary.prs.length > 0 && (
-            <div className="mt-4 rounded-lg bg-acid p-3 text-left">
-              <p className="eyebrow text-ink">New PR ⚡</p>
+            <div className="pr-pop mt-4 rounded-lg bg-acid p-3 text-left">
+              <p className="eyebrow text-ink">
+                New PR <span className="pr-bolt">⚡</span>
+              </p>
               <ul className="mt-1 space-y-0.5 text-xs font-bold text-ink uppercase">
                 {summary.prs.map((pr) => (
                   <li key={pr}>{pr}</li>
