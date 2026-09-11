@@ -67,6 +67,8 @@ const empty: State = {
   trend: {},
   customDays: {},
   rounds: {},
+  skips: {},
+  walks: {},
 };
 
 let state: State = empty;
