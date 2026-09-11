@@ -2,17 +2,17 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Check, Flame, Footprints, Trophy } from "lucide-react";
 import { ExerciseCard } from "@/components/ExerciseCard";
-import { WEEKS, dayInWeek, getDay, getPlan, weekOf } from "@/lib/program";
+import { WEEKS, dayInWeek, dayOption, getDay, getPlan, weekOf } from "@/lib/program";
 import { planAccent } from "@/lib/plan-theme";
 import {
-  canSkip,
+  altAllowed,
+  chooseAlt,
   effectiveDay,
   finishSession,
   sessionKey,
   setCardio,
   setKey,
   setNotes,
-  skipDay,
   startSession,
   summarize,
   useStore,
@@ -81,7 +81,8 @@ function WorkoutPage() {
   const pct = Math.round((doneExercises / total) * 100);
   const allDone = doneExercises === total;
   const restSeconds = plan.id === "build-muscle" ? 120 : plan.id === "tone-up" ? 90 : 60;
-  const skipAllowed = canSkip(plan.id, day.day, state) && summary.sets === 0;
+  const option = dayOption(plan.id, day.day);
+  const optionAvailable = altAllowed(day.day) && summary.sets === 0 && !allDone;
   const dayLabel = `Week ${weekOf(day.day)} · Day ${dayInWeek(day.day)}`;
 
   if (cheer) {
