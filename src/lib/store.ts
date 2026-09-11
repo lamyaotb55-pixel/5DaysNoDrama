@@ -208,10 +208,11 @@ export function summarize(
   return { durationMin, exercises: exercisesDone.size, sets, volume: Math.round(volume), prs: records };
 }
 
-export function finishSession(planId: PlanId, dayNo: number) {
+export function finishSession(planId: PlanId, dayNo: number): string | null {
   const plan = getPlan(planId);
-  const day = plan ? getDay(plan, dayNo) : undefined;
-  if (!plan || !day) return;
+  const rawDay = plan ? getDay(plan, dayNo) : undefined;
+  const day = rawDay ? effectiveDay(planId, rawDay, state.customDays) : undefined;
+  if (!plan || !day) return null;
   const key = sessionKey(planId, dayNo);
   const session = state.active[key];
   const summary = summarize(planId, day, session, state.prs);
