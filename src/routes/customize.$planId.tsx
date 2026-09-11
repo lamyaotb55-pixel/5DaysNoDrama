@@ -253,6 +253,61 @@ function CustomizePage() {
           </div>
         </div>
       )}
+
+      {pending && (
+        <div className="fixed inset-0 z-30 grid place-items-center bg-ink/40 p-5">
+          <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-5 text-center">
+            <h2 className="text-lg font-semibold">Remove this workout?</h2>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              “{pending.name}” will be taken out of Day {pending.day}. You can undo it right after.
+            </p>
+            <div className="mt-5 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setPending(null)}
+                className="flex-1 rounded-full border border-border px-4 py-3 text-sm font-semibold"
+              >
+                Keep it
+              </button>
+              <button
+                type="button"
+                onClick={confirmRemove}
+                className="flex-1 rounded-full bg-rose px-4 py-3 text-sm font-semibold text-accent-foreground"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {undo && (
+        <div className="fixed inset-x-0 bottom-0 z-20 px-5 pb-5">
+          <div className="mx-auto flex max-w-md items-center gap-3 rounded-full border border-border bg-card px-4 py-3 shadow-[var(--shadow-lift)]">
+            <p className="min-w-0 flex-1 truncate text-xs font-semibold">
+              Removed “{undo.name}”
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                commit(undo.day, undo.list);
+                setUndo(null);
+              }}
+              className="inline-flex items-center gap-1 rounded-full bg-ink px-3.5 py-1.5 text-xs font-semibold text-primary-foreground"
+            >
+              <Undo2 className="size-3.5" aria-hidden /> Undo
+            </button>
+            <button
+              type="button"
+              aria-label="Dismiss"
+              onClick={() => setUndo(null)}
+              className="text-xs font-semibold text-muted-foreground"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
