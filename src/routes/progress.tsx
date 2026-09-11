@@ -207,7 +207,7 @@ function ProgressPage() {
               <li key={`${h.planId}-${h.day}-${h.at}`} className="border-b border-border pb-3 last:border-0">
                 <div className="flex items-baseline justify-between gap-3">
                   <p className="text-sm font-bold uppercase">
-                    Day {String(h.day).padStart(2, "0")} · {h.title}
+                    W{weekOf(h.day)} · Day {dayInWeek(h.day)} · {h.title}
                   </p>
                   <span className="text-[11px] font-semibold text-muted-foreground">
                     {new Date(h.at).toLocaleDateString()}
