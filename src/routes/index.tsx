@@ -1,16 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, LineChart, Pencil, RotateCcw, Shuffle, Zap } from "lucide-react";
-import { PLANS, estimateMinutes, getPlan } from "@/lib/program";
+import { PLANS, WEEKS, dayInWeek, estimateMinutes, getPlan, weekOf } from "@/lib/program";
 import { planAccent } from "@/lib/plan-theme";
 import {
   choosePlan,
   clearPlan,
+  completedWeeks,
   currentStreak,
   effectiveDay,
   nextWorkout,
   planProgress,
   restartPlan,
+  skippedDayInWeek,
   useStore,
+  weekProgress,
 } from "@/lib/store";
 
 export const Route = createFileRoute("/")({
