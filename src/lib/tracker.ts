@@ -12,6 +12,8 @@ export type Run = {
   logs: Record<string, LogEntry>;
   /** key = `${week}-${day}` -> ISO date completed */
   done: Record<string, string>;
+  /** key = `${week}-${day}` -> free-text session note */
+  notes?: Record<string, string>;
 };
 
 export type TrackerState = {
@@ -108,6 +110,16 @@ function updateActive(fn: (run: Run) => Run) {
 
 export function saveLog(week: number, day: number, index: number, entry: LogEntry) {
   updateActive((r) => ({ ...r, logs: { ...r.logs, [logKey(week, day, index)]: entry } }));
+}
+
+export function saveNote(week: number, day: number, note: string) {
+  updateActive((r) => {
+    const notes = { ...(r.notes ?? {}) };
+    const key = dayKey(week, day);
+    if (note.trim()) notes[key] = note;
+    else delete notes[key];
+    return { ...r, notes };
+  });
 }
 
 export function toggleDayDone(week: number, day: number) {
