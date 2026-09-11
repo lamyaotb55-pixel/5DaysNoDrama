@@ -24,8 +24,9 @@ export const Route = createFileRoute("/plan/$planId")({
 
 function PlanPage() {
   const { planId } = Route.useParams();
-  const plan = getPlan(planId);
   const state = useStore();
+  const basePlan = getPlan(planId);
+  const plan = basePlan ? effectivePlan(basePlan, state.customDays) : undefined;
 
   if (!plan) {
     return (
