@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Pencil, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Pencil, Plus, RotateCcw, Trash2, Undo2 } from "lucide-react";
 import { MediaBox } from "@/components/MediaBox";
 import { getPlan, type Exercise } from "@/lib/program";
 import { effectiveDay, resetDayExercises, saveDayExercises, useStore } from "@/lib/store";
@@ -33,6 +33,8 @@ function CustomizePage() {
   const basePlan = getPlan(planId);
   const state = useStore();
   const [draft, setDraft] = useState<{ day: number; ex: Draft } | null>(null);
+  const [pending, setPending] = useState<{ day: number; index: number; name: string } | null>(null);
+  const [undo, setUndo] = useState<{ day: number; name: string; list: Exercise[] } | null>(null);
 
   if (!basePlan) {
     return (
@@ -54,12 +56,16 @@ function CustomizePage() {
 
   const commit = (dayNo: number, list: Exercise[]) => saveDayExercises(basePlan.id, dayNo, list);
 
-  const removeExercise = (dayNo: number, index: number) => {
-    const day = days.find((d) => d.day === dayNo)!;
+  const confirmRemove = () => {
+    if (!pending) return;
+    const day = days.find((d) => d.day === pending.day)!;
+    const before = day.exercises;
     commit(
-      dayNo,
-      day.exercises.filter((_, i) => i !== index),
+      pending.day,
+      before.filter((_, i) => i !== pending.index),
     );
+    setUndo({ day: pending.day, name: pending.name, list: before });
+    setPending(null);
   };
 
   const saveDraft = () => {
@@ -138,7 +144,7 @@ function CustomizePage() {
                     <button
                       type="button"
                       aria-label={`Remove ${ex.name}`}
-                      onClick={() => removeExercise(day.day, i)}
+                      onClick={() => setPending({ day: day.day, index: i, name: ex.name })}
                       className="grid size-9 place-items-center rounded-full border border-border text-rose"
                     >
                       <Trash2 className="size-4" aria-hidden />
@@ -244,6 +250,61 @@ function CustomizePage() {
                 Save
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {pending && (
+        <div className="fixed inset-0 z-30 grid place-items-center bg-ink/40 p-5">
+          <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-5 text-center">
+            <h2 className="text-lg font-semibold">Remove this workout?</h2>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              “{pending.name}” will be taken out of Day {pending.day}. You can undo it right after.
+            </p>
+            <div className="mt-5 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setPending(null)}
+                className="flex-1 rounded-full border border-border px-4 py-3 text-sm font-semibold"
+              >
+                Keep it
+              </button>
+              <button
+                type="button"
+                onClick={confirmRemove}
+                className="flex-1 rounded-full bg-rose px-4 py-3 text-sm font-semibold text-accent-foreground"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {undo && (
+        <div className="fixed inset-x-0 bottom-0 z-20 px-5 pb-5">
+          <div className="mx-auto flex max-w-md items-center gap-3 rounded-full border border-border bg-card px-4 py-3 shadow-[var(--shadow-lift)]">
+            <p className="min-w-0 flex-1 truncate text-xs font-semibold">
+              Removed “{undo.name}”
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                commit(undo.day, undo.list);
+                setUndo(null);
+              }}
+              className="inline-flex items-center gap-1 rounded-full bg-ink px-3.5 py-1.5 text-xs font-semibold text-primary-foreground"
+            >
+              <Undo2 className="size-3.5" aria-hidden /> Undo
+            </button>
+            <button
+              type="button"
+              aria-label="Dismiss"
+              onClick={() => setUndo(null)}
+              className="text-xs font-semibold text-muted-foreground"
+            >
+              ✕
+            </button>
           </div>
         </div>
       )}

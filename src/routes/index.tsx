@@ -126,10 +126,16 @@ function CurrentPlanCard({
 
         <div className="px-5 py-5">
           <p className="eyebrow text-muted-foreground">Next workout</p>
-          <h3 className="mt-1 text-xl font-semibold uppercase">
-            Day {next.day} — {next.title}
-          </h3>
-          <p className="text-sm text-muted-foreground">{next.focus}</p>
+          <Link
+            to="/workout/$planId/$day"
+            params={{ planId: plan.id, day: String(next.day) }}
+            className="mt-1 block"
+          >
+            <h3 className="text-xl font-semibold uppercase underline decoration-rose decoration-2 underline-offset-4">
+              Day {next.day} — {next.title}
+            </h3>
+            <p className="text-sm text-muted-foreground">{next.focus}</p>
+          </Link>
           <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
             {next.exercises.length + (next.circuit ? 1 : 0)} exercises · ~{estimateMinutes(next)} min
           </p>

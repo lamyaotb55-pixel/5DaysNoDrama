@@ -317,6 +317,20 @@ export function totalVolume(history: FinishedSession[]) {
   return history.reduce((n, h) => n + h.volume, 0);
 }
 
+/** Highlights for the last 7 days: workouts, volume, sets, minutes and records hit. */
+export function weeklyHighlights(history: FinishedSession[]) {
+  const weekAgo = Date.now() - 7 * 86400000;
+  const week = history.filter((h) => h.at >= weekAgo);
+  return {
+    workouts: week.length,
+    volume: week.reduce((n, h) => n + h.volume, 0),
+    sets: week.reduce((n, h) => n + h.sets, 0),
+    minutes: week.reduce((n, h) => n + h.durationMin, 0),
+    prs: week.flatMap((h) => h.prs),
+    bestDay: week.reduce<FinishedSession | null>((a, h) => (!a || h.volume > a.volume ? h : a), null),
+  };
+}
+
 /* ---------- Plan customization (names, reps, sets, media) ---------- */
 
 /** The day as the user has it: their edited exercise list when present. */
