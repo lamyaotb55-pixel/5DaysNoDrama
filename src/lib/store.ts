@@ -49,8 +49,10 @@ export type State = {
   lastSets: Record<string, { weight: number; reps: number }[]>; // `${planId}|${exName}`
   prs: Record<string, BestSet>; // exercise name
   trend: Record<string, BestSet[]>; // exercise name -> best set per session
-  customDays: Record<string, Exercise[]>; // `${planId}|${day}` -> edited exercise list
+  customDays: Record<string, Exercise[]>; // `${planId}|${dayInWeek}` -> edited exercise list
   rounds: Record<string, number>; // `${planId}` -> how many times the plan was restarted
+  skips: Record<string, number>; // `${planId}|${absDay}` -> when the day was skipped (10K challenge)
+  walks: Record<string, number>; // `${planId}|${absDay}` -> when the 10K walk was marked done
 };
 
 const KEY = "five-days-no-drama-v1";
