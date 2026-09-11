@@ -56,12 +56,16 @@ function CustomizePage() {
 
   const commit = (dayNo: number, list: Exercise[]) => saveDayExercises(basePlan.id, dayNo, list);
 
-  const removeExercise = (dayNo: number, index: number) => {
-    const day = days.find((d) => d.day === dayNo)!;
+  const confirmRemove = () => {
+    if (!pending) return;
+    const day = days.find((d) => d.day === pending.day)!;
+    const before = day.exercises;
     commit(
-      dayNo,
-      day.exercises.filter((_, i) => i !== index),
+      pending.day,
+      before.filter((_, i) => i !== pending.index),
     );
+    setUndo({ day: pending.day, name: pending.name, list: before });
+    setPending(null);
   };
 
   const saveDraft = () => {
@@ -140,7 +144,7 @@ function CustomizePage() {
                     <button
                       type="button"
                       aria-label={`Remove ${ex.name}`}
-                      onClick={() => removeExercise(day.day, i)}
+                      onClick={() => setPending({ day: day.day, index: i, name: ex.name })}
                       className="grid size-9 place-items-center rounded-full border border-border text-rose"
                     >
                       <Trash2 className="size-4" aria-hidden />
