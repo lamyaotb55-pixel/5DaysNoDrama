@@ -164,7 +164,7 @@ function WorkoutPage() {
               const message = finishSession(plan.id, day.day);
               setCheer(message ?? "Day done. Strong work.");
             }}
-            className="mt-5 w-full rounded-full bg-ink px-6 py-3.5 text-sm font-semibold text-primary-foreground"
+            className="mt-5 w-full rounded-full bg-rose px-6 py-3.5 text-sm font-semibold text-accent-foreground shadow-[var(--shadow-lift)]"
           >
             Finish Workout
           </button>
