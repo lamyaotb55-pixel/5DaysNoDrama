@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Plus, RotateCcw, Save, Trash2 } from "lucide-react";
-import { getPlan, type Exercise } from "@/lib/plans";
+import { getPlan, type Exercise, type PlanId } from "@/lib/plans";
 import {
   activeRun,
   effectivePlan,
@@ -94,7 +94,7 @@ function DayEditor({
   exercises,
   customized,
 }: {
-  planId: ReturnType<typeof getPlan> extends undefined ? never : Parameters<typeof saveTemplate>[0];
+  planId: PlanId;
   dayNo: number;
   title: string;
   exercises: Exercise[];

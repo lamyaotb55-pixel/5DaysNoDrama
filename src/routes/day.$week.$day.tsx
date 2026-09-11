@@ -5,6 +5,7 @@ import { MediaBox } from "@/components/MediaBox";
 import { buildEncouragement, WEEKS, getPlan, progress } from "@/lib/plans";
 import {
   activeRun,
+  effectivePlan,
   dayKey,
   logKey,
   saveLog,
@@ -38,7 +39,8 @@ function DayPage() {
   const dayNo = Math.max(1, Math.min(5, Number(dayParam) || 1));
   const state = useTracker();
   const run = activeRun(state);
-  const plan = run ? getPlan(run.planId) : undefined;
+  const basePlan = run ? getPlan(run.planId) : undefined;
+  const plan = basePlan ? effectivePlan(basePlan, state.templates) : undefined;
   const [cheer, setCheer] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
 
@@ -64,9 +66,14 @@ function DayPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-5 py-10">
-      <Link to="/dashboard" className="text-xs font-semibold text-muted-foreground hover:text-pink">
-        ← Dashboard
-      </Link>
+      <div className="flex items-center justify-between gap-3">
+        <Link to="/dashboard" className="text-xs font-semibold text-muted-foreground hover:text-pink">
+          ← Dashboard
+        </Link>
+        <Link to="/templates" className="text-xs font-semibold text-muted-foreground hover:text-sky">
+          Customize exercises →
+        </Link>
+      </div>
       <header className="mt-2 flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-xs font-bold tracking-wide text-sky uppercase">
