@@ -77,7 +77,7 @@
   --input: color-mix(in oklab, var(--ink) 18%, var(--paper));
   --ring: var(--rose);
 
-  --gradient-warm: linear-gradient(140deg, color-mix(in oklab, var(--rose) 22%, var(--paper)), var(--sand));
+  --gradient-warm: linear-gradient(140deg, color-mix(in oklab, var(--rose) 24%, var(--paper)), color-mix(in oklab, var(--mint) 28%, var(--paper)));
   --shadow-soft: 0 14px 40px -24px color-mix(in oklab, var(--ink) 55%, transparent);
   --shadow-lift: 0 20px 50px -22px color-mix(in oklab, var(--rose) 45%, transparent);
 }
