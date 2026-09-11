@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as TemplatesRouteImport } from './routes/templates'
 import { Route as PlanPlanIdRouteImport } from './routes/plan.$planId'
 import { Route as DayWeekDayRouteImport } from './routes/day.$week.$day'
@@ -24,6 +25,11 @@ const IndexRoute = IndexRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProgressRoute = ProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TemplatesRoute = TemplatesRouteImport.update({
@@ -50,6 +56,7 @@ const WorkoutPlanIdDayRoute = WorkoutPlanIdDayRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/progress': typeof ProgressRoute
   '/templates': typeof TemplatesRoute
   '/plan/$planId': typeof PlanPlanIdRoute
   '/day/$week/$day': typeof DayWeekDayRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/progress': typeof ProgressRoute
   '/templates': typeof TemplatesRoute
   '/plan/$planId': typeof PlanPlanIdRoute
   '/day/$week/$day': typeof DayWeekDayRoute
@@ -67,6 +75,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/progress': typeof ProgressRoute
   '/templates': typeof TemplatesRoute
   '/plan/$planId': typeof PlanPlanIdRoute
   '/day/$week/$day': typeof DayWeekDayRoute
@@ -77,6 +86,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/progress'
     | '/templates'
     | '/plan/$planId'
     | '/day/$week/$day'
@@ -85,6 +95,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard'
+    | '/progress'
     | '/templates'
     | '/plan/$planId'
     | '/day/$week/$day'
@@ -93,6 +104,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/progress'
     | '/templates'
     | '/plan/$planId'
     | '/day/$week/$day'
@@ -102,6 +114,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
+  ProgressRoute: typeof ProgressRoute
   TemplatesRoute: typeof TemplatesRoute
   PlanPlanIdRoute: typeof PlanPlanIdRoute
   DayWeekDayRoute: typeof DayWeekDayRoute
@@ -122,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/progress': {
+      id: '/progress'
+      path: '/progress'
+      fullPath: '/progress'
+      preLoaderRoute: typeof ProgressRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/templates': {
@@ -158,6 +178,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
+  ProgressRoute: ProgressRoute,
   TemplatesRoute: TemplatesRoute,
   PlanPlanIdRoute: PlanPlanIdRoute,
   DayWeekDayRoute: DayWeekDayRoute,
