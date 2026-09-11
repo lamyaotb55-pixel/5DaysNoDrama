@@ -49,7 +49,7 @@ function DayPage() {
     );
   }
 
-  const day = plan.days[dayNo - 1];
+  const day = plan.days[dayNo - 1]!;
   const isDone = Boolean(run.done[dayKey(week, dayNo)]);
 
   return (
