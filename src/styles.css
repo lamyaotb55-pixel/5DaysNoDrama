@@ -5,13 +5,16 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * 5 Days No Drama palette:
- *   ink    #171717 : typography, navigation, strong contrast
- *   paper  #FFF9F2 : cream app background
- *   rose   #FF3B30 : flash red — logo, Start Workout, active states, bars, PRs
- *   icy    #BDE7FF : info cards, rest timer, stats, secondary tags
- *   butter #FFE66D : streaks, achievements, NEW — sparingly
- *   sand           : soft warm neutral for chips and muted states
+ * 5 Days No Drama — SPICY. STRONG. PLAYFUL. CLEAN. CONFIDENT.
+ *   spicy     #FF2038 : primary brand, CTAs, active states, progress
+ *   pink      #FF4FA3 : secondary highlights, selected cards, tags
+ *   bubblegum #FFB3D9 : soft accent backgrounds, decorative
+ *   ice       #70D7FF : stats, timers, information
+ *   acid      #F5FF52 : PRs, streaks, achievements, NEW
+ *   success   #35E875 : completion ONLY
+ *   ink       #111111 : type, icons, contrast
+ *   white     #FFFFFF : app + card background
+ *   gray      #F5F5F7 : secondary surfaces, inputs, inactive
  */
 
 @theme inline {
@@ -19,8 +22,8 @@
   --radius-md: calc(var(--radius) - 4px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 16px);
+  --radius-2xl: calc(var(--radius) + 6px);
+  --radius-3xl: calc(var(--radius) + 12px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -41,48 +44,57 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ink: var(--ink);
-  --color-rose: var(--rose);
-  --color-icy: var(--icy);
-  --color-butter: var(--butter);
-  --color-sand: var(--sand);
+  --color-spicy: var(--spicy);
+  --color-rose: var(--spicy);
+  --color-pink: var(--pink);
+  --color-bubblegum: var(--bubblegum);
+  --color-ice: var(--ice);
+  --color-icy: var(--ice);
+  --color-acid: var(--acid);
+  --color-butter: var(--acid);
+  --color-success: var(--success);
   --color-paper: var(--paper);
-  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --color-sand: var(--gray);
+  --font-display: "Archivo Black", "Inter Tight", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
-  --radius: 1.25rem;
+  --radius: 1rem;
 
-  --ink: #171717;
-  --rose: #ff3b30;
-  --icy: #bde7ff;
-  --butter: #ffe66d;
-  --paper: #fff9f2;
-  --sand: oklch(0.945 0.018 70);
+  --ink: #111111;
+  --spicy: #ff2038;
+  --pink: #ff4fa3;
+  --bubblegum: #ffb3d9;
+  --ice: #70d7ff;
+  --acid: #f5ff52;
+  --success: #35e875;
+  --paper: #ffffff;
+  --gray: #f5f5f7;
 
   --background: var(--paper);
   --foreground: var(--ink);
-  --card: oklch(1 0 0);
+  --card: #ffffff;
   --card-foreground: var(--ink);
-  --popover: oklch(1 0 0);
+  --popover: #ffffff;
   --popover-foreground: var(--ink);
-  --primary: var(--ink);
-  --primary-foreground: var(--paper);
-  --secondary: var(--sand);
+  --primary: var(--spicy);
+  --primary-foreground: #ffffff;
+  --secondary: var(--gray);
   --secondary-foreground: var(--ink);
-  --muted: color-mix(in oklab, var(--sand) 70%, var(--paper));
-  --muted-foreground: color-mix(in oklab, var(--ink) 58%, var(--paper));
-  --accent: var(--rose);
-  --accent-foreground: oklch(1 0 0);
-  --destructive: var(--rose);
-  --destructive-foreground: oklch(1 0 0);
-  --border: color-mix(in oklab, var(--ink) 12%, var(--paper));
-  --input: color-mix(in oklab, var(--ink) 18%, var(--paper));
-  --ring: var(--rose);
+  --muted: var(--gray);
+  --muted-foreground: color-mix(in oklab, var(--ink) 55%, #ffffff);
+  --accent: var(--spicy);
+  --accent-foreground: #ffffff;
+  --destructive: var(--spicy);
+  --destructive-foreground: #ffffff;
+  --border: color-mix(in oklab, var(--ink) 12%, #ffffff);
+  --input: color-mix(in oklab, var(--ink) 16%, #ffffff);
+  --ring: var(--spicy);
 
-  --gradient-warm: linear-gradient(140deg, color-mix(in oklab, var(--rose) 20%, var(--paper)), color-mix(in oklab, var(--icy) 55%, var(--paper)));
-  --shadow-soft: 0 14px 40px -24px color-mix(in oklab, var(--ink) 55%, transparent);
-  --shadow-lift: 0 20px 50px -22px color-mix(in oklab, var(--rose) 45%, transparent);
+  --gradient-spicy: linear-gradient(120deg, var(--spicy), var(--pink));
+  --shadow-soft: 0 8px 24px -18px color-mix(in oklab, var(--ink) 60%, transparent);
+  --shadow-lift: 0 14px 30px -18px color-mix(in oklab, var(--spicy) 60%, transparent);
 }
 
 @layer base {
@@ -101,8 +113,9 @@
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 500;
-    letter-spacing: -0.02em;
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
   }
 
   input[type="number"]::-webkit-outer-spin-button,
@@ -115,17 +128,31 @@
 @utility surface {
   background-color: var(--color-card);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-xl);
   box-shadow: var(--shadow-soft);
 }
 
 @utility eyebrow {
   font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
+  font-weight: 800;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
+@utility spicy-wash {
+  background-image: var(--gradient-spicy);
+  color: #ffffff;
+}
+
+/* Kept for compatibility with older markup */
 @utility warm-wash {
-  background-image: var(--gradient-warm);
+  background-image: var(--gradient-spicy);
+  color: #ffffff;
+}
+
+@utility day-number {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 16vw, 4.5rem);
+  line-height: 0.82;
+  letter-spacing: -0.05em;
 }
