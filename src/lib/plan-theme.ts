@@ -14,13 +14,13 @@ const ACCENTS: Record<string, PlanAccent> = {
   "lose-weight": {
     text: "text-spicy",
     bg: "bg-spicy",
-    on: "text-white",
+    on: "text-paper",
     soft: "bg-spicy/10",
   },
   "tone-up": {
     text: "text-pink",
     bg: "bg-pink",
-    on: "text-white",
+    on: "text-paper",
     soft: "bg-bubblegum/40",
   },
   "build-muscle": {
