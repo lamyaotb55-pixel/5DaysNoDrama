@@ -129,7 +129,10 @@ function DayPage() {
           onClick={() => {
             toggleDayDone(week, dayNo);
             setCheer(
-              isDone ? null : ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)],
+              isDone
+                ? null
+                : (ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)] ??
+                  ENCOURAGEMENTS[0]!),
             );
           }}
           className={
