@@ -135,15 +135,21 @@ function CurrentPlanCard({
             <div
               className={
                 "h-full rounded-full transition-[width] duration-500 " +
-                (weekDone ? "bg-success" : "bg-paper")
+                (planDone ? "bg-success" : "bg-paper")
               }
               style={{ width: `${progress.pct}%` }}
             />
           </div>
           <p className="mt-2.5 flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase">
             <span>
-              {progress.done}/{progress.total} days
-              {weekDone ? " ✓ that's the week" : " done"}
+              Week {currentWeek} of {WEEKS} · {weeksDone} weeks done
+              {planDone ? " ✓ all 8 weeks" : ""}
+            </span>
+            <span className="rounded-full bg-paper/25 px-2 py-0.5">
+              {wp.done + wp.skipped}/{wp.total} this week
+            </span>
+            <span className="rounded-full bg-paper/25 px-2 py-0.5">
+              {skipUsed ? "Skip used" : "1 skip left"}
             </span>
             {streak > 0 && (
               <span className="rounded-full bg-acid px-2 py-0.5 text-ink">
