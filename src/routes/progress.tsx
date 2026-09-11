@@ -163,20 +163,36 @@ function ProgressPage() {
           </p>
         ) : (
           <ul className="mt-3 space-y-2">
-            {prs.map(([name, pr]) => (
-              <li
-                key={name}
-                className="flex items-center justify-between gap-3 border-b border-border pb-2 text-sm last:border-0"
-              >
-                <span className="inline-flex items-center gap-2 font-semibold">
-                  <Trophy className="size-3.5 text-ink" aria-hidden />
-                  {name}
-                </span>
-                <span className="rounded-full bg-acid px-2 py-0.5 text-xs font-bold whitespace-nowrap text-ink">
-                  {pr.weight} kg × {pr.reps}
-                </span>
-              </li>
-            ))}
+            {prs.map(([name, pr]) => {
+              const isNew = freshNames.includes(name);
+              return (
+                <li
+                  key={name}
+                  className="flex items-center justify-between gap-3 border-b border-border pb-2 text-sm last:border-0"
+                >
+                  <span className="inline-flex items-center gap-2 font-semibold">
+                    <Trophy
+                      className={"size-3.5 " + (isNew ? "text-spicy" : "text-ink")}
+                      aria-hidden
+                    />
+                    {name}
+                    {isNew && (
+                      <span className="pr-pop inline-flex items-center gap-0.5 rounded-full bg-acid px-1.5 py-0.5 text-[10px] font-bold text-ink uppercase">
+                        New <span className="pr-bolt">⚡</span>
+                      </span>
+                    )}
+                  </span>
+                  <span
+                    className={
+                      "rounded-full bg-acid px-2 py-0.5 text-xs font-bold whitespace-nowrap text-ink " +
+                      (isNew ? "pr-ring" : "")
+                    }
+                  >
+                    {pr.weight} kg × {pr.reps}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>
