@@ -265,6 +265,8 @@ export function finishSession(planId: PlanId, dayNo: number): string | null {
     prs,
     trend,
   });
+
+  return encouragement(planId, dayNo, state);
 }
 
 export function resetDay(planId: string, day: number) {
