@@ -10,8 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as HistoryRouteImport } from './routes/history'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as ThemeRouteImport } from './routes/theme'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as CustomizePlanIdRouteImport } from './routes/customize.$planId'
 import { Route as PlanPlanIdRouteImport } from './routes/plan.$planId'
 import { Route as WorkoutPlanIdDayRouteImport } from './routes/workout.$planId.$day'
@@ -19,6 +23,20 @@ import { Route as WorkoutPlanIdDayRouteImport } from './routes/workout.$planId.$
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProgressRoute = ProgressRouteImport.update({
@@ -30,6 +48,11 @@ const ThemeRoute = ThemeRouteImport.update({
   id: '/theme',
   path: '/theme',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const CustomizePlanIdRoute = CustomizePlanIdRouteImport.update({
   id: '/customize/$planId',
@@ -49,16 +72,22 @@ const WorkoutPlanIdDayRoute = WorkoutPlanIdDayRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/history': typeof HistoryRoute
   '/progress': typeof ProgressRoute
   '/theme': typeof ThemeRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/customize/$planId': typeof CustomizePlanIdRoute
   '/plan/$planId': typeof PlanPlanIdRoute
   '/workout/$planId/$day': typeof WorkoutPlanIdDayRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/history': typeof HistoryRoute
   '/progress': typeof ProgressRoute
   '/theme': typeof ThemeRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/customize/$planId': typeof CustomizePlanIdRoute
   '/plan/$planId': typeof PlanPlanIdRoute
   '/workout/$planId/$day': typeof WorkoutPlanIdDayRoute
@@ -66,8 +95,12 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/history': typeof HistoryRoute
   '/progress': typeof ProgressRoute
   '/theme': typeof ThemeRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/customize/$planId': typeof CustomizePlanIdRoute
   '/plan/$planId': typeof PlanPlanIdRoute
   '/workout/$planId/$day': typeof WorkoutPlanIdDayRoute
@@ -76,24 +109,34 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
+    | '/history'
     | '/progress'
     | '/theme'
+    | '/profile'
     | '/customize/$planId'
     | '/plan/$planId'
     | '/workout/$planId/$day'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
+    | '/history'
     | '/progress'
     | '/theme'
+    | '/profile'
     | '/customize/$planId'
     | '/plan/$planId'
     | '/workout/$planId/$day'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/history'
     | '/progress'
     | '/theme'
+    | '/_authenticated/profile'
     | '/customize/$planId'
     | '/plan/$planId'
     | '/workout/$planId/$day'
@@ -101,6 +144,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  HistoryRoute: typeof HistoryRoute
   ProgressRoute: typeof ProgressRoute
   ThemeRoute: typeof ThemeRoute
   CustomizePlanIdRoute: typeof CustomizePlanIdRoute
@@ -117,6 +163,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/progress': {
       id: '/progress'
       path: '/progress'
@@ -130,6 +197,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/theme'
       preLoaderRoute: typeof ThemeRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/customize/$planId': {
       id: '/customize/$planId'
@@ -155,8 +229,22 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  HistoryRoute: HistoryRoute,
   ProgressRoute: ProgressRoute,
   ThemeRoute: ThemeRoute,
   CustomizePlanIdRoute: CustomizePlanIdRoute,
