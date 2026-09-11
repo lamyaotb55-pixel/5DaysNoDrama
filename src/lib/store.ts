@@ -370,13 +370,19 @@ export function resetDayExercises(planId: string, day: number) {
 export function restartPlan(planId: PlanId) {
   const completed = { ...state.completed };
   const active = { ...state.active };
+  const skips = { ...state.skips };
+  const walks = { ...state.walks };
   const prefix = `${planId}|`;
   Object.keys(completed).forEach((k) => k.startsWith(prefix) && delete completed[k]);
   Object.keys(active).forEach((k) => k.startsWith(prefix) && delete active[k]);
+  Object.keys(skips).forEach((k) => k.startsWith(prefix) && delete skips[k]);
+  Object.keys(walks).forEach((k) => k.startsWith(prefix) && delete walks[k]);
   set({
     ...state,
     completed,
     active,
+    skips,
+    walks,
     rounds: { ...state.rounds, [planId]: (state.rounds[planId] ?? 1) + 1 },
   });
 }
@@ -385,16 +391,121 @@ export function clearPlan() {
   set({ ...state, activePlanId: null });
 }
 
-/* ---------- Next workout ---------- */
+/* ---------- Skip a day (+10K steps challenge) ---------- */
 
-export function nextWorkout(plan: Plan, completedMap: Record<string, number>): Day {
-  const next = plan.days.find((d) => !completedMap[sessionKey(plan.id, d.day)]);
-  return next ?? plan.days[0]!;
+/** One skip allowed per week, per plan. */
+export function skippedDayInWeek(
+  planId: string,
+  week: number,
+  skips: State["skips"],
+): number | null {
+  for (let d = 1; d <= DAYS_PER_WEEK; d++) {
+    const abs = absDay(week, d);
+    if (skips[sessionKey(planId, abs)]) return abs;
+  }
+  return null;
 }
 
-export function planProgress(plan: Plan, completedMap: Record<string, number>) {
-  const done = plan.days.filter((d) => completedMap[sessionKey(plan.id, d.day)]).length;
-  return { done, total: plan.days.length, pct: Math.round((done / plan.days.length) * 100) };
+export function isSkipped(planId: string, dayNo: number, skips: State["skips"]) {
+  return Boolean(skips[sessionKey(planId, dayNo)]);
+}
+
+export function canSkip(planId: string, dayNo: number, s: State) {
+  const week = weekOf(dayNo);
+  const taken = skippedDayInWeek(planId, week, s.skips);
+  if (state.completed[sessionKey(planId, dayNo)]) return false;
+  return taken === null || taken === dayNo;
+}
+
+export function skipDay(planId: string, dayNo: number) {
+  if (!canSkip(planId, dayNo, state)) return false;
+  const active = { ...state.active };
+  delete active[sessionKey(planId, dayNo)];
+  set({ ...state, active, skips: { ...state.skips, [sessionKey(planId, dayNo)]: Date.now() } });
+  return true;
+}
+
+export function unskipDay(planId: string, dayNo: number) {
+  const skips = { ...state.skips };
+  const walks = { ...state.walks };
+  delete skips[sessionKey(planId, dayNo)];
+  delete walks[sessionKey(planId, dayNo)];
+  set({ ...state, skips, walks });
+}
+
+export function markWalkDone(planId: string, dayNo: number, done: boolean) {
+  const walks = { ...state.walks };
+  if (done) walks[sessionKey(planId, dayNo)] = Date.now();
+  else delete walks[sessionKey(planId, dayNo)];
+  set({ ...state, walks });
+}
+
+/* ---------- Next workout ---------- */
+
+/** First day of the 8 weeks that is neither finished nor skipped. */
+export function nextWorkout(
+  plan: Plan,
+  completedMap: Record<string, number>,
+  skips: State["skips"] = {},
+): Day {
+  for (let abs = 1; abs <= TOTAL_DAYS; abs++) {
+    const key = sessionKey(plan.id, abs);
+    if (!completedMap[key] && !skips[key]) return getDay(plan, abs)!;
+  }
+  return getDay(plan, 1)!;
+}
+
+export function planProgress(
+  plan: Plan,
+  completedMap: Record<string, number>,
+  skips: State["skips"] = {},
+) {
+  let done = 0;
+  let skipped = 0;
+  for (let abs = 1; abs <= TOTAL_DAYS; abs++) {
+    const key = sessionKey(plan.id, abs);
+    if (completedMap[key]) done += 1;
+    else if (skips[key]) skipped += 1;
+  }
+  const total = TOTAL_DAYS;
+  return {
+    done,
+    skipped,
+    total,
+    weeks: WEEKS,
+    pct: Math.round(((done + skipped) / total) * 100),
+  };
+}
+
+/** Progress inside one week (5 days). */
+export function weekProgress(
+  plan: Plan,
+  week: number,
+  completedMap: Record<string, number>,
+  skips: State["skips"] = {},
+) {
+  let done = 0;
+  let skipped = 0;
+  for (let d = 1; d <= DAYS_PER_WEEK; d++) {
+    const key = sessionKey(plan.id, absDay(week, d));
+    if (completedMap[key]) done += 1;
+    else if (skips[key]) skipped += 1;
+  }
+  return { done, skipped, total: DAYS_PER_WEEK, pct: Math.round(((done + skipped) / DAYS_PER_WEEK) * 100) };
+}
+
+/** Weeks where all five days are finished or skipped. */
+export function completedWeeks(
+  plan: Plan,
+  completedMap: Record<string, number>,
+  skips: State["skips"] = {},
+) {
+  let n = 0;
+  for (let w = 1; w <= WEEKS; w++) {
+    const p = weekProgress(plan, w, completedMap, skips);
+    if (p.done + p.skipped >= p.total) n += 1;
+  }
+  return n;
 }
 
 /* ---------- Encouragement ---------- */
