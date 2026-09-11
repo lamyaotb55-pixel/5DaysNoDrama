@@ -1,16 +1,18 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Check, Flame, Trophy } from "lucide-react";
+import { Check, Flame, Footprints, Trophy } from "lucide-react";
 import { ExerciseCard } from "@/components/ExerciseCard";
-import { getDay, getPlan } from "@/lib/program";
+import { WEEKS, dayInWeek, getDay, getPlan, weekOf } from "@/lib/program";
 import { planAccent } from "@/lib/plan-theme";
 import {
+  canSkip,
   effectiveDay,
   finishSession,
   sessionKey,
   setCardio,
   setKey,
   setNotes,
+  skipDay,
   startSession,
   summarize,
   useStore,
@@ -21,7 +23,7 @@ export const Route = createFileRoute("/workout/$planId/$day")({
     const plan = getPlan(params.planId);
     const day = plan ? getDay(plan, Number(params.day)) : undefined;
     const title = day
-      ? `Day ${day.day} ${day.title} — ${day.focus} | 5 Days No Drama`
+      ? `Week ${weekOf(day.day)} Day ${dayInWeek(day.day)} ${day.title} — ${day.focus} | 5 Days No Drama`
       : "Workout | 5 Days No Drama";
     const description = day
       ? `Track sets, reps and weight for ${day.title.toLowerCase()} (${day.focus}) with rest timers and progressive overload targets.`
@@ -79,20 +81,26 @@ function WorkoutPage() {
   const pct = Math.round((doneExercises / total) * 100);
   const allDone = doneExercises === total;
   const restSeconds = plan.id === "build-muscle" ? 120 : plan.id === "tone-up" ? 90 : 60;
+  const skipAllowed = canSkip(plan.id, day.day, state) && summary.sets === 0;
+  const dayLabel = `Week ${weekOf(day.day)} · Day ${dayInWeek(day.day)}`;
 
   if (cheer) {
     return (
       <main className="mx-auto grid min-h-screen max-w-md place-items-center px-5">
         <div className="surface overflow-hidden text-center">
           <div className="spicy-wash px-6 py-8">
-            <p className="eyebrow opacity-85">Day {String(day.day).padStart(2, "0")} · {day.title}</p>
+            <p className="eyebrow opacity-85">
+              {dayLabel} · {day.title}
+            </p>
             <h1 className="mt-2 text-4xl leading-[0.9]">Done &amp; dusted.</h1>
           </div>
           <div className="px-6 py-6">
             <span className="check-pop inline-flex items-center gap-1 rounded-full bg-success px-3 py-1 text-[11px] font-bold text-ink uppercase">
               <Check className="size-3.5" aria-hidden /> ✓ Workout complete
             </span>
-            <p className="mt-4 text-sm leading-relaxed font-semibold text-muted-foreground">{cheer}</p>
+            <p className="mt-4 text-sm leading-relaxed font-semibold text-muted-foreground">
+              {cheer}
+            </p>
             <div className="mt-6 space-y-3">
               <button
                 onClick={() => navigate({ to: "/" })}
@@ -120,7 +128,7 @@ function WorkoutPage() {
           <Trophy className="mx-auto size-8 text-spicy" aria-hidden />
           <h1 className="mt-3 text-2xl">One more set? Nope — done.</h1>
           <p className="mt-1 text-xs font-bold text-muted-foreground uppercase">
-            Day {String(day.day).padStart(2, "0")} · {day.title} — {day.focus}
+            {dayLabel} · {day.title} — {day.focus}
           </p>
 
           <dl className="mt-6 grid grid-cols-2 gap-3 text-left">
@@ -200,13 +208,35 @@ function WorkoutPage() {
 
       <header className="mt-4 flex items-end gap-3">
         <span className={`day-number ${allDone ? "text-success" : accent.text}`}>
-          {String(day.day).padStart(2, "0")}
+          {String(dayInWeek(day.day)).padStart(2, "0")}
         </span>
         <div className="min-w-0 pb-1">
+          <p className="eyebrow text-muted-foreground">
+            Week {weekOf(day.day)} of {WEEKS} · Day {dayInWeek(day.day)}
+          </p>
           <h1 className="text-2xl leading-tight sm:text-3xl">{day.title}</h1>
           <p className="text-sm font-semibold text-muted-foreground">{day.focus}</p>
         </div>
       </header>
+
+      {skipAllowed && !allDone && (
+        <button
+          type="button"
+          onClick={() => {
+            if (
+              window.confirm(
+                "Skip this day? It's your one skip this week — and the deal is you walk +10K steps!!",
+              )
+            ) {
+              skipDay(plan.id, day.day);
+              navigate({ to: "/plan/$planId", params: { planId: plan.id } });
+            }
+          }}
+          className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-card px-5 py-3 text-[11px] font-bold uppercase"
+        >
+          <Footprints className="size-3.5 text-spicy" aria-hidden /> Skip But Will Walk +10K Steps!!
+        </button>
+      )}
 
       <div className="mt-4">
         {allDone ? (
@@ -249,7 +279,10 @@ function WorkoutPage() {
           <h2 className="mt-1 text-lg">{day.circuit.name}</h2>
           <ul className="mt-3 space-y-2 text-sm">
             {day.circuit.items.map((item) => (
-              <li key={item.name} className="flex justify-between gap-3 border-b border-border pb-2 last:border-0">
+              <li
+                key={item.name}
+                className="flex justify-between gap-3 border-b border-border pb-2 last:border-0"
+              >
                 <span className="font-semibold">{item.name}</span>
                 <span className="font-semibold text-muted-foreground">{item.reps}</span>
               </li>

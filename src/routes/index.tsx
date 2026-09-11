@@ -1,16 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, LineChart, Pencil, RotateCcw, Shuffle, Zap } from "lucide-react";
-import { PLANS, estimateMinutes, getPlan } from "@/lib/program";
+import { PLANS, WEEKS, dayInWeek, estimateMinutes, getPlan, weekOf } from "@/lib/program";
 import { planAccent } from "@/lib/plan-theme";
 import {
   choosePlan,
   clearPlan,
+  completedWeeks,
   currentStreak,
   effectiveDay,
   nextWorkout,
   planProgress,
   restartPlan,
+  skippedDayInWeek,
   useStore,
+  weekProgress,
 } from "@/lib/store";
 
 export const Route = createFileRoute("/")({
@@ -52,7 +55,7 @@ function Home() {
 
       <section className="pt-8 pb-7">
         <span className="eyebrow inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-ink">
-          <Zap className="size-3 text-spicy" aria-hidden /> 3 plans · 5 training days
+          <Zap className="size-3 text-spicy" aria-hidden /> 3 plans · 8 weeks · 5 days a week
         </span>
         <h1 className="mt-5 text-5xl leading-[0.88] sm:text-6xl">
           5 Days
@@ -107,11 +110,19 @@ function CurrentPlanCard({
 }) {
   const plan = getPlan(planId)!;
   const accent = planAccent(plan.id);
-  const progress = planProgress(plan, state.completed);
-  const next = effectiveDay(plan.id, nextWorkout(plan, state.completed), state.customDays);
+  const progress = planProgress(plan, state.completed, state.skips);
+  const next = effectiveDay(
+    plan.id,
+    nextWorkout(plan, state.completed, state.skips),
+    state.customDays,
+  );
   const streak = currentStreak(state.history);
   const round = state.rounds[plan.id] ?? 1;
-  const weekDone = progress.done >= progress.total;
+  const planDone = progress.done + progress.skipped >= progress.total;
+  const weeksDone = completedWeeks(plan, state.completed, state.skips);
+  const currentWeek = weekOf(next.day);
+  const wp = weekProgress(plan, currentWeek, state.completed, state.skips);
+  const skipUsed = Boolean(skippedDayInWeek(plan.id, currentWeek, state.skips));
 
   return (
     <>
@@ -124,15 +135,21 @@ function CurrentPlanCard({
             <div
               className={
                 "h-full rounded-full transition-[width] duration-500 " +
-                (weekDone ? "bg-success" : "bg-paper")
+                (planDone ? "bg-success" : "bg-paper")
               }
               style={{ width: `${progress.pct}%` }}
             />
           </div>
           <p className="mt-2.5 flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase">
             <span>
-              {progress.done}/{progress.total} days
-              {weekDone ? " ✓ that's the week" : " done"}
+              Week {currentWeek} of {WEEKS} · {weeksDone} weeks done
+              {planDone ? " ✓ all 8 weeks" : ""}
+            </span>
+            <span className="rounded-full bg-paper/25 px-2 py-0.5">
+              {wp.done + wp.skipped}/{wp.total} this week
+            </span>
+            <span className="rounded-full bg-paper/25 px-2 py-0.5">
+              {skipUsed ? "Skip used" : "1 skip left"}
             </span>
             {streak > 0 && (
               <span className="rounded-full bg-acid px-2 py-0.5 text-ink">
@@ -150,9 +167,12 @@ function CurrentPlanCard({
             className="mt-1.5 flex items-end gap-3"
           >
             <span className="day-number text-spicy">
-              {String(next.day).padStart(2, "0")}
+              {String(dayInWeek(next.day)).padStart(2, "0")}
             </span>
             <span className="min-w-0 pb-1">
+              <span className="block text-[11px] font-bold text-muted-foreground uppercase">
+                Week {weekOf(next.day)} · Day {dayInWeek(next.day)}
+              </span>
               <span className="block text-xl leading-tight font-display uppercase">
                 {next.title}
               </span>
@@ -162,7 +182,8 @@ function CurrentPlanCard({
             </span>
           </Link>
           <p className="mt-2 text-[11px] font-bold text-muted-foreground uppercase">
-            {next.exercises.length + (next.circuit ? 1 : 0)} exercises · ~{estimateMinutes(next)} min
+            {next.exercises.length + (next.circuit ? 1 : 0)} exercises · ~{estimateMinutes(next)}{" "}
+            min
           </p>
 
           <Link
@@ -179,7 +200,7 @@ function CurrentPlanCard({
               params={{ planId: plan.id }}
               className="inline-flex flex-1 items-center justify-center rounded-full bg-secondary px-4 py-3 text-xs font-bold uppercase"
             >
-              5-day split
+              8-week plan
             </Link>
             <Link
               to="/customize/$planId"

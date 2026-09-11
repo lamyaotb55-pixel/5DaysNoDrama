@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
-import { getPlan } from "@/lib/program";
+import { dayInWeek, getPlan, weekOf } from "@/lib/program";
 import { useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/history")({
@@ -49,7 +49,8 @@ function HistoryPage() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="eyebrow text-muted-foreground">
-                    {getPlan(h.planId)?.name ?? h.planId} · Day {h.day}
+                    {getPlan(h.planId)?.name ?? h.planId} · Week {weekOf(h.day)} Day{" "}
+                    {dayInWeek(h.day)}
                   </p>
                   <h2 className="mt-1 text-xl leading-tight">{h.title}</h2>
                   <p className="text-[11px] font-bold text-muted-foreground uppercase">{h.focus}</p>

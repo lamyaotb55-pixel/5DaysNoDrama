@@ -91,7 +91,8 @@ function CustomizePage() {
         <p className="eyebrow text-spicy">Plan details</p>
         <h1 className="mt-1 text-3xl font-semibold uppercase sm:text-4xl">{basePlan.name}</h1>
         <p className="mt-1.5 text-sm text-muted-foreground">
-          Rename any workout, change sets and reps, add a demo image link or remove what you don't do.
+          Rename any workout, change sets and reps, add a demo image link or remove what you don't
+          do.
         </p>
       </header>
 
@@ -180,7 +181,9 @@ function CustomizePage() {
               <Field label="Workout name">
                 <input
                   value={draft.ex.name}
-                  onChange={(e) => setDraft({ ...draft, ex: { ...draft.ex, name: e.target.value } })}
+                  onChange={(e) =>
+                    setDraft({ ...draft, ex: { ...draft.ex, name: e.target.value } })
+                  }
                   placeholder="Hip Thrust"
                   className="w-full rounded-xl border border-input bg-card px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
                 />
@@ -204,7 +207,9 @@ function CustomizePage() {
                 <Field label="Reps">
                   <input
                     value={draft.ex.reps}
-                    onChange={(e) => setDraft({ ...draft, ex: { ...draft.ex, reps: e.target.value } })}
+                    onChange={(e) =>
+                      setDraft({ ...draft, ex: { ...draft.ex, reps: e.target.value } })
+                    }
                     placeholder="8–10"
                     className="w-full rounded-xl border border-input bg-card px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
                   />
@@ -225,7 +230,10 @@ function CustomizePage() {
                   type="checkbox"
                   checked={draft.ex.perSide ?? false}
                   onChange={(e) =>
-                    setDraft({ ...draft, ex: { ...draft.ex, perSide: e.target.checked || undefined } })
+                    setDraft({
+                      ...draft,
+                      ex: { ...draft.ex, perSide: e.target.checked || undefined },
+                    })
                   }
                   className="size-4 accent-[var(--spicy)]"
                 />
@@ -284,9 +292,7 @@ function CustomizePage() {
       {undo && (
         <div className="fixed inset-x-0 bottom-0 z-20 px-5 pb-5">
           <div className="mx-auto flex max-w-md items-center gap-3 rounded-full border border-border bg-card px-4 py-3 shadow-[var(--shadow-lift)]">
-            <p className="min-w-0 flex-1 truncate text-xs font-semibold">
-              Removed “{undo.name}”
-            </p>
+            <p className="min-w-0 flex-1 truncate text-xs font-semibold">Removed “{undo.name}”</p>
             <button
               type="button"
               onClick={() => {

@@ -52,7 +52,9 @@ export function UserMenu() {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="eyebrow text-spicy">{isAuthenticated ? "Signed in" : "Guest"}</p>
-                <p className="mt-1 text-xl leading-tight">{isAuthenticated ? name : "No account yet"}</p>
+                <p className="mt-1 text-xl leading-tight">
+                  {isAuthenticated ? name : "No account yet"}
+                </p>
                 {isAuthenticated && user?.email && (
                   <p className="mt-1 text-[11px] font-semibold text-muted-foreground uppercase">
                     {user.email}
@@ -71,18 +73,34 @@ export function UserMenu() {
 
             <nav className="mt-7 space-y-2.5">
               {isAuthenticated ? (
-                <MenuLink to="/profile" onClick={() => setOpen(false)} icon={<UserIcon className="size-4" aria-hidden />}>
+                <MenuLink
+                  to="/profile"
+                  onClick={() => setOpen(false)}
+                  icon={<UserIcon className="size-4" aria-hidden />}
+                >
                   Profile
                 </MenuLink>
               ) : (
-                <MenuLink to="/auth" onClick={() => setOpen(false)} icon={<LogIn className="size-4" aria-hidden />}>
+                <MenuLink
+                  to="/auth"
+                  onClick={() => setOpen(false)}
+                  icon={<LogIn className="size-4" aria-hidden />}
+                >
                   Register / Sign in
                 </MenuLink>
               )}
-              <MenuLink to="/progress" onClick={() => setOpen(false)} icon={<LineChart className="size-4" aria-hidden />}>
+              <MenuLink
+                to="/progress"
+                onClick={() => setOpen(false)}
+                icon={<LineChart className="size-4" aria-hidden />}
+              >
                 Progress
               </MenuLink>
-              <MenuLink to="/history" onClick={() => setOpen(false)} icon={<History className="size-4" aria-hidden />}>
+              <MenuLink
+                to="/history"
+                onClick={() => setOpen(false)}
+                icon={<History className="size-4" aria-hidden />}
+              >
                 History
               </MenuLink>
             </nav>
