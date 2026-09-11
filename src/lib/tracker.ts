@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import type { PlanId } from "./plans";
+import type { Exercise, Plan, PlanId } from "./plans";
 
 export type LogEntry = { reps: number; rounds: number; weight: number };
 
@@ -19,6 +19,8 @@ export type Run = {
 export type TrackerState = {
   activeRunId: string | null;
   runs: Run[];
+  /** Saved workout templates. key = `${planId}-${dayNo}` -> custom exercise list reused every week */
+  templates?: Record<string, Exercise[]>;
 };
 
 const KEY = "fitflow.tracker.v1";
