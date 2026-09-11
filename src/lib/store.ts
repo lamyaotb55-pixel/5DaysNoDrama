@@ -404,41 +404,33 @@ export function clearPlan() {
   set({ ...state, activePlanId: null });
 }
 
-/* ---------- Skip a day (+10K steps challenge) ---------- */
+/* ---------- Day 5: how are you showing up today? ---------- */
 
-/** One skip allowed per week, per plan. */
-export function skippedDayInWeek(
-  planId: string,
-  week: number,
-  skips: State["skips"],
-): number | null {
-  for (let d = 1; d <= DAYS_PER_WEEK; d++) {
-    const abs = absDay(week, d);
-    if (skips[sessionKey(planId, abs)]) return abs;
-  }
-  return null;
+/** The alternative (walk / mini) is offered on day 5 only. */
+export function altAllowed(dayNo: number) {
+  return dayInWeek(dayNo) === DAYS_PER_WEEK;
 }
 
-export function isSkipped(planId: string, dayNo: number, skips: State["skips"]) {
-  return Boolean(skips[sessionKey(planId, dayNo)]);
+/** Did the user pick the alternative for this day? */
+export function isAltChosen(planId: string, dayNo: number, chosen: State["skips"]) {
+  return Boolean(chosen[sessionKey(planId, dayNo)]);
 }
 
-export function canSkip(planId: string, dayNo: number, s: State) {
-  const week = weekOf(dayNo);
-  const taken = skippedDayInWeek(planId, week, s.skips);
-  if (state.completed[sessionKey(planId, dayNo)]) return false;
-  return taken === null || taken === dayNo;
+/** Did the user finish the alternative for this day? */
+export function isAltDone(planId: string, dayNo: number, done: State["walks"]) {
+  return Boolean(done[sessionKey(planId, dayNo)]);
 }
 
-export function skipDay(planId: string, dayNo: number) {
-  if (!canSkip(planId, dayNo, state)) return false;
+export function chooseAlt(planId: string, dayNo: number) {
+  if (!altAllowed(dayNo)) return false;
   const active = { ...state.active };
   delete active[sessionKey(planId, dayNo)];
   set({ ...state, active, skips: { ...state.skips, [sessionKey(planId, dayNo)]: Date.now() } });
   return true;
 }
 
-export function unskipDay(planId: string, dayNo: number) {
+/** Back to the full workout for this day. */
+export function chooseTrain(planId: string, dayNo: number) {
   const skips = { ...state.skips };
   const walks = { ...state.walks };
   delete skips[sessionKey(planId, dayNo)];
@@ -446,7 +438,7 @@ export function unskipDay(planId: string, dayNo: number) {
   set({ ...state, skips, walks });
 }
 
-export function markWalkDone(planId: string, dayNo: number, done: boolean) {
+export function completeAlt(planId: string, dayNo: number, done: boolean) {
   const walks = { ...state.walks };
   if (done) walks[sessionKey(planId, dayNo)] = Date.now();
   else delete walks[sessionKey(planId, dayNo)];
