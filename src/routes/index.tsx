@@ -55,7 +55,7 @@ function Home() {
 
       <section className="pt-8 pb-7">
         <span className="eyebrow inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-ink">
-          <Zap className="size-3 text-spicy" aria-hidden /> 3 plans · 5 training days
+          <Zap className="size-3 text-spicy" aria-hidden /> 3 plans · 8 weeks · 5 days a week
         </span>
         <h1 className="mt-5 text-5xl leading-[0.88] sm:text-6xl">
           5 Days
@@ -199,7 +199,7 @@ function CurrentPlanCard({
               params={{ planId: plan.id }}
               className="inline-flex flex-1 items-center justify-center rounded-full bg-secondary px-4 py-3 text-xs font-bold uppercase"
             >
-              5-day split
+              8-week plan
             </Link>
             <Link
               to="/customize/$planId"
