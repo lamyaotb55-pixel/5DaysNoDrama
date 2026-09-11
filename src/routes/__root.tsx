@@ -77,10 +77,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "FitFlow — 8-Week Plans & Progress Tracker" },
+      { title: "5 Days No Drama — Workout Plans & Tracker" },
       {
         name: "description",
-        content: "Pick a plan, log reps, rounds and weight, and track 8 weeks of progress.",
+        content: "Three plans, five training days, every set tracked. Strong, simple, no drama.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
