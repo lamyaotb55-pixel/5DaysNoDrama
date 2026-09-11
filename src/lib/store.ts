@@ -51,10 +51,8 @@ export type State = {
   trend: Record<string, BestSet[]>; // exercise name -> best set per session
   customDays: Record<string, Exercise[]>; // `${planId}|${dayInWeek}` -> edited exercise list
   rounds: Record<string, number>; // `${planId}` -> how many times the plan was restarted
-  skips: Record<string, number>; // `${planId}|${absDay}` -> when the day was skipped (10K challenge)
-  walks: Record<string, number>; // `${planId}|${absDay}` -> when the 10K walk was marked done
-  alts: Record<string, "train" | "walk" | "mini">; // day 5 choice: how they're showing up
-  altDone: Record<string, number>; // `${planId}|${absDay}` -> when the walk/mini was completed
+  skips: Record<string, number>; // `${planId}|${absDay}` -> day 5: chose the alternative (walk / mini)
+  walks: Record<string, number>; // `${planId}|${absDay}` -> the alternative was completed
 };
 
 const KEY = "five-days-no-drama-v1";
@@ -71,8 +69,6 @@ const empty: State = {
   rounds: {},
   skips: {},
   walks: {},
-  alts: {},
-  altDone: {},
 };
 
 let state: State = empty;
