@@ -4,6 +4,7 @@ import { Check, Flame, Trophy } from "lucide-react";
 import { ExerciseCard } from "@/components/ExerciseCard";
 import { getDay, getPlan } from "@/lib/program";
 import {
+  effectiveDay,
   finishSession,
   sessionKey,
   setCardio,
