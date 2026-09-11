@@ -89,7 +89,7 @@ function WorkoutPage() {
       <main className="mx-auto grid min-h-screen max-w-md place-items-center px-5">
         <div className="surface overflow-hidden text-center">
           <div className="spicy-wash px-6 py-8">
-            <p className="eyebrow opacity-85">Day {String(day.day).padStart(2, "0")} · {day.title}</p>
+            <p className="eyebrow opacity-85">{dayLabel} · {day.title}</p>
             <h1 className="mt-2 text-4xl leading-[0.9]">Done &amp; dusted.</h1>
           </div>
           <div className="px-6 py-6">
@@ -124,7 +124,7 @@ function WorkoutPage() {
           <Trophy className="mx-auto size-8 text-spicy" aria-hidden />
           <h1 className="mt-3 text-2xl">One more set? Nope — done.</h1>
           <p className="mt-1 text-xs font-bold text-muted-foreground uppercase">
-            Day {String(day.day).padStart(2, "0")} · {day.title} — {day.focus}
+            {dayLabel} · {day.title} — {day.focus}
           </p>
 
           <dl className="mt-6 grid grid-cols-2 gap-3 text-left">
