@@ -381,9 +381,9 @@ export function weeklyHighlights(history: FinishedSession[]) {
 /* ---------- Plan customization (names, reps, sets, media) ---------- */
 
 /** The day as the user has it: their edited exercise list when present.
- *  Edits are stored per template day (1–5) so they apply to all 8 weeks. */
+ *  Edits are stored per phase template day, so they apply to that phase's 4 weeks. */
 export function effectiveDay(planId: string, day: Day, custom: State["customDays"]): Day {
-  const override = custom[sessionKey(planId, dayInWeek(day.day))];
+  const override = custom[templateKey(planId, day.day)];
   return override ? { ...day, exercises: override } : day;
 }
 
@@ -392,12 +392,12 @@ export function effectivePlan(plan: Plan, custom: State["customDays"]): Plan {
 }
 
 export function saveDayExercises(planId: string, day: number, exercises: Exercise[]) {
-  set({ ...state, customDays: { ...state.customDays, [sessionKey(planId, day)]: exercises } });
+  set({ ...state, customDays: { ...state.customDays, [templateKey(planId, day)]: exercises } });
 }
 
 export function resetDayExercises(planId: string, day: number) {
   const customDays = { ...state.customDays };
-  delete customDays[sessionKey(planId, day)];
+  delete customDays[templateKey(planId, day)];
   set({ ...state, customDays });
 }
 
