@@ -117,7 +117,7 @@ export function ExerciseCard({
             reps: 0,
             done: false,
           };
-          const prev = hint?.last[i];
+          const prevSet = prev?.sets[i];
           return (
             <div
               key={`${i}-${log.done ? "done" : "todo"}`}
@@ -136,7 +136,7 @@ export function ExerciseCard({
                   step={2.5}
                   min={0}
                   value={log.weight || ""}
-                  placeholder={prev ? String(prev.weight) : "kg"}
+                  placeholder={prev ? String(prevSet.weight) : "kg"}
                   aria-label={`Set ${i + 1} weight in kg`}
                   onChange={(e) =>
                     updateSet(planId, day, exIdx, i, { weight: Number(e.target.value) || 0 })
@@ -145,7 +145,7 @@ export function ExerciseCard({
                 />
                 {prev && (
                   <span className="mt-0.5 text-center text-[10px] font-semibold text-muted-foreground">
-                    prev {prev.weight} kg
+                    prev {prevSet.weight} kg
                   </span>
                 )}
               </label>
@@ -155,7 +155,7 @@ export function ExerciseCard({
                   inputMode="numeric"
                   min={0}
                   value={log.reps || ""}
-                  placeholder={prev ? String(prev.reps) : "reps"}
+                  placeholder={prev ? String(prevSet.reps) : "reps"}
                   aria-label={`Set ${i + 1} reps completed`}
                   onChange={(e) =>
                     updateSet(planId, day, exIdx, i, { reps: Number(e.target.value) || 0 })
@@ -164,7 +164,7 @@ export function ExerciseCard({
                 />
                 {prev && (
                   <span className="mt-0.5 text-center text-[10px] font-semibold text-muted-foreground">
-                    prev × {prev.reps}
+                    prev × {prevSet.reps}
                   </span>
                 )}
               </label>
