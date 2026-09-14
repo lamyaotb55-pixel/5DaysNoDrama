@@ -39,6 +39,8 @@ export function ExerciseCard({
     (_, i) => session?.sets[setKey(exIdx, i)]?.done,
   ).length;
   const complete = doneSets === exercise.sets;
+  // Progression lifts keep a week-by-week record across both phases.
+  const anchor = exercise.anchor ? anchorHistory(planId, exercise.name, state) : null;
   // Only nudge up in the "add a little" week, and only when the top of the
   // range was hit on every set last time.
   const suggestMore = goal.nudge === "load" && Boolean(hint?.progress);
