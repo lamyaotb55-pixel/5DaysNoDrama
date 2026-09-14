@@ -136,14 +136,14 @@ export function ExerciseCard({
                   step={2.5}
                   min={0}
                   value={log.weight || ""}
-                  placeholder={prev ? String(prevSet.weight) : "kg"}
+                  placeholder={prevSet ? String(prevSet.weight) : "kg"}
                   aria-label={`Set ${i + 1} weight in kg`}
                   onChange={(e) =>
                     updateSet(planId, day, exIdx, i, { weight: Number(e.target.value) || 0 })
                   }
                   className="w-full rounded-lg bg-secondary px-2 py-3 text-center text-base font-bold outline-none focus:ring-2 focus:ring-ring"
                 />
-                {prev && (
+                {prevSet && (
                   <span className="mt-0.5 text-center text-[10px] font-semibold text-muted-foreground">
                     prev {prevSet.weight} kg
                   </span>
@@ -155,14 +155,14 @@ export function ExerciseCard({
                   inputMode="numeric"
                   min={0}
                   value={log.reps || ""}
-                  placeholder={prev ? String(prevSet.reps) : "reps"}
+                  placeholder={prevSet ? String(prevSet.reps) : "reps"}
                   aria-label={`Set ${i + 1} reps completed`}
                   onChange={(e) =>
                     updateSet(planId, day, exIdx, i, { reps: Number(e.target.value) || 0 })
                   }
                   className="w-full rounded-lg bg-secondary px-2 py-3 text-center text-base font-bold outline-none focus:ring-2 focus:ring-ring"
                 />
-                {prev && (
+                {prevSet && (
                   <span className="mt-0.5 text-center text-[10px] font-semibold text-muted-foreground">
                     prev × {prevSet.reps}
                   </span>
