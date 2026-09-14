@@ -305,6 +305,7 @@ export function finishSession(planId: PlanId, dayNo: number): string | null {
     completed: { ...state.completed, [key]: at },
     history: [finished, ...state.history].slice(0, 200),
     lastSets,
+    weekSets,
     prs,
     trend,
   });
