@@ -228,6 +228,10 @@ function CurrentPlanCard({
           >
             Start Workout <ArrowRight className="size-4" aria-hidden />
           </Link>
+          </>
+          )}
+
+
 
           <div className="mt-3 flex flex-wrap gap-2">
             <Link
