@@ -259,8 +259,10 @@ export function finishSession(planId: PlanId, dayNo: number): string | null {
   const at = Date.now();
 
   const lastSets = { ...state.lastSets };
+  const weekSets = { ...state.weekSets };
   const prs = { ...state.prs };
   const trend = { ...state.trend };
+  const weekNo = weekOf(dayNo);
 
   day.exercises.forEach((ex, exIdx) => {
     const logged: { weight: number; reps: number }[] = [];
@@ -270,6 +272,7 @@ export function finishSession(planId: PlanId, dayNo: number): string | null {
     }
     if (!logged.length) return;
     lastSets[exKey(planId, ex.name)] = logged;
+    weekSets[weekExKey(planId, weekNo, ex.name)] = logged;
     const best = logged.reduce((a, b) => (b.weight > a.weight ? b : a));
     if (best.weight > 0) {
       const pr = prs[ex.name];
