@@ -451,16 +451,14 @@ const DAY_OPTIONS: Record<PlanId, DayOption> = {
   "build-muscle": {
     kind: "mini",
     button: "I'll Mini",
-    headline: "The Mini — 10–15 minute glute challenge",
+    headline: "The Mini 🍑 — 10–15 min glute challenge",
     goal: "10–15 minutes, no equipment needed",
     doneLabel: "Mini Done",
     items: [
-      { name: "Glute Bridge", reps: "20 reps" },
-      { name: "Hip Thrust (bodyweight)", reps: "20 reps" },
-      { name: "Reverse Lunge", reps: "10 per side" },
-      { name: "Kickback", reps: "15 per side" },
-      { name: "Fire Hydrant", reps: "15 per side" },
-      { name: "Glute Bridge Hold", reps: "45 seconds" },
+      { name: "Glute Bridge", reps: "3 × 20 reps" },
+      { name: "Bodyweight Bulgarian Split Squat", reps: "2 × 12 per leg" },
+      { name: "Bodyweight or Banded Hip Abduction", reps: "3 × 20 reps" },
+      { name: "Frog Pumps", reps: "2 × 25 reps" },
     ],
   },
 };
