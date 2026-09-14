@@ -106,7 +106,7 @@ function ProgressPage() {
         <Stat label="Personal records" value={String(prs.length)} accent="acid" />
       </section>
 
-      {plan && (
+      {plan && pp && (
         <section className="surface mt-4 p-5">
           <p className="eyebrow text-pink">8-week program</p>
           <div className="mt-2 flex items-baseline justify-between gap-3">
