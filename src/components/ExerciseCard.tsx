@@ -3,6 +3,7 @@ import { MediaBox } from "./MediaBox";
 import { RestTimer } from "./RestTimer";
 import { repRange, weekGoal, type Exercise } from "@/lib/program";
 import {
+  anchorHistory,
   previousWeekSets,
   setKey,
   suggestion,
