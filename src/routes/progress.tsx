@@ -3,8 +3,18 @@ import { useEffect, useState } from "react";
 import { Trophy } from "lucide-react";
 import { PrCelebration } from "@/components/PrCelebration";
 import { WeightChart } from "@/components/WeightChart";
-import { dayInWeek, getPlan, weekOf } from "@/lib/program";
-import { totalVolume, useStore, weeklyConsistency, weeklyHighlights } from "@/lib/store";
+import { PHASES, WEEKS, dayInWeek, getPlan, phaseInfo, phaseOf, weekOf } from "@/lib/program";
+import {
+  currentWeek,
+  isPhase2Unlocked,
+  phaseProgress,
+  planProgress,
+  programSummary,
+  totalVolume,
+  useStore,
+  weeklyConsistency,
+  weeklyHighlights,
+} from "@/lib/store";
 
 export const Route = createFileRoute("/progress")({
   head: () => ({
@@ -95,6 +105,52 @@ function ProgressPage() {
         <Stat label="Total volume" value={`${volume.toLocaleString()} kg`} />
         <Stat label="Personal records" value={String(prs.length)} accent="acid" />
       </section>
+
+      {plan && (
+        <section className="surface mt-4 p-5">
+          <p className="eyebrow text-pink">8-week program</p>
+          <div className="mt-2 flex items-baseline justify-between gap-3">
+            <p className="font-display text-2xl uppercase">
+              Week {currentWeek(plan, state)} of {WEEKS}
+            </p>
+            <p className="text-xs font-bold text-muted-foreground uppercase">
+              {planProgress(plan, state.completed, state.walks).pct}% done
+            </p>
+          </div>
+          <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-secondary">
+            <div
+              className="h-full rounded-full bg-spicy"
+              style={{ width: `${planProgress(plan, state.completed, state.walks).pct}%` }}
+            />
+          </div>
+          <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+            {PHASES.map((ph) => {
+              const pp = phaseProgress(plan, ph.no, state.completed, state.walks);
+              const locked = ph.no === 2 && !isPhase2Unlocked(plan.id, state);
+              return (
+                <div key={ph.no} className="rounded-xl bg-secondary p-3.5">
+                  <p className="eyebrow text-muted-foreground">
+                    Phase {ph.no} · W{ph.firstWeek}–{ph.lastWeek}
+                  </p>
+                  <p className="mt-0.5 text-sm font-bold uppercase">
+                    {locked ? "🔒 " : ""}
+                    {ph.name}
+                  </p>
+                  <p className="mt-0.5 text-[11px] font-bold text-muted-foreground uppercase">
+                    {pp.trained} workouts · {pp.done}/{pp.total} days
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+          <p className="mt-3 text-[11px] font-bold text-muted-foreground uppercase">
+            Now in phase {phaseOf(currentWeek(plan, state))} —{" "}
+            {phaseInfo(phaseOf(currentWeek(plan, state))).name} ·{" "}
+            {programSummary(plan, state).challenges} challenge
+            {programSummary(plan, state).challenges === 1 ? "" : "s"} completed
+          </p>
+        </section>
+      )}
 
       <section className="surface mt-4 p-5">
         <p className="eyebrow text-pink">This week</p>

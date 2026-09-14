@@ -1,7 +1,17 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, LineChart, Pencil, RotateCcw, Shuffle, Zap } from "lucide-react";
-import { PLANS, WEEKS, dayInWeek, estimateMinutes, getPlan, weekOf } from "@/lib/program";
+import {
+  PLANS,
+  WEEKS,
+  dayInWeek,
+  estimateMinutes,
+  getPlan,
+  phaseInfo,
+  phaseOf,
+  weekGoal,
+  weekOf,
+} from "@/lib/program";
 import { planAccent } from "@/lib/plan-theme";
 import {
   choosePlan,
@@ -13,6 +23,7 @@ import {
   planProgress,
   restartPlan,
   useStore,
+  weekLocked,
   weekProgress,
 } from "@/lib/store";
 
@@ -123,6 +134,9 @@ function CurrentPlanCard({
   const weeksDone = completedWeeks(plan, state.completed, state.walks);
   const currentWeek = weekOf(next.day);
   const wp = weekProgress(plan, currentWeek, state.completed, state.walks);
+  const phase = phaseInfo(phaseOf(currentWeek));
+  const goal = weekGoal(currentWeek);
+  const nextLocked = weekLocked(plan, weekOf(next.day), state);
 
   return (
     <>
@@ -148,6 +162,9 @@ function CurrentPlanCard({
             <span className="rounded-full bg-paper/25 px-2 py-0.5">
               {wp.done}/{wp.total} this week
             </span>
+            <span className="rounded-full bg-paper/25 px-2 py-0.5">
+              Phase {phase.no} · {phase.name}
+            </span>
             <span className="rounded-full bg-paper/25 px-2 py-0.5">Day 5, your call</span>
             {streak > 0 && (
               <span className="rounded-full bg-acid px-2 py-0.5 text-ink">
@@ -158,39 +175,62 @@ function CurrentPlanCard({
         </div>
 
         <div className="px-5 py-5">
-          <p className="eyebrow text-muted-foreground">Next up</p>
-          <Link
-            to="/workout/$planId/$day"
-            params={{ planId: plan.id, day: String(next.day) }}
-            className="mt-1.5 flex items-end gap-3"
-          >
-            <span className="day-number text-spicy">
-              {String(dayInWeek(next.day)).padStart(2, "0")}
-            </span>
-            <span className="min-w-0 pb-1">
-              <span className="block text-[11px] font-bold text-muted-foreground uppercase">
-                Week {weekOf(next.day)} · Day {dayInWeek(next.day)}
-              </span>
-              <span className="block text-xl leading-tight font-display uppercase">
-                {next.title}
-              </span>
-              <span className="block text-sm font-semibold text-muted-foreground">
-                {next.focus}
-              </span>
-            </span>
-          </Link>
-          <p className="mt-2 text-[11px] font-bold text-muted-foreground uppercase">
-            {next.exercises.length + (next.circuit ? 1 : 0)} exercises · ~{estimateMinutes(next)}{" "}
-            min
-          </p>
+          <div className="rounded-xl bg-secondary px-4 py-3">
+            <p className="eyebrow text-muted-foreground">This week</p>
+            <p className="mt-0.5 font-display text-base uppercase">{goal.title}</p>
+            <p className="mt-0.5 text-xs font-semibold text-muted-foreground">{goal.copy}</p>
+          </div>
+          {nextLocked ? (
+            <div className="mt-4">
+              <p className="font-display text-xl uppercase">Phase 1 done. 🌶️</p>
+              <p className="mt-1 text-sm font-semibold text-muted-foreground">
+                Weeks 5–8 are waiting — new moves, more stimulus.
+              </p>
+              <Link
+                to="/plan/$planId"
+                params={{ planId: plan.id }}
+                className="spicy-wash mt-3 inline-flex w-full items-center justify-center rounded-full px-5 py-4 text-xs font-bold uppercase"
+              >
+                Unlock phase 2
+              </Link>
+            </div>
+          ) : (
+            <>
+              <p className="mt-4 eyebrow text-muted-foreground">Next up</p>
+              <Link
+                to="/workout/$planId/$day"
+                params={{ planId: plan.id, day: String(next.day) }}
+                className="mt-1.5 flex items-end gap-3"
+              >
+                <span className="day-number text-spicy">
+                  {String(dayInWeek(next.day)).padStart(2, "0")}
+                </span>
+                <span className="min-w-0 pb-1">
+                  <span className="block text-[11px] font-bold text-muted-foreground uppercase">
+                    Week {weekOf(next.day)} · Day {dayInWeek(next.day)}
+                  </span>
+                  <span className="block text-xl leading-tight font-display uppercase">
+                    {next.title}
+                  </span>
+                  <span className="block text-sm font-semibold text-muted-foreground">
+                    {next.focus}
+                  </span>
+                </span>
+              </Link>
+              <p className="mt-2 text-[11px] font-bold text-muted-foreground uppercase">
+                {next.exercises.length + (next.circuit ? 1 : 0)} exercises · ~
+                {estimateMinutes(next)} min
+              </p>
 
-          <Link
-            to="/workout/$planId/$day"
-            params={{ planId: plan.id, day: String(next.day) }}
-            className="spicy-wash mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-4 text-sm font-bold tracking-wide uppercase shadow-[var(--shadow-lift)]"
-          >
-            Start Workout <ArrowRight className="size-4" aria-hidden />
-          </Link>
+              <Link
+                to="/workout/$planId/$day"
+                params={{ planId: plan.id, day: String(next.day) }}
+                className="spicy-wash mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-4 text-sm font-bold tracking-wide uppercase shadow-[var(--shadow-lift)]"
+              >
+                Start Workout <ArrowRight className="size-4" aria-hidden />
+              </Link>
+            </>
+          )}
 
           <div className="mt-3 flex flex-wrap gap-2">
             <Link
@@ -276,7 +316,6 @@ function CurrentPlanCard({
           </div>
         </div>
       )}
-
     </>
   );
 }

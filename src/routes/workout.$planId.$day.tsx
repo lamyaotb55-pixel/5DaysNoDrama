@@ -2,7 +2,17 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Check, Flame, Footprints, Trophy } from "lucide-react";
 import { ExerciseCard } from "@/components/ExerciseCard";
-import { WEEKS, dayInWeek, dayOption, getDay, getPlan, weekOf } from "@/lib/program";
+import {
+  WEEKS,
+  dayInWeek,
+  dayOption,
+  getDay,
+  getPlan,
+  phaseInfo,
+  phaseOf,
+  weekGoal,
+  weekOf,
+} from "@/lib/program";
 import { planAccent } from "@/lib/plan-theme";
 import {
   altAllowed,
@@ -16,6 +26,7 @@ import {
   startSession,
   summarize,
   useStore,
+  weekLocked,
 } from "@/lib/store";
 
 export const Route = createFileRoute("/workout/$planId/$day")({
@@ -83,7 +94,32 @@ function WorkoutPage() {
   const restSeconds = plan.id === "build-muscle" ? 120 : plan.id === "tone-up" ? 90 : 60;
   const option = dayOption(plan.id, day.day);
   const optionAvailable = altAllowed(day.day) && summary.sets === 0 && !allDone;
-  const dayLabel = `Week ${weekOf(day.day)} · Day ${dayInWeek(day.day)}`;
+  const weekNo = weekOf(day.day);
+  const goal = weekGoal(weekNo);
+  const phase = phaseInfo(phaseOf(weekNo));
+  const locked = weekLocked(plan, weekNo, state);
+  const dayLabel = `Week ${weekNo} · Day ${dayInWeek(day.day)}`;
+
+  if (locked) {
+    return (
+      <main className="mx-auto grid min-h-screen max-w-md place-items-center px-5">
+        <div className="surface p-8 text-center">
+          <p className="eyebrow text-pink">Phase 2 · Level It Up 🌶️</p>
+          <h1 className="mt-2 text-2xl">Weeks 5–8 aren't open yet</h1>
+          <p className="mt-2 text-sm font-semibold text-muted-foreground">
+            Finish weeks 1–4 first, then unlock the second phase from your plan.
+          </p>
+          <Link
+            to="/plan/$planId"
+            params={{ planId: plan.id }}
+            className="mt-5 inline-flex rounded-full bg-spicy px-5 py-3 text-xs font-bold text-accent-foreground uppercase"
+          >
+            Back to my plan
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
   if (cheer) {
     return (
@@ -220,6 +256,16 @@ function WorkoutPage() {
         </div>
       </header>
 
+      <section className="mt-4 rounded-2xl bg-secondary p-4">
+        <p className="eyebrow text-pink">
+          Phase {phase.no} · {phase.name}
+        </p>
+        <p className="mt-1 font-display text-base uppercase">
+          Week {weekNo}: {goal.title}
+        </p>
+        <p className="mt-1 text-xs font-semibold text-muted-foreground">{goal.copy}</p>
+      </section>
+
       {option && optionAvailable && (
         <button
           type="button"
@@ -260,6 +306,7 @@ function WorkoutPage() {
             key={`${ex.name}-${exIdx}`}
             planId={plan.id}
             day={day.day}
+            week={weekNo}
             exIdx={exIdx}
             exercise={ex}
             state={state}

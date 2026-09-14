@@ -1,12 +1,20 @@
 import { Check } from "lucide-react";
 import { MediaBox } from "./MediaBox";
 import { RestTimer } from "./RestTimer";
-import type { Exercise } from "@/lib/program";
-import { setKey, suggestion, updateSet, type SetLog, type State } from "@/lib/store";
+import { repRange, weekGoal, type Exercise } from "@/lib/program";
+import {
+  previousWeekSets,
+  setKey,
+  suggestion,
+  updateSet,
+  type SetLog,
+  type State,
+} from "@/lib/store";
 
 export function ExerciseCard({
   planId,
   day,
+  week,
   exIdx,
   exercise,
   state,
@@ -14,6 +22,7 @@ export function ExerciseCard({
 }: {
   planId: string;
   day: number;
+  week: number;
   exIdx: number;
   exercise: Exercise;
   state: State;
@@ -21,10 +30,22 @@ export function ExerciseCard({
 }) {
   const session = state.active[`${planId}|${day}`];
   const hint = suggestion(planId, exercise.name, exercise.reps, state.lastSets);
+  const prev = previousWeekSets(planId, week, exercise.name, state);
+  const prevBest = prev?.sets.reduce((a, b) => (b.weight > a.weight ? b : a));
+  const range = repRange(exercise.reps);
+  const goal = weekGoal(week);
   const doneSets = Array.from({ length: exercise.sets }).filter(
     (_, i) => session?.sets[setKey(exIdx, i)]?.done,
   ).length;
   const complete = doneSets === exercise.sets;
+  // Only nudge up in the "add a little" week, and only when the top of the
+  // range was hit on every set last time.
+  const suggestMore = goal.nudge === "load" && Boolean(hint?.progress);
+  const today = suggestMore
+    ? `${hint?.target} kg × ${range.min}${range.max !== range.min ? `–${range.max}` : ""}`
+    : prevBest?.weight
+      ? `${prevBest.weight} kg × ${range.min}${range.max !== range.min ? `–${range.max}` : ""}`
+      : `${range.min}${range.max !== range.min ? `–${range.max}` : ""} reps`;
 
   return (
     <article
@@ -41,34 +62,46 @@ export function ExerciseCard({
             {exercise.sets} sets × {exercise.reps}
             {exercise.perSide ? " per side" : ""}
           </p>
-          <span
-            key={complete ? "done" : "todo"}
-            className={
-              "mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase " +
-              (complete ? "bg-success text-ink check-pop" : "bg-secondary text-ink")
-            }
-          >
-            {complete && <Check className="size-3" aria-hidden />}
-            {complete ? "✓ Exercise complete" : `${doneSets}/${exercise.sets} sets`}
+          <span className="mt-2 flex flex-wrap items-center gap-1.5">
+            <span
+              key={complete ? "done" : "todo"}
+              className={
+                "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase " +
+                (complete ? "bg-success text-ink check-pop" : "bg-secondary text-ink")
+              }
+            >
+              {complete && <Check className="size-3" aria-hidden />}
+              {complete ? "✓ Exercise complete" : `${doneSets}/${exercise.sets} sets`}
+            </span>
+            {exercise.anchor && (
+              <span className="inline-flex items-center rounded-full border border-ice bg-ice/40 px-2 py-0.5 text-[10px] font-bold text-ink uppercase">
+                Progression lift
+              </span>
+            )}
           </span>
         </div>
       </div>
 
-      {hint && (
+      {prev && prevBest && (
         <div className="mt-3 grid grid-cols-2 gap-2 rounded-lg bg-secondary p-3 text-xs">
           <div>
-            <p className="eyebrow text-muted-foreground">Last time</p>
+            <p className="eyebrow text-muted-foreground">
+              {prev.week === week - 1 ? "Last week" : prev.week ? `Week ${prev.week}` : "Last time"}
+            </p>
             <p className="mt-0.5 font-bold uppercase">
-              {hint.lastBest.weight
-                ? `${hint.lastBest.weight} kg × ${hint.lastBest.reps}`
-                : `${hint.lastBest.reps} reps`}
+              {prevBest.weight
+                ? `${prevBest.weight} kg × ${prevBest.reps}`
+                : `${prevBest.reps} reps`}
             </p>
           </div>
           <div>
             <p className="eyebrow text-muted-foreground">Today</p>
-            <p className={"mt-0.5 font-bold uppercase " + (hint.progress ? "text-spicy" : "")}>
-              {hint.target ? `${hint.target} kg × ${hint.range}` : `${hint.range} reps`}
+            <p className={"mt-0.5 font-bold uppercase " + (suggestMore ? "text-spicy" : "")}>
+              {today}
             </p>
+            {suggestMore && (
+              <p className="mt-0.5 text-[10px] font-bold text-spicy uppercase">Add a little 🌶️</p>
+            )}
           </div>
         </div>
       )}
@@ -86,7 +119,7 @@ export function ExerciseCard({
             reps: 0,
             done: false,
           };
-          const prev = hint?.last[i];
+          const prevSet = prev?.sets[i];
           return (
             <div
               key={`${i}-${log.done ? "done" : "todo"}`}
@@ -105,16 +138,16 @@ export function ExerciseCard({
                   step={2.5}
                   min={0}
                   value={log.weight || ""}
-                  placeholder={prev ? String(prev.weight) : "kg"}
+                  placeholder={prevSet ? String(prevSet.weight) : "kg"}
                   aria-label={`Set ${i + 1} weight in kg`}
                   onChange={(e) =>
                     updateSet(planId, day, exIdx, i, { weight: Number(e.target.value) || 0 })
                   }
                   className="w-full rounded-lg bg-secondary px-2 py-3 text-center text-base font-bold outline-none focus:ring-2 focus:ring-ring"
                 />
-                {prev && (
+                {prevSet && (
                   <span className="mt-0.5 text-center text-[10px] font-semibold text-muted-foreground">
-                    prev {prev.weight} kg
+                    prev {prevSet.weight} kg
                   </span>
                 )}
               </label>
@@ -124,16 +157,16 @@ export function ExerciseCard({
                   inputMode="numeric"
                   min={0}
                   value={log.reps || ""}
-                  placeholder={prev ? String(prev.reps) : "reps"}
+                  placeholder={prevSet ? String(prevSet.reps) : "reps"}
                   aria-label={`Set ${i + 1} reps completed`}
                   onChange={(e) =>
                     updateSet(planId, day, exIdx, i, { reps: Number(e.target.value) || 0 })
                   }
                   className="w-full rounded-lg bg-secondary px-2 py-3 text-center text-base font-bold outline-none focus:ring-2 focus:ring-ring"
                 />
-                {prev && (
+                {prevSet && (
                   <span className="mt-0.5 text-center text-[10px] font-semibold text-muted-foreground">
-                    prev × {prev.reps}
+                    prev × {prevSet.reps}
                   </span>
                 )}
               </label>
