@@ -20,7 +20,7 @@ import {
   currentStreak,
   effectiveDay,
   nextWorkout,
-  planProgress,
+  programProgress,
   restartPlan,
   useStore,
   weekLocked,
@@ -122,7 +122,7 @@ function CurrentPlanCard({
   const plan = getPlan(planId)!;
   const [confirm, setConfirm] = useState<"restart" | "change" | null>(null);
   const accent = planAccent(plan.id);
-  const progress = planProgress(plan, state.completed, state.walks);
+  const progress = programProgress(plan, state);
   const next = effectiveDay(
     plan.id,
     nextWorkout(plan, state.completed, state.walks),
