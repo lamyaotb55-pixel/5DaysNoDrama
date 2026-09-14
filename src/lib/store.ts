@@ -414,12 +414,21 @@ export function restartPlan(planId: PlanId) {
   Object.keys(active).forEach((k) => k.startsWith(prefix) && delete active[k]);
   Object.keys(skips).forEach((k) => k.startsWith(prefix) && delete skips[k]);
   Object.keys(walks).forEach((k) => k.startsWith(prefix) && delete walks[k]);
+  const weekSets = { ...state.weekSets };
+  Object.keys(weekSets).forEach((k) => k.startsWith(prefix) && delete weekSets[k]);
+  const phase2 = { ...state.phase2 };
+  const programSeen = { ...state.programSeen };
+  delete phase2[planId];
+  delete programSeen[planId];
   set({
     ...state,
     completed,
     active,
     skips,
     walks,
+    weekSets,
+    phase2,
+    programSeen,
     rounds: { ...state.rounds, [planId]: (state.rounds[planId] ?? 1) + 1 },
   });
 }
