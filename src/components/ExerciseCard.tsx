@@ -3,6 +3,7 @@ import { MediaBox } from "./MediaBox";
 import { RestTimer } from "./RestTimer";
 import { repRange, weekGoal, type Exercise } from "@/lib/program";
 import {
+  anchorHistory,
   previousWeekSets,
   setKey,
   suggestion,
@@ -38,6 +39,8 @@ export function ExerciseCard({
     (_, i) => session?.sets[setKey(exIdx, i)]?.done,
   ).length;
   const complete = doneSets === exercise.sets;
+  // Progression lifts keep a week-by-week record across both phases.
+  const anchor = exercise.anchor ? anchorHistory(planId, exercise.name, state) : null;
   // Only nudge up in the "add a little" week, and only when the top of the
   // range was hit on every set last time.
   const suggestMore = goal.nudge === "load" && Boolean(hint?.progress);
@@ -103,6 +106,32 @@ export function ExerciseCard({
               <p className="mt-0.5 text-[10px] font-bold text-spicy uppercase">Add a little 🌶️</p>
             )}
           </div>
+        </div>
+      )}
+
+      {anchor && anchor.points.length > 0 && (
+        <div className="mt-3 rounded-lg border border-ice bg-ice/25 p-3">
+          <div className="flex items-baseline justify-between gap-2">
+            <p className="eyebrow text-ink/70">Progression lift · week by week</p>
+            {anchor.gain > 0 && (
+              <span className="text-[10px] font-bold text-ink uppercase">+{anchor.gain} kg</span>
+            )}
+          </div>
+          <ul className="mt-2 flex flex-wrap gap-1.5">
+            {anchor.points.map((p) => (
+              <li
+                key={p.week}
+                className={
+                  "rounded-full px-2 py-0.5 text-[10px] font-bold tabular-nums uppercase " +
+                  (p.week === anchor.best?.week ? "bg-acid text-ink" : "bg-card text-ink")
+                }
+              >
+                W{p.week}
+                <span className="text-ink/60"> P{p.phase}</span> ·{" "}
+                {p.weight ? `${p.weight}kg ` : ""}×{p.reps}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

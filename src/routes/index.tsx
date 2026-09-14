@@ -20,7 +20,7 @@ import {
   currentStreak,
   effectiveDay,
   nextWorkout,
-  planProgress,
+  programProgress,
   restartPlan,
   useStore,
   weekLocked,
@@ -122,7 +122,7 @@ function CurrentPlanCard({
   const plan = getPlan(planId)!;
   const [confirm, setConfirm] = useState<"restart" | "change" | null>(null);
   const accent = planAccent(plan.id);
-  const progress = planProgress(plan, state.completed, state.walks);
+  const progress = programProgress(plan, state);
   const next = effectiveDay(
     plan.id,
     nextWorkout(plan, state.completed, state.walks),
@@ -145,25 +145,32 @@ function CurrentPlanCard({
           <p className="eyebrow opacity-80">Current plan · Round {round}</p>
           <h2 className="mt-1.5 text-3xl">{plan.name}</h2>
           <p className="mt-1.5 text-sm font-bold uppercase opacity-90">{plan.slogan}</p>
-          <div className="mt-4 h-2 overflow-hidden rounded-full bg-paper/35">
+          {/* Filled by finished weeks and workouts only, never by calendar time. */}
+          <div className="mt-4 flex h-2 overflow-hidden rounded-full bg-paper/35">
             <div
               className={
-                "h-full rounded-full transition-[width] duration-500 " +
-                (planDone ? "bg-success" : "bg-paper")
+                "h-full transition-[width] duration-500 " + (planDone ? "bg-success" : "bg-paper")
               }
-              style={{ width: `${progress.pct}%` }}
+              style={{ width: `${progress.phase1Share}%` }}
+            />
+            <div
+              className={
+                "h-full transition-[width] duration-500 " +
+                (planDone ? "bg-success" : "bg-paper/70")
+              }
+              style={{ width: `${progress.phase2Share}%` }}
             />
           </div>
           <p className="mt-2.5 flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase">
             <span>
-              Week {currentWeek} of {WEEKS} · {weeksDone} weeks done
+              Week {currentWeek} of {WEEKS} · {weeksDone} weeks done · {progress.pct}%
               {planDone ? " ✓ all 8 weeks" : ""}
             </span>
             <span className="rounded-full bg-paper/25 px-2 py-0.5">
               {wp.done}/{wp.total} this week
             </span>
             <span className="rounded-full bg-paper/25 px-2 py-0.5">
-              Phase {phase.no} · {phase.name}
+              Phase {phase.no} · {phase.name} · {progress.phase2.done > 0 ? "P2 live" : "P1"}
             </span>
             <span className="rounded-full bg-paper/25 px-2 py-0.5">Day 5, your call</span>
             {streak > 0 && (

@@ -745,3 +745,50 @@ export function markProgramSeen(planId: string) {
   if (state.programSeen[planId]) return;
   set({ ...state, programSeen: { ...state.programSeen, [planId]: Date.now() } });
 }
+
+/**
+ * Week-by-week best set for a progression (anchor) lift, across both phases.
+ * Falls back to the plain last-sets record when a week wasn't tracked per-week.
+ */
+export function anchorHistory(
+  planId: string,
+  exName: string,
+  s: Pick<State, "weekSets" | "lastSets">,
+) {
+  const points: { week: number; phase: 1 | 2; weight: number; reps: number }[] = [];
+  for (let w = 1; w <= WEEKS; w++) {
+    const sets = s.weekSets[weekExKey(planId, w, exName)];
+    if (!sets?.length) continue;
+    const best = sets.reduce((a, b) => (b.weight > a.weight ? b : a));
+    points.push({ week: w, phase: phaseOf(w), weight: best.weight, reps: best.reps });
+  }
+  const first = points[0];
+  const last = points[points.length - 1];
+  const gain = first && last ? last.weight - first.weight : 0;
+  const best = points.reduce<(typeof points)[number] | undefined>(
+    (a, b) => (!a || b.weight > a.weight ? b : a),
+    undefined,
+  );
+  return { points, gain, best };
+}
+
+/**
+ * Overall program progress driven purely by finished work — completed weeks and
+ * workouts — never by calendar time. Phase 2 days count exactly like phase 1.
+ */
+export function programProgress(plan: Plan, s: State) {
+  const overall = planProgress(plan, s.completed, s.walks);
+  const p1 = phaseProgress(plan, 1, s.completed, s.walks);
+  const p2 = phaseProgress(plan, 2, s.completed, s.walks);
+  const weeksDone = completedWeeks(plan, s.completed, s.walks);
+  return {
+    ...overall,
+    weeksDone,
+    weeksTotal: WEEKS,
+    phase1: p1,
+    phase2: p2,
+    // Share of the whole 8-week program each phase has already delivered.
+    phase1Share: Math.round((p1.done / overall.total) * 100),
+    phase2Share: Math.round((p2.done / overall.total) * 100),
+  };
+}
