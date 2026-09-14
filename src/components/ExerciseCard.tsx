@@ -109,6 +109,32 @@ export function ExerciseCard({
         </div>
       )}
 
+      {anchor && anchor.points.length > 0 && (
+        <div className="mt-3 rounded-lg border border-ice bg-ice/25 p-3">
+          <div className="flex items-baseline justify-between gap-2">
+            <p className="eyebrow text-ink/70">Progression lift · week by week</p>
+            {anchor.gain > 0 && (
+              <span className="text-[10px] font-bold text-ink uppercase">+{anchor.gain} kg</span>
+            )}
+          </div>
+          <ul className="mt-2 flex flex-wrap gap-1.5">
+            {anchor.points.map((p) => (
+              <li
+                key={p.week}
+                className={
+                  "rounded-full px-2 py-0.5 text-[10px] font-bold tabular-nums uppercase " +
+                  (p.week === anchor.best?.week ? "bg-acid text-ink" : "bg-card text-ink")
+                }
+              >
+                W{p.week}
+                <span className="text-ink/60"> P{p.phase}</span> · {p.weight ? `${p.weight}kg ` : ""}
+                ×{p.reps}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className="mt-4 space-y-2">
         <div className="grid grid-cols-[2.6rem_1fr_1fr_2.5rem] items-center gap-2 px-1">
           <span className="eyebrow text-muted-foreground">Set</span>
