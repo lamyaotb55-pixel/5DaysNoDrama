@@ -195,44 +195,42 @@ function CurrentPlanCard({
               </Link>
             </div>
           ) : (
-          <>
-          <p className="mt-4 eyebrow text-muted-foreground">Next up</p>
-          <Link
-            to="/workout/$planId/$day"
-            params={{ planId: plan.id, day: String(next.day) }}
-            className="mt-1.5 flex items-end gap-3"
-          >
-            <span className="day-number text-spicy">
-              {String(dayInWeek(next.day)).padStart(2, "0")}
-            </span>
-            <span className="min-w-0 pb-1">
-              <span className="block text-[11px] font-bold text-muted-foreground uppercase">
-                Week {weekOf(next.day)} · Day {dayInWeek(next.day)}
-              </span>
-              <span className="block text-xl leading-tight font-display uppercase">
-                {next.title}
-              </span>
-              <span className="block text-sm font-semibold text-muted-foreground">
-                {next.focus}
-              </span>
-            </span>
-          </Link>
-          <p className="mt-2 text-[11px] font-bold text-muted-foreground uppercase">
-            {next.exercises.length + (next.circuit ? 1 : 0)} exercises · ~{estimateMinutes(next)}{" "}
-            min
-          </p>
+            <>
+              <p className="mt-4 eyebrow text-muted-foreground">Next up</p>
+              <Link
+                to="/workout/$planId/$day"
+                params={{ planId: plan.id, day: String(next.day) }}
+                className="mt-1.5 flex items-end gap-3"
+              >
+                <span className="day-number text-spicy">
+                  {String(dayInWeek(next.day)).padStart(2, "0")}
+                </span>
+                <span className="min-w-0 pb-1">
+                  <span className="block text-[11px] font-bold text-muted-foreground uppercase">
+                    Week {weekOf(next.day)} · Day {dayInWeek(next.day)}
+                  </span>
+                  <span className="block text-xl leading-tight font-display uppercase">
+                    {next.title}
+                  </span>
+                  <span className="block text-sm font-semibold text-muted-foreground">
+                    {next.focus}
+                  </span>
+                </span>
+              </Link>
+              <p className="mt-2 text-[11px] font-bold text-muted-foreground uppercase">
+                {next.exercises.length + (next.circuit ? 1 : 0)} exercises · ~
+                {estimateMinutes(next)} min
+              </p>
 
-          <Link
-            to="/workout/$planId/$day"
-            params={{ planId: plan.id, day: String(next.day) }}
-            className="spicy-wash mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-4 text-sm font-bold tracking-wide uppercase shadow-[var(--shadow-lift)]"
-          >
-            Start Workout <ArrowRight className="size-4" aria-hidden />
-          </Link>
-          </>
+              <Link
+                to="/workout/$planId/$day"
+                params={{ planId: plan.id, day: String(next.day) }}
+                className="spicy-wash mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-4 text-sm font-bold tracking-wide uppercase shadow-[var(--shadow-lift)]"
+              >
+                Start Workout <ArrowRight className="size-4" aria-hidden />
+              </Link>
+            </>
           )}
-
-
 
           <div className="mt-3 flex flex-wrap gap-2">
             <Link
@@ -318,7 +316,6 @@ function CurrentPlanCard({
           </div>
         </div>
       )}
-
     </>
   );
 }

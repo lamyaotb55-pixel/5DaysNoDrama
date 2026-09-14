@@ -152,9 +152,7 @@ export const weekExKey = (planId: string, week: number, name: string) =>
 
 /** Where an edited day template is stored — phase 1 keeps the original key. */
 export const templateKey = (planId: string, dayNo: number) =>
-  phaseOfDay(dayNo) === 1
-    ? `${planId}|${dayInWeek(dayNo)}`
-    : `${planId}|p2-${dayInWeek(dayNo)}`;
+  phaseOfDay(dayNo) === 1 ? `${planId}|${dayInWeek(dayNo)}` : `${planId}|p2-${dayInWeek(dayNo)}`;
 
 export function choosePlan(planId: PlanId) {
   set({ ...state, activePlanId: planId });

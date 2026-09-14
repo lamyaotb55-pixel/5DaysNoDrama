@@ -89,7 +89,9 @@ export function ExerciseCard({
               {prev.week === week - 1 ? "Last week" : prev.week ? `Week ${prev.week}` : "Last time"}
             </p>
             <p className="mt-0.5 font-bold uppercase">
-              {prevBest.weight ? `${prevBest.weight} kg × ${prevBest.reps}` : `${prevBest.reps} reps`}
+              {prevBest.weight
+                ? `${prevBest.weight} kg × ${prevBest.reps}`
+                : `${prevBest.reps} reps`}
             </p>
           </div>
           <div>

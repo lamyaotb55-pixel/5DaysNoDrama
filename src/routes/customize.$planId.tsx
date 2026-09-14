@@ -309,7 +309,8 @@ function CustomizePage() {
           <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-5 text-center">
             <h2 className="text-lg font-semibold">Remove this workout?</h2>
             <p className="mt-1.5 text-sm text-muted-foreground">
-              “{pending.name}” will be taken out of Day {dayInWeek(pending.day)}. You can undo it right after.
+              “{pending.name}” will be taken out of Day {dayInWeek(pending.day)}. You can undo it
+              right after.
             </p>
             <div className="mt-5 flex gap-3">
               <button
