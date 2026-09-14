@@ -2,8 +2,23 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Pencil, Plus, RotateCcw, Trash2, Undo2 } from "lucide-react";
 import { MediaBox } from "@/components/MediaBox";
-import { getPlan, type Exercise } from "@/lib/program";
-import { effectiveDay, resetDayExercises, saveDayExercises, useStore } from "@/lib/store";
+import {
+  PHASES,
+  WEEKS_PER_PHASE,
+  absDay,
+  dayInWeek,
+  getPlan,
+  phaseDays,
+  type Exercise,
+  type PhaseNo,
+} from "@/lib/program";
+import {
+  effectiveDay,
+  resetDayExercises,
+  saveDayExercises,
+  templateKey,
+  useStore,
+} from "@/lib/store";
 
 export const Route = createFileRoute("/customize/$planId")({
   head: ({ params }) => {
@@ -35,6 +50,7 @@ function CustomizePage() {
   const [draft, setDraft] = useState<{ day: number; ex: Draft } | null>(null);
   const [pending, setPending] = useState<{ day: number; index: number; name: string } | null>(null);
   const [undo, setUndo] = useState<{ day: number; name: string; list: Exercise[] } | null>(null);
+  const [phase, setPhase] = useState<PhaseNo>(1);
 
   if (!basePlan) {
     return (
@@ -52,7 +68,10 @@ function CustomizePage() {
     );
   }
 
-  const days = basePlan.days.map((d) => effectiveDay(basePlan.id, d, state.customDays));
+  const week = phase === 1 ? 1 : WEEKS_PER_PHASE + 1;
+  const days = phaseDays(basePlan, phase)
+    .map((d) => ({ ...d, day: absDay(week, d.day) }))
+    .map((d) => effectiveDay(basePlan.id, d, state.customDays));
 
   const commit = (dayNo: number, list: Exercise[]) => saveDayExercises(basePlan.id, dayNo, list);
 
@@ -96,14 +115,37 @@ function CustomizePage() {
         </p>
       </header>
 
+      <div className="mt-5 flex gap-2" role="tablist" aria-label="Phases">
+        {PHASES.map((ph) => (
+          <button
+            key={ph.no}
+            type="button"
+            role="tab"
+            aria-selected={phase === ph.no}
+            onClick={() => setPhase(ph.no)}
+            className={
+              "flex-1 rounded-full px-3 py-2.5 text-[11px] font-bold uppercase " +
+              (phase === ph.no
+                ? "bg-spicy text-accent-foreground"
+                : "border border-border bg-card text-muted-foreground")
+            }
+          >
+            Phase {ph.no} · {ph.name}
+          </button>
+        ))}
+      </div>
+      <p className="mt-2 text-[10px] font-bold text-muted-foreground uppercase">
+        Phase {phase} runs weeks {phase === 1 ? "1–4" : "5–8"}. Edits apply to every week in it.
+      </p>
+
       <div className="mt-6 space-y-4">
         {days.map((day) => {
-          const edited = Boolean(state.customDays[`${basePlan.id}|${day.day}`]);
+          const edited = Boolean(state.customDays[templateKey(basePlan.id, day.day)]);
           return (
             <section key={day.day} className="surface p-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="eyebrow text-muted-foreground">Day {day.day}</p>
+                  <p className="eyebrow text-muted-foreground">Day {dayInWeek(day.day)}</p>
                   <h2 className="mt-1 text-xl font-semibold uppercase">{day.title}</h2>
                   <p className="text-sm text-muted-foreground">{day.focus}</p>
                 </div>
@@ -267,7 +309,7 @@ function CustomizePage() {
           <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-5 text-center">
             <h2 className="text-lg font-semibold">Remove this workout?</h2>
             <p className="mt-1.5 text-sm text-muted-foreground">
-              “{pending.name}” will be taken out of Day {pending.day}. You can undo it right after.
+              “{pending.name}” will be taken out of Day {dayInWeek(pending.day)}. You can undo it right after.
             </p>
             <div className="mt-5 flex gap-3">
               <button
