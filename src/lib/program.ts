@@ -6,6 +6,8 @@ export type Exercise = {
   reps: string;
   perSide?: boolean | undefined;
   superset?: string | undefined;
+  /** Key lift tracked across phases — shown with a subtle "progression lift" label. */
+  anchor?: boolean | undefined;
   /** Optional image/GIF URL used by the exercise demo box. */
   media?: string | undefined;
 };
