@@ -1,7 +1,17 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, LineChart, Pencil, RotateCcw, Shuffle, Zap } from "lucide-react";
-import { PLANS, WEEKS, dayInWeek, estimateMinutes, getPlan, weekOf } from "@/lib/program";
+import {
+  PLANS,
+  WEEKS,
+  dayInWeek,
+  estimateMinutes,
+  getPlan,
+  phaseInfo,
+  phaseOf,
+  weekGoal,
+  weekOf,
+} from "@/lib/program";
 import { planAccent } from "@/lib/plan-theme";
 import {
   choosePlan,
@@ -123,6 +133,9 @@ function CurrentPlanCard({
   const weeksDone = completedWeeks(plan, state.completed, state.walks);
   const currentWeek = weekOf(next.day);
   const wp = weekProgress(plan, currentWeek, state.completed, state.walks);
+  const phase = phaseInfo(phaseOf(currentWeek));
+  const goal = weekGoal(currentWeek);
+  const nextLocked = weekLocked(plan, weekOf(next.day), state);
 
   return (
     <>
@@ -148,6 +161,9 @@ function CurrentPlanCard({
             <span className="rounded-full bg-paper/25 px-2 py-0.5">
               {wp.done}/{wp.total} this week
             </span>
+            <span className="rounded-full bg-paper/25 px-2 py-0.5">
+              Phase {phase.no} · {phase.name}
+            </span>
             <span className="rounded-full bg-paper/25 px-2 py-0.5">Day 5, your call</span>
             {streak > 0 && (
               <span className="rounded-full bg-acid px-2 py-0.5 text-ink">
@@ -158,7 +174,28 @@ function CurrentPlanCard({
         </div>
 
         <div className="px-5 py-5">
-          <p className="eyebrow text-muted-foreground">Next up</p>
+          <div className="rounded-xl bg-secondary px-4 py-3">
+            <p className="eyebrow text-muted-foreground">This week</p>
+            <p className="mt-0.5 font-display text-base uppercase">{goal.title}</p>
+            <p className="mt-0.5 text-xs font-semibold text-muted-foreground">{goal.copy}</p>
+          </div>
+          {nextLocked ? (
+            <div className="mt-4">
+              <p className="font-display text-xl uppercase">Phase 1 done. 🌶️</p>
+              <p className="mt-1 text-sm font-semibold text-muted-foreground">
+                Weeks 5–8 are waiting — new moves, more stimulus.
+              </p>
+              <Link
+                to="/plan/$planId"
+                params={{ planId: plan.id }}
+                className="spicy-wash mt-3 inline-flex w-full items-center justify-center rounded-full px-5 py-4 text-xs font-bold uppercase"
+              >
+                Unlock phase 2
+              </Link>
+            </div>
+          ) : (
+          <>
+          <p className="mt-4 eyebrow text-muted-foreground">Next up</p>
           <Link
             to="/workout/$planId/$day"
             params={{ planId: plan.id, day: String(next.day) }}
