@@ -114,18 +114,27 @@ function ProgressPage() {
               Week {currentWeek(plan, state)} of {WEEKS}
             </p>
             <p className="text-xs font-bold text-muted-foreground uppercase">
-              {planProgress(plan, state.completed, state.walks).pct}% done
+              {pp.pct}% done · {pp.done}/{pp.total} days
             </p>
           </div>
-          <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-secondary">
+          {/* Bar is filled by finished work only — phase 1 in red, phase 2 in pink. */}
+          <div className="mt-2 flex h-2.5 overflow-hidden rounded-full bg-secondary">
             <div
-              className="h-full rounded-full bg-spicy"
-              style={{ width: `${planProgress(plan, state.completed, state.walks).pct}%` }}
+              className="h-full bg-spicy transition-[width] duration-500"
+              style={{ width: `${pp.phase1Share}%` }}
+            />
+            <div
+              className="h-full bg-pink transition-[width] duration-500"
+              style={{ width: `${pp.phase2Share}%` }}
             />
           </div>
+          <p className="mt-2 text-[11px] font-bold text-muted-foreground uppercase">
+            {pp.weeksDone}/{pp.weeksTotal} weeks complete · {pp.trained} workouts
+            {pp.alt > 0 ? ` · ${pp.alt} challenges` : ""}
+          </p>
           <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
             {PHASES.map((ph) => {
-              const pp = phaseProgress(plan, ph.no, state.completed, state.walks);
+              const phase = ph.no === 1 ? pp.phase1 : pp.phase2;
               const locked = ph.no === 2 && !isPhase2Unlocked(plan.id, state);
               return (
                 <div key={ph.no} className="rounded-xl bg-secondary p-3.5">
@@ -137,7 +146,7 @@ function ProgressPage() {
                     {ph.name}
                   </p>
                   <p className="mt-0.5 text-[11px] font-bold text-muted-foreground uppercase">
-                    {pp.trained} workouts · {pp.done}/{pp.total} days
+                    {phase.pct}% · {phase.trained} workouts · {phase.done}/{phase.total} days
                   </p>
                 </div>
               );
