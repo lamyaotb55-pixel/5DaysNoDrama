@@ -624,3 +624,126 @@ export function currentStreak(history: FinishedSession[]): number {
   }
   return streak;
 }
+
+/* ---------- Phases: weeks 1–4 and weeks 5–8 ---------- */
+
+/** Every week of the first phase finished? */
+export function phase1Complete(
+  plan: Plan,
+  completedMap: Record<string, number>,
+  altDone: State["walks"] = {},
+) {
+  for (let w = 1; w <= WEEKS_PER_PHASE; w++) {
+    const p = weekProgress(plan, w, completedMap, altDone);
+    if (p.done < p.total) return false;
+  }
+  return true;
+}
+
+export function isPhase2Unlocked(planId: string, s: State) {
+  return Boolean(s.phase2[planId]);
+}
+
+export function unlockPhase2(planId: string) {
+  if (state.phase2[planId]) return;
+  set({ ...state, phase2: { ...state.phase2, [planId]: Date.now() } });
+}
+
+/** Weeks 5–8 stay locked until the first phase is finished and unlocked. */
+export function weekLocked(plan: Plan, week: number, s: State) {
+  return phaseOf(week) === 2 && !isPhase2Unlocked(plan.id, s);
+}
+
+/** Phase 1 is finished but the user hasn't opened phase 2 yet. */
+export function phase2Ready(plan: Plan, s: State) {
+  return !isPhase2Unlocked(plan.id, s) && phase1Complete(plan, s.completed, s.walks);
+}
+
+/** Furthest week the user can currently open. */
+export function currentWeek(plan: Plan, s: State) {
+  for (let w = 1; w <= WEEKS; w++) {
+    if (weekLocked(plan, w, s)) return Math.max(1, w - 1);
+    const p = weekProgress(plan, w, s.completed, s.walks);
+    if (p.done < p.total) return w;
+  }
+  return WEEKS;
+}
+
+/** Progress inside one phase (20 days). */
+export function phaseProgress(
+  plan: Plan,
+  phase: 1 | 2,
+  completedMap: Record<string, number>,
+  altDone: State["walks"] = {},
+) {
+  const first = phase === 1 ? 1 : WEEKS_PER_PHASE + 1;
+  let done = 0;
+  let trained = 0;
+  for (let w = first; w < first + WEEKS_PER_PHASE; w++) {
+    const p = weekProgress(plan, w, completedMap, altDone);
+    done += p.done;
+    trained += p.trained;
+  }
+  const total = WEEKS_PER_PHASE * DAYS_PER_WEEK;
+  return { done, trained, total, pct: Math.round((done / total) * 100) };
+}
+
+/** Weight and reps logged for an exercise in an earlier week of this plan. */
+export function previousWeekSets(
+  planId: string,
+  week: number,
+  exName: string,
+  s: Pick<State, "weekSets" | "lastSets">,
+): { week: number | null; sets: { weight: number; reps: number }[] } | null {
+  for (let w = week - 1; w >= 1; w--) {
+    const sets = s.weekSets[weekExKey(planId, w, exName)];
+    if (sets?.length) return { week: w, sets };
+  }
+  const fallback = s.lastSets[exKey(planId, exName)];
+  return fallback?.length ? { week: null, sets: fallback } : null;
+}
+
+/** Everything the 8-week wrap-up screen shows. */
+export function programSummary(plan: Plan, s: State) {
+  const history = s.history.filter((h) => h.planId === plan.id);
+  const challenges = Object.keys(s.walks).filter((k) => k.startsWith(`${plan.id}|`)).length;
+  const overall = planProgress(plan, s.completed, s.walks);
+  const prs = Object.entries(s.prs).sort((a, b) => b[1].weight - a[1].weight);
+
+  const counts = new Map<string, number>();
+  history.forEach((h) => counts.set(h.title, (counts.get(h.title) ?? 0) + 1));
+  const topDays = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
+
+  const improvements = Object.entries(s.trend)
+    .map(([name, points]) => {
+      const first = points[0];
+      const last = points[points.length - 1];
+      if (!first || !last || first.weight <= 0) return null;
+      return { name, from: first.weight, to: last.weight, gain: last.weight - first.weight };
+    })
+    .filter((x): x is { name: string; from: number; to: number; gain: number } => !!x && x.gain > 0)
+    .sort((a, b) => b.gain - a.gain)
+    .slice(0, 4);
+
+  return {
+    workouts: overall.trained,
+    challenges,
+    volume: totalVolume(history),
+    minutes: history.reduce((n, h) => n + h.durationMin, 0),
+    consistency: Math.round((overall.done / overall.total) * 100),
+    prs: prs.slice(0, 5),
+    prCount: prs.length,
+    improvements,
+    topDays,
+  };
+}
+
+/** True once all 8 weeks are finished. */
+export function programComplete(plan: Plan, s: State) {
+  return completedWeeks(plan, s.completed, s.walks) >= WEEKS;
+}
+
+export function markProgramSeen(planId: string) {
+  if (state.programSeen[planId]) return;
+  set({ ...state, programSeen: { ...state.programSeen, [planId]: Date.now() } });
+}
