@@ -310,32 +310,92 @@ export function getPlan(id: string | undefined): Plan | undefined {
   return PLANS.find((p) => p.id === id);
 }
 
-/* ---------- 8-week structure ----------
- * Every plan runs for 8 weeks of the same 5-day split. Days are addressed by an
- * absolute number 1–40; week 1 is days 1–5, week 2 days 6–10, and so on. */
+/* ---------- 8-week structure, 2 phases ----------
+ * Every plan runs for 8 weeks of a 5-day split. Weeks 1–4 use the phase 1
+ * templates (plan.days), weeks 5–8 use the phase 2 templates. Days are
+ * addressed by an absolute number 1–40; week 1 is days 1–5, and so on. */
 
 export const WEEKS = 8;
 export const DAYS_PER_WEEK = 5;
 export const TOTAL_DAYS = WEEKS * DAYS_PER_WEEK;
+export const WEEKS_PER_PHASE = 4;
 
 export const weekOf = (absDayNo: number) => Math.ceil(absDayNo / DAYS_PER_WEEK);
 export const dayInWeek = (absDayNo: number) => ((absDayNo - 1) % DAYS_PER_WEEK) + 1;
 export const absDay = (week: number, dayNo: number) => (week - 1) * DAYS_PER_WEEK + dayNo;
 
+export type PhaseNo = 1 | 2;
+
+export type Phase = {
+  no: PhaseNo;
+  name: string;
+  purpose: string;
+  firstWeek: number;
+  lastWeek: number;
+};
+
+export const PHASES: Phase[] = [
+  {
+    no: 1,
+    name: "Build The Base",
+    purpose: "Learn the movements, find your working weights, build consistency.",
+    firstWeek: 1,
+    lastWeek: 4,
+  },
+  {
+    no: 2,
+    name: "Level It Up 🌶️",
+    purpose: "New variations, more stimulus, keep the progression going.",
+    firstWeek: 5,
+    lastWeek: 8,
+  },
+];
+
+export const phaseOf = (week: number): PhaseNo => (week <= WEEKS_PER_PHASE ? 1 : 2);
+export const phaseOfDay = (absDayNo: number): PhaseNo => phaseOf(weekOf(absDayNo));
+export const phaseInfo = (no: PhaseNo): Phase => PHASES[no - 1]!;
+
+/** Weekly objective inside a phase (repeats for weeks 5–8). */
+export type WeekGoal = { title: string; copy: string; nudge: "base" | "reps" | "load" | "own" };
+
+export const WEEK_GOALS: WeekGoal[] = [
+  { title: "Find Your Base", copy: "Find your working weight. Good form first.", nudge: "base" },
+  { title: "Beat Your Reps", copy: "Same weight. Can you beat last week?", nudge: "reps" },
+  {
+    title: "Add A Little 🌶️",
+    copy: "Hit the top of the rep range? Add a little weight.",
+    nudge: "load",
+  },
+  { title: "Own It", copy: "Finish the phase stronger than you started.", nudge: "own" },
+];
+
+export const weekGoal = (week: number): WeekGoal =>
+  WEEK_GOALS[(week - 1) % WEEKS_PER_PHASE] ?? WEEK_GOALS[0]!;
+
+/** The 5 day templates that serve a given phase. */
+export function phaseDays(plan: Plan, phase: PhaseNo): Day[] {
+  return phase === 1 ? plan.days : (PHASE2[plan.id] ?? plan.days);
+}
+
+/** The 5 day templates that serve a given week. */
+export function weekTemplates(plan: Plan, week: number): Day[] {
+  return phaseDays(plan, phaseOf(week));
+}
+
 /** The template day (1–5) behind any absolute day number. */
 export function templateDay(plan: Plan, absDayNo: number): Day | undefined {
-  return plan.days.find((d) => d.day === dayInWeek(absDayNo));
+  return weekTemplates(plan, weekOf(absDayNo)).find((d) => d.day === dayInWeek(absDayNo));
 }
 
 export function getDay(plan: Plan, day: number): Day | undefined {
   if (!Number.isFinite(day) || day < 1 || day > TOTAL_DAYS) return undefined;
-  const template = plan.days.find((d) => d.day === dayInWeek(day));
+  const template = templateDay(plan, day);
   return template ? { ...template, day } : undefined;
 }
 
 /** The five days of one week, numbered absolutely. */
 export function weekDays(plan: Plan, week: number): Day[] {
-  return plan.days.map((d) => ({ ...d, day: absDay(week, d.day) }));
+  return weekTemplates(plan, week).map((d) => ({ ...d, day: absDay(week, d.day) }));
 }
 
 /** All 40 days of the plan. */
