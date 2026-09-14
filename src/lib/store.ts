@@ -3,10 +3,13 @@ import {
   DAYS_PER_WEEK,
   TOTAL_DAYS,
   WEEKS,
+  WEEKS_PER_PHASE,
   absDay,
   dayInWeek,
   getDay,
   getPlan,
+  phaseOf,
+  phaseOfDay,
   repRange,
   weekOf,
   type Day,
@@ -47,12 +50,18 @@ export type State = {
   completed: Record<string, number>; // `${planId}|${day}` -> last finished timestamp
   history: FinishedSession[];
   lastSets: Record<string, { weight: number; reps: number }[]>; // `${planId}|${exName}`
+  /** Per-week performance so every week keeps its own weights and reps. */
+  weekSets: Record<string, { weight: number; reps: number }[]>; // `${planId}|${week}|${exName}`
   prs: Record<string, BestSet>; // exercise name
   trend: Record<string, BestSet[]>; // exercise name -> best set per session
-  customDays: Record<string, Exercise[]>; // `${planId}|${dayInWeek}` -> edited exercise list
+  customDays: Record<string, Exercise[]>; // `${planId}|${dayInWeek}` (phase 2: `${planId}|p2-${dayInWeek}`)
   rounds: Record<string, number>; // `${planId}` -> how many times the plan was restarted
   skips: Record<string, number>; // `${planId}|${absDay}` -> day 5: chose the alternative (walk / mini)
   walks: Record<string, number>; // `${planId}|${absDay}` -> the alternative was completed
+  /** `${planId}` -> timestamp phase 2 (weeks 5–8) was unlocked. */
+  phase2: Record<string, number>;
+  /** `${planId}` -> timestamp the 8-week completion screen was acknowledged. */
+  programSeen: Record<string, number>;
 };
 
 const KEY = "five-days-no-drama-v1";
@@ -63,12 +72,15 @@ const empty: State = {
   completed: {},
   history: [],
   lastSets: {},
+  weekSets: {},
   prs: {},
   trend: {},
   customDays: {},
   rounds: {},
   skips: {},
   walks: {},
+  phase2: {},
+  programSeen: {},
 };
 
 let state: State = empty;
