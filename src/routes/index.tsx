@@ -23,6 +23,7 @@ import {
   planProgress,
   restartPlan,
   useStore,
+  weekLocked,
   weekProgress,
 } from "@/lib/store";
 
