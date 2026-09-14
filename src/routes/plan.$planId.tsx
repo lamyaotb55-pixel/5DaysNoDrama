@@ -37,6 +37,7 @@ import {
   effectiveDay,
   isPhase2Unlocked,
   markProgramSeen,
+  phase2Ready,
   phaseProgress,
   planProgress,
   programComplete,
@@ -104,8 +105,7 @@ function PlanPage() {
   const overall = planProgress(plan, state.completed, state.walks);
   const weeksDone = completedWeeks(plan, state.completed, state.walks);
   const finishedProgram = programComplete(plan, state);
-  const phase1Done = phaseProgress(plan, 1, state.completed, state.walks).done >= WEEKS * 0 + 20;
-  const readyToUnlock = phase1Done && !phase2Open;
+  const readyToUnlock = phase2Ready(plan, state);
   const shownLocked = weekLocked(plan, shownWeek, state);
   const days = weekDays(plan, shownWeek).map((d) => effectiveDay(plan.id, d, state.customDays));
   const wp = weekProgress(plan, shownWeek, state.completed, state.walks);
