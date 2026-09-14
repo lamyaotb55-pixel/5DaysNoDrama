@@ -7,8 +7,7 @@ import { PHASES, WEEKS, dayInWeek, getPlan, phaseInfo, phaseOf, weekOf } from "@
 import {
   currentWeek,
   isPhase2Unlocked,
-  phaseProgress,
-  planProgress,
+  programProgress,
   programSummary,
   totalVolume,
   useStore,
@@ -42,6 +41,7 @@ function ProgressPage() {
   const volume = totalVolume(state.history);
   const week = weeklyHighlights(state.history);
   const prs = Object.entries(state.prs).sort((a, b) => b[1].weight - a[1].weight);
+  const pp = plan ? programProgress(plan, state) : null;
   const weekComplete = week.workouts >= 5;
 
   // PRs set during the most recent finished workout get the celebration treatment.
