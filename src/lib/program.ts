@@ -468,3 +468,234 @@ export function dayOption(planId: string | undefined, absDayNo: number): DayOpti
   if (!planId || dayInWeek(absDayNo) !== DAYS_PER_WEEK) return undefined;
   return DAY_OPTIONS[planId as PlanId];
 }
+
+/* ---------- Phase 2 templates (weeks 5–8) ----------
+ * Same 5-day shape as phase 1, new variations and a bit more stimulus.
+ * Edit freely — the UI reads these, nothing is hard-coded in components. */
+
+export const PHASE2: Record<PlanId, Day[]> = {
+  "tone-up": [
+    {
+      day: 1,
+      title: "Lower Body",
+      focus: "Glutes + Quads 2.0",
+      exercises: [
+        { name: "Smith Machine Hip Thrust", sets: 4, reps: "8–10" },
+        { name: "Heel-Elevated Goblet Squat", sets: 3, reps: "10–12" },
+        { name: "Reverse Lunges", sets: 3, reps: "10", perSide: true },
+        { name: "Single-Leg Leg Press", sets: 3, reps: "10–12", perSide: true },
+        { name: "Cable Kickback", sets: 3, reps: "12–15", perSide: true },
+        { name: "Single-Leg Hip Abductor", sets: 3, reps: "15", perSide: true },
+      ],
+    },
+    {
+      day: 2,
+      title: "Upper Body",
+      focus: "Back + Shoulders 2.0",
+      exercises: [
+        { name: "Neutral-Grip Lat Pulldown", sets: 3, reps: "8–12" },
+        { name: "Chest-Supported Dumbbell Row", sets: 3, reps: "8–12" },
+        { name: "Arnold Press", sets: 3, reps: "8–10" },
+        { name: "Single-Arm Cable Row", sets: 3, reps: "10", perSide: true },
+        { name: "Front-to-Side Dumbbell Raise", sets: 3, reps: "10–12" },
+        { name: "Rear Delt Fly", sets: 3, reps: "12–15" },
+      ],
+    },
+    {
+      day: 3,
+      title: "Lower Body",
+      focus: "Glutes + Hamstrings 2.0",
+      exercises: [
+        { name: "Smith Machine Romanian Deadlift", sets: 4, reps: "8–10" },
+        { name: "Glute-Biased Bulgarian Split Squat", sets: 3, reps: "8–10", perSide: true },
+        { name: "Seated Leg Curl", sets: 3, reps: "10–12" },
+        { name: "Sumo Deadlift", sets: 3, reps: "8–10" },
+        { name: "45° Glute-Biased Back Extension", sets: 3, reps: "12" },
+        { name: "Hip Abductor", sets: 3, reps: "15–20" },
+      ],
+    },
+    {
+      day: 4,
+      title: "Upper Body",
+      focus: "Balanced Upper 2.0",
+      exercises: [
+        { name: "Wide-Grip Lat Pulldown", sets: 3, reps: "8–12" },
+        { name: "Single-Arm Dumbbell Row", sets: 3, reps: "10", perSide: true },
+        { name: "Dumbbell Chest Press", sets: 3, reps: "8–12" },
+        { name: "Face Pull", sets: 3, reps: "12–15" },
+        { name: "Dumbbell Biceps Curl", sets: 3, reps: "10–12" },
+        { name: "Overhead Triceps Extension", sets: 3, reps: "10–12" },
+      ],
+    },
+    {
+      day: 5,
+      title: "Full Body Light 2.0",
+      focus: "Full Body + Core",
+      exercises: [
+        { name: "Sumo Goblet Squat", sets: 3, reps: "12" },
+        { name: "Dumbbell Romanian Deadlift", sets: 3, reps: "12" },
+        { name: "Seated Cable Row", sets: 3, reps: "12" },
+        { name: "Dumbbell Lateral Raise", sets: 2, reps: "15" },
+      ],
+      circuit: {
+        name: "Core Circuit",
+        rounds: 3,
+        items: [
+          { name: "Hanging Leg Raise", reps: "10–12 reps" },
+          { name: "Bicycle Crunch", reps: "20 reps total" },
+          { name: "Plank Knee-to-Elbow", reps: "10 reps per side" },
+        ],
+      },
+    },
+  ],
+  "lose-weight": [
+    {
+      day: 1,
+      title: "Lower Body + Cardio 2.0",
+      focus: "Legs + Cardio",
+      exercises: [
+        { name: "Smith Machine Squat", sets: 3, reps: "10–12" },
+        { name: "Dumbbell Romanian Deadlift", sets: 3, reps: "12" },
+        { name: "Step Ups", sets: 3, reps: "10", perSide: true },
+        { name: "Walking Lunges", sets: 3, reps: "12", perSide: true },
+        { name: "Cable Kickback", sets: 3, reps: "15", perSide: true },
+      ],
+      finisher: { label: "Cardio Finisher", detail: "15–20 min incline treadmill walk" },
+    },
+    {
+      day: 2,
+      title: "Upper Body + Core 2.0",
+      focus: "Back, Shoulders + Core",
+      exercises: [
+        { name: "Neutral-Grip Lat Pulldown", sets: 3, reps: "10–12" },
+        { name: "Chest-Supported Row", sets: 3, reps: "10–12" },
+        { name: "Incline Dumbbell Press", sets: 3, reps: "10–12" },
+        { name: "Arnold Press", sets: 3, reps: "10–12" },
+        { name: "Face Pull", sets: 3, reps: "15" },
+      ],
+      circuit: {
+        name: "Core Circuit",
+        rounds: 3,
+        items: [
+          { name: "Hanging Leg Raise", reps: "10 reps" },
+          { name: "Russian Twist", reps: "20 reps total" },
+          { name: "Cable Crunch", reps: "15 reps" },
+        ],
+      },
+    },
+    {
+      day: 3,
+      title: "Full Body Metabolic 2.0",
+      focus: "Supersets + Finisher",
+      exercises: [
+        { name: "Step Ups", sets: 3, reps: "12", perSide: true, superset: "Superset A" },
+        { name: "Seated Cable Row", sets: 3, reps: "12", superset: "Superset A" },
+        { name: "Sumo Goblet Squat", sets: 3, reps: "15", superset: "Superset B" },
+        { name: "Dumbbell Shoulder Press", sets: 3, reps: "12", superset: "Superset B" },
+        { name: "Reverse Lunges", sets: 3, reps: "10", perSide: true, superset: "Superset C" },
+        { name: "Lat Pulldown", sets: 3, reps: "12", superset: "Superset C" },
+      ],
+      finisher: { label: "Finisher", detail: "StairMaster — 10–15 min" },
+    },
+    {
+      day: 4,
+      title: "Lower Body + Core 2.0",
+      focus: "Glutes + Core",
+      exercises: [
+        { name: "Glute Bridge", sets: 3, reps: "12–15" },
+        { name: "Single-Leg Leg Press", sets: 3, reps: "12", perSide: true },
+        { name: "Seated Leg Curl", sets: 3, reps: "12–15" },
+        { name: "Reverse Lunges", sets: 3, reps: "10", perSide: true },
+        { name: "Hip Abductor", sets: 3, reps: "15–20" },
+      ],
+      circuit: {
+        name: "Core Circuit",
+        rounds: 3,
+        items: [
+          { name: "Hanging Leg Raise", reps: "10–12 reps" },
+          { name: "Cable Crunch", reps: "12–15 reps" },
+          { name: "Russian Twist", reps: "20 reps total" },
+        ],
+      },
+    },
+    {
+      day: 5,
+      title: "Full Body + Conditioning 2.0",
+      focus: "Strength + Conditioning",
+      exercises: [
+        { name: "Goblet Squat", sets: 3, reps: "15" },
+        { name: "Dumbbell Romanian Deadlift", sets: 3, reps: "12" },
+        { name: "Cable Bent-Over Row", sets: 3, reps: "12" },
+        { name: "Dumbbell Chest Press", sets: 3, reps: "12" },
+        { name: "Dumbbell Lateral Raise", sets: 2, reps: "15" },
+      ],
+      finisher: { label: "Conditioning", detail: "20–30 min cardio of choice" },
+    },
+  ],
+  "build-muscle": [
+    {
+      day: 1,
+      title: "Lower Body",
+      focus: "Quads + Glutes 2.0",
+      exercises: [
+        { name: "Smith Machine Squat", sets: 4, reps: "6–8", anchor: true },
+        { name: "Hip Thrust", sets: 4, reps: "6–8", anchor: true },
+        { name: "Single-Leg Leg Press", sets: 3, reps: "8–10", perSide: true },
+        { name: "Reverse Lunge", sets: 3, reps: "8–10", perSide: true },
+        { name: "Leg Extension", sets: 3, reps: "12–15" },
+        { name: "Single-Leg Hip Abductor", sets: 3, reps: "15", perSide: true },
+      ],
+    },
+    {
+      day: 2,
+      title: "Upper Body",
+      focus: "Back + Biceps 2.0",
+      exercises: [
+        { name: "Neutral-Grip Lat Pulldown", sets: 4, reps: "6–10" },
+        { name: "Chest-Supported Row", sets: 4, reps: "8–10", anchor: true },
+        { name: "Single-Arm Cable Row", sets: 3, reps: "10", perSide: true },
+        { name: "Face Pull", sets: 3, reps: "12–15" },
+        { name: "Incline Dumbbell Curl", sets: 3, reps: "8–12" },
+        { name: "Cable Hammer Curl", sets: 3, reps: "10–12" },
+      ],
+    },
+    {
+      day: 3,
+      title: "Lower Body",
+      focus: "Hamstrings + Glutes 2.0",
+      exercises: [
+        { name: "Romanian Deadlift", sets: 4, reps: "6–8", anchor: true },
+        { name: "Hip Thrust", sets: 4, reps: "8–10", anchor: true },
+        { name: "Seated Leg Curl", sets: 4, reps: "8–12" },
+        { name: "Glute-Biased Bulgarian Split Squat", sets: 3, reps: "8–10", perSide: true },
+        { name: "45° Glute-Biased Back Extension", sets: 3, reps: "10–12" },
+        { name: "Cable Kickback", sets: 3, reps: "12–15", perSide: true },
+      ],
+    },
+    {
+      day: 4,
+      title: "Upper Body",
+      focus: "Shoulders + Chest + Triceps 2.0",
+      exercises: [
+        { name: "Seated Dumbbell Shoulder Press", sets: 4, reps: "6–8", anchor: true },
+        { name: "Incline Dumbbell Press", sets: 3, reps: "8–10", anchor: true },
+        { name: "Cable Lateral Raise", sets: 3, reps: "12–15" },
+        { name: "Machine Chest Fly", sets: 3, reps: "10–15" },
+        { name: "Overhead Cable Triceps Extension", sets: 3, reps: "10–12" },
+        { name: "Single-Arm Triceps Pushdown", sets: 3, reps: "10–12", perSide: true },
+      ],
+    },
+    {
+      day: 5,
+      title: "Glute Pump",
+      focus: "Lower Body — low fatigue",
+      exercises: [
+        { name: "Smith Machine Glute Bridge", sets: 3, reps: "10–12" },
+        { name: "Glute-Biased Step Ups", sets: 3, reps: "10", perSide: true },
+        { name: "Cable Kickback", sets: 3, reps: "12–15", perSide: true },
+        { name: "Hip Abductor", sets: 3, reps: "15–20" },
+        { name: "Frog Pumps", sets: 2, reps: "20–25" },
+      ],
+    },
+  ],
+};
