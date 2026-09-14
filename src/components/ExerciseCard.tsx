@@ -127,8 +127,8 @@ export function ExerciseCard({
                 }
               >
                 W{p.week}
-                <span className="text-ink/60"> P{p.phase}</span> · {p.weight ? `${p.weight}kg ` : ""}
-                ×{p.reps}
+                <span className="text-ink/60"> P{p.phase}</span> ·{" "}
+                {p.weight ? `${p.weight}kg ` : ""}×{p.reps}
               </li>
             ))}
           </ul>
