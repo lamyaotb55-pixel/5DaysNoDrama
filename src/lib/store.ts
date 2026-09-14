@@ -147,6 +147,14 @@ export function useStore(): State {
 export const sessionKey = (planId: string, day: number) => `${planId}|${day}`;
 export const setKey = (exIdx: number, setIdx: number) => `${exIdx}-${setIdx}`;
 export const exKey = (planId: string, name: string) => `${planId}|${name}`;
+export const weekExKey = (planId: string, week: number, name: string) =>
+  `${planId}|${week}|${name}`;
+
+/** Where an edited day template is stored — phase 1 keeps the original key. */
+export const templateKey = (planId: string, dayNo: number) =>
+  phaseOfDay(dayNo) === 1
+    ? `${planId}|${dayInWeek(dayNo)}`
+    : `${planId}|p2-${dayInWeek(dayNo)}`;
 
 export function choosePlan(planId: PlanId) {
   set({ ...state, activePlanId: planId });
