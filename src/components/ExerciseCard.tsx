@@ -54,10 +54,8 @@ export function ExerciseCard({
     <article
       className={"surface p-4 transition-colors sm:p-5 " + (complete ? "border-success" : "")}
     >
-      <div className="flex gap-3">
-        <div className="w-20 shrink-0 sm:w-24">
-          <MediaBox name={exercise.name} compact src={exercise.media} />
-        </div>
+      <MediaBox name={exercise.name} wide src={exercise.media} />
+      <div className="mt-3 flex gap-3">
         <div className="min-w-0 flex-1">
           {exercise.superset && <span className="eyebrow text-pink">{exercise.superset}</span>}
           <h2 className="text-lg leading-tight">{exercise.name}</h2>

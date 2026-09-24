@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Play, X } from "lucide-react";
 import { defaultMedia } from "@/lib/media";
 
@@ -9,19 +9,44 @@ const demoUrl = (name: string) =>
   `https://www.youtube.com/results?search_query=${encodeURIComponent(`${name} exercise proper form`)}`;
 
 function Media({ src, name, className }: { src: string; name: string; className: string }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  const [blocked, setBlocked] = useState(false);
+
+  // Play while on screen, pause when scrolled away. Phones (iOS Low Power
+  // Mode, data saver) can refuse autoplay — then show controls so the demo is
+  // still one tap away.
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+    v.muted = true;
+    const play = () => v.play().catch(() => setBlocked(true));
+    if (typeof IntersectionObserver === "undefined") {
+      void play();
+      return;
+    }
+    const io = new IntersectionObserver(
+      ([entry]) => (entry?.isIntersecting ? void play() : v.pause()),
+      { threshold: 0.25 },
+    );
+    io.observe(v);
+    return () => io.disconnect();
+  }, [src]);
+
   return isVideo(src) ? (
     <video
+      ref={ref}
       src={src}
       autoPlay
       loop
       muted
       playsInline
-      preload="metadata"
+      controls={blocked}
+      preload="auto"
       aria-label={`${name} demonstration`}
       className={className}
     />
   ) : (
-    <img src={src} alt={`${name} demonstration`} loading="lazy" className={className} />
+    <img src={src} alt={`${name} demonstration`} decoding="async" className={className} />
   );
 }
 
@@ -32,10 +57,13 @@ function Media({ src, name, className }: { src: string; name: string; className:
 export function MediaBox({
   name,
   compact = false,
+  wide = false,
   src,
 }: {
   name: string;
   compact?: boolean;
+  /** Full-width banner, used at the top of each exercise card. */
+  wide?: boolean;
   src?: string | undefined;
 }) {
   const [open, setOpen] = useState(false);
@@ -58,7 +86,7 @@ export function MediaBox({
 
   const frame =
     "group relative block w-full overflow-hidden rounded-lg " +
-    (compact ? "aspect-square" : "aspect-[4/3]");
+    (compact ? "aspect-square" : wide ? "aspect-video" : "aspect-[4/3]");
 
   if (media) {
     return (
