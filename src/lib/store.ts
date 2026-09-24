@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   DAYS_PER_WEEK,
   TOTAL_DAYS,
@@ -87,6 +88,71 @@ let state: State = empty;
 let loaded = false;
 const listeners = new Set<() => void>();
 
+/* ---------- Cloud sync (Supabase) for signed-in users ----------
+ * Guests keep working entirely from localStorage, exactly as before.
+ * Once someone is signed in, their state also round-trips through
+ * `user_data` so it follows them across devices. */
+let currentUserId: string | null = null;
+let remoteSyncTimer: ReturnType<typeof setTimeout> | null = null;
+let authWired = false;
+
+async function hydrateFromRemote(userId: string) {
+  try {
+    const { data, error } = await supabase
+      .from("user_data")
+      .select("state")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (error) throw error;
+    const remoteState = data?.state as Partial<State> | undefined;
+    if (remoteState && Object.keys(remoteState).length > 0) {
+      state = { ...empty, ...remoteState };
+      persist();
+      listeners.forEach((l) => l());
+    } else {
+      // First time this account has signed in: carry over whatever is on this device.
+      await supabase.from("user_data").upsert({ user_id: userId, state });
+    }
+  } catch {
+    /* offline, or the table isn't reachable yet — localStorage stays authoritative */
+  }
+}
+
+function scheduleRemoteSave() {
+  if (!currentUserId) return;
+  const userId = currentUserId;
+  if (remoteSyncTimer) clearTimeout(remoteSyncTimer);
+  remoteSyncTimer = setTimeout(() => {
+    void supabase
+      .from("user_data")
+      .upsert({ user_id: userId, state })
+      .then(({ error }) => {
+        if (error) console.error("[user_data] save failed", error);
+      });
+  }, 800);
+}
+
+function wireAuthSync() {
+  if (authWired || typeof window === "undefined") return;
+  authWired = true;
+  supabase.auth.getSession().then(({ data }) => {
+    const uid = data.session?.user.id ?? null;
+    if (uid && uid !== currentUserId) {
+      currentUserId = uid;
+      void hydrateFromRemote(uid);
+    }
+  });
+  supabase.auth.onAuthStateChange((_event, session) => {
+    const uid = session?.user.id ?? null;
+    if (uid && uid !== currentUserId) {
+      currentUserId = uid;
+      void hydrateFromRemote(uid);
+    } else if (!uid) {
+      currentUserId = null;
+    }
+  });
+}
+
 function load(): State {
   if (typeof window === "undefined") return empty;
   try {
@@ -110,6 +176,7 @@ function persist() {
 function set(next: State) {
   state = next;
   persist();
+  scheduleRemoteSave();
   listeners.forEach((l) => l());
 }
 
@@ -120,6 +187,7 @@ function subscribe(cb: () => void) {
     loaded = true;
     state = load();
   }
+  wireAuthSync();
   listeners.add(cb);
   // After hydration the server snapshot was empty; nudge subscribers so the
   // stored progress renders without needing a second interaction.
