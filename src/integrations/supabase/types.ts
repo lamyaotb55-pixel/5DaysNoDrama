@@ -14,24 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      user_data: {
-        Row: {
-          state: Json
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          state?: Json
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          state?: Json
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           avatar_url: string | null
