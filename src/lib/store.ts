@@ -41,6 +41,24 @@ export type FinishedSession = {
   prs: string[];
   notes: string;
   cardio: boolean;
+  /** Which run of the plan this belongs to (1 = first track, 2 = after first restart…). */
+  round?: number;
+};
+
+/** Snapshot of a finished (or abandoned) track, saved when the plan is restarted. */
+export type TrackArchive = {
+  planId: PlanId;
+  round: number;
+  startedAt: number | null;
+  endedAt: number;
+  /** Days done per week, index 0 = week 1. */
+  weeks: number[];
+  daysDone: number;
+  sessions: number;
+  volume: number;
+  prs: number;
+  /** Day-5 alternatives completed in that track (`${planId}|${absDay}` -> timestamp). */
+  walks: Record<string, number>;
 };
 
 export type BestSet = { at: number; weight: number; reps: number };
@@ -63,6 +81,8 @@ export type State = {
   phase2: Record<string, number>;
   /** `${planId}` -> timestamp the 8-week completion screen was acknowledged. */
   programSeen: Record<string, number>;
+  /** Dashboards of previous tracks, newest first. */
+  tracks: TrackArchive[];
 };
 
 const KEY = "five-days-no-drama-v1";
@@ -82,6 +102,7 @@ const empty: State = {
   walks: {},
   phase2: {},
   programSeen: {},
+  tracks: [],
 };
 
 let state: State = empty;
@@ -368,6 +389,7 @@ export function finishSession(planId: PlanId, dayNo: number): string | null {
     prs: summary.prs,
     notes: session?.notes ?? "",
     cardio: session?.cardio ?? false,
+    round: state.rounds[planId] ?? 1,
   };
 
   const active = { ...state.active };
@@ -377,7 +399,7 @@ export function finishSession(planId: PlanId, dayNo: number): string | null {
     ...state,
     active,
     completed: { ...state.completed, [key]: at },
-    history: [finished, ...state.history].slice(0, 200),
+    history: [finished, ...state.history].slice(0, 400),
     lastSets,
     weekSets,
     prs,
@@ -470,7 +492,34 @@ export function resetDayExercises(planId: string, day: number) {
 /* ---------- Restart / change plan ---------- */
 
 /** Clear day completion + in-progress sessions for a plan, keeping all history and records. */
+export function sessionRound(h: FinishedSession) {
+  return h.round ?? 1;
+}
+
 export function restartPlan(planId: PlanId) {
+  const plan = getPlan(planId);
+  const round = state.rounds[planId] ?? 1;
+  const sessions = state.history.filter((h) => h.planId === planId && sessionRound(h) === round);
+  const trackWalks = Object.fromEntries(
+    Object.entries(state.walks).filter(([k]) => k.startsWith(`${planId}|`)),
+  );
+  const archive: TrackArchive | null = plan
+    ? {
+        planId,
+        round,
+        startedAt: sessions.length ? Math.min(...sessions.map((h) => h.at)) : null,
+        endedAt: Date.now(),
+        weeks: Array.from(
+          { length: WEEKS },
+          (_, i) => weekProgress(plan, i + 1, state.completed, state.walks).done,
+        ),
+        daysDone: planProgress(plan, state.completed, state.walks).done,
+        sessions: sessions.length,
+        volume: sessions.reduce((a, h) => a + h.volume, 0),
+        prs: sessions.reduce((a, h) => a + h.prs.length, 0),
+        walks: trackWalks,
+      }
+    : null;
   const completed = { ...state.completed };
   const active = { ...state.active };
   const skips = { ...state.skips };
@@ -495,7 +544,8 @@ export function restartPlan(planId: PlanId) {
     weekSets,
     phase2,
     programSeen,
-    rounds: { ...state.rounds, [planId]: (state.rounds[planId] ?? 1) + 1 },
+    tracks: archive ? [archive, ...(state.tracks ?? [])] : (state.tracks ?? []),
+    rounds: { ...state.rounds, [planId]: round + 1 },
   });
 }
 

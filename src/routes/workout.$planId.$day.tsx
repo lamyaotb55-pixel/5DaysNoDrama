@@ -129,11 +129,11 @@ function WorkoutPage() {
             <p className="eyebrow opacity-85">
               {dayLabel} · {day.title}
             </p>
-            <h1 className="mt-2 text-4xl leading-[0.9]">Done &amp; dusted.</h1>
+            <h1 className="mt-2 text-4xl leading-[0.9]">Smashed!</h1>
           </div>
           <div className="px-6 py-6">
             <span className="check-pop inline-flex items-center gap-1 rounded-full bg-success px-3 py-1 text-[11px] font-bold text-ink uppercase">
-              <Check className="size-3.5" aria-hidden /> ✓ Workout complete
+              <Check className="size-3.5" aria-hidden /> Workout complete
             </span>
             <p className="mt-4 text-sm leading-relaxed font-semibold text-muted-foreground">
               {cheer}
@@ -218,7 +218,7 @@ function WorkoutPage() {
             }}
             className="spicy-wash mt-5 w-full rounded-full px-6 py-4 text-xs font-bold tracking-wide uppercase shadow-[var(--shadow-lift)]"
           >
-            Finish Workout
+            Smashed it — Finish
           </button>
           <button
             onClick={() => setReview(false)}
@@ -366,7 +366,7 @@ function WorkoutPage() {
               (allDone ? "bg-success text-ink check-pop" : "bg-spicy text-accent-foreground")
             }
           >
-            <Check className="size-4" aria-hidden /> Complete Workout
+            <Check className="size-4" aria-hidden /> {allDone ? "Smashed!" : "Finish"}
           </button>
         </div>
       </div>
