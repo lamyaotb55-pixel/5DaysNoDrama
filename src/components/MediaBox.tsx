@@ -1,14 +1,33 @@
-import { Play } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Play, X } from "lucide-react";
+import { defaultMedia } from "@/lib/media";
 
 const isVideo = (src: string) => /\.(mp4|webm|mov)(\?|#|$)/i.test(src);
 
-/** YouTube search for a form demo of the movement — used when no custom media is set. */
+/** YouTube search for a form demo of the movement — used when no media exists. */
 const demoUrl = (name: string) =>
   `https://www.youtube.com/results?search_query=${encodeURIComponent(`${name} exercise proper form`)}`;
 
+function Media({ src, name, className }: { src: string; name: string; className: string }) {
+  return isVideo(src) ? (
+    <video
+      src={src}
+      autoPlay
+      loop
+      muted
+      playsInline
+      preload="metadata"
+      aria-label={`${name} demonstration`}
+      className={className}
+    />
+  ) : (
+    <img src={src} alt={`${name} demonstration`} loading="lazy" className={className} />
+  );
+}
+
 /**
- * Exercise demonstration slot. Plays a custom image/GIF/video when one is set,
- * otherwise links out to a form demo of the movement.
+ * Exercise demonstration slot. Plays the exercise's image/GIF/video (custom or
+ * built-in); tap to enlarge. Without media it links out to a form demo.
  */
 export function MediaBox({
   name,
@@ -19,6 +38,16 @@ export function MediaBox({
   compact?: boolean;
   src?: string | undefined;
 }) {
+  const [open, setOpen] = useState(false);
+  const media = src || defaultMedia(name);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
   const initials = name
     .replace(/[^a-zA-Z ]/g, "")
     .split(" ")
@@ -31,27 +60,43 @@ export function MediaBox({
     "group relative block w-full overflow-hidden rounded-lg " +
     (compact ? "aspect-square" : "aspect-[4/3]");
 
-  if (src) {
+  if (media) {
     return (
-      <div className={frame + " bg-secondary"} role="img" aria-label={`${name} demonstration`}>
-        {isVideo(src) ? (
-          <video
-            src={src}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 size-full object-cover"
-          />
-        ) : (
-          <img
-            src={src}
-            alt={`${name} demonstration`}
-            loading="lazy"
-            className="absolute inset-0 size-full object-cover"
-          />
+      <>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className={frame + " bg-white"}
+          aria-label={`Show ${name} demonstration`}
+        >
+          <Media src={media} name={name} className="absolute inset-0 size-full object-contain" />
+        </button>
+        {open && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${name} demonstration`}
+            onClick={() => setOpen(false)}
+            className="fixed inset-0 z-50 grid place-items-center bg-ink/70 p-5"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-lg overflow-hidden rounded-2xl bg-white"
+            >
+              <Media src={media} name={name} className="aspect-square w-full object-contain" />
+              <p className="px-4 pb-4 text-center font-display text-lg uppercase">{name}</p>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Close"
+                className="absolute top-3 right-3 grid size-9 place-items-center rounded-full bg-secondary"
+              >
+                <X className="size-4" aria-hidden />
+              </button>
+            </div>
+          </div>
         )}
-      </div>
+      </>
     );
   }
 
