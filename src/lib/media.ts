@@ -2,7 +2,6 @@
 const FILES: Record<string, string> = {
   // Squats
   "Goblet Squat": "kettlebell-goblet-squat.mp4",
-  "Heel-Elevated Goblet Squat": "cable-goblet-squat.gif",
   "Dumbbell Squat": "dumbbell-front-squat.gif",
   "Sumo Goblet Squat": "dumbbell-goblet-sumo-squat.gif",
   "Smith Machine Squat": "smith-full-squat.gif",
@@ -13,7 +12,6 @@ const FILES: Record<string, string> = {
   "Bulgarian Split Squat": "dumbell-bulgarian-split-squat.gif",
   "Glute-Biased Bulgarian Split Squat": "dumbell-bulgarian-split-squat.gif",
   "Bodyweight Bulgarian Split Squat": "dumbell-bulgarian-split-squat.gif",
-  "Smith Machine Bulgarian Split Squat": "dumbell-bulgarian-split-squat.gif",
   "Step Ups": "dumbbell-glute-dominant-step-up.gif",
   "Glute-Biased Step Ups": "dumbbell-glute-dominant-step-up.gif",
   // Hinges
@@ -25,7 +23,7 @@ const FILES: Record<string, string> = {
   // Glutes
   "Hip Thrust": "dumbbell-hip-thrust.gif",
   "Smith Machine Hip Thrust": "smith-hip-thrust.gif",
-  "Glute Bridge": "heel-glute-bridge.gif",
+  "Glute Bridge": "dumbbell-glute-bridge.png",
   "Smith Machine Glute Bridge": "dumbbells-glute-bridge.png",
   "Frog Pumps": "bodyweight-frog-pump.mp4",
   "Cable Kickback": "cable-diagonal-kickback.mp4",
@@ -63,7 +61,7 @@ const FILES: Record<string, string> = {
   "Dumbbell Lateral Raise": "dumbbell-lateral-raise.gif",
   "Front-to-Side Dumbbell Raise": "dumbbell-lateral-to-front-raise.mp4",
   // Arms
-  "Dumbbell Biceps Curl": "ez-barbell-seated-curls.png",
+  "Dumbbell Biceps Curl": "dumbbell-biceps-curl.mp4",
   "Incline Dumbbell Curl": "dumbbell-incline-stretch-curl.mp4",
   "Hammer Curl": "kettlebell-standing-hammer-curl.mp4",
   "Cable Hammer Curl": "cable-hammer-curl.gif",

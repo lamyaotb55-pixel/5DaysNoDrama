@@ -243,7 +243,7 @@ export const PLANS: Plan[] = [
         focus: "Quads + Glutes",
         exercises: [
           { name: "Smith Machine Squat", sets: 4, reps: "6–8" },
-          { name: "Hip Thrust", sets: 4, reps: "8–10" },
+          { name: "Hip Thrust", sets: 4, reps: "8–10", media: "/media/smith-hip-thrust.gif" },
           { name: "Leg Press", sets: 3, reps: "8–12" },
           { name: "Bulgarian Split Squat", sets: 3, reps: "8–10", perSide: true },
           { name: "Leg Extension", sets: 3, reps: "10–15" },
@@ -294,8 +294,8 @@ export const PLANS: Plan[] = [
         title: "Lower Body",
         focus: "Glute Focus",
         exercises: [
-          { name: "Hip Thrust", sets: 4, reps: "6–8" },
-          { name: "Smith Machine Bulgarian Split Squat", sets: 3, reps: "8–10", perSide: true },
+          { name: "Hip Thrust", sets: 4, reps: "6–8", media: "/media/smith-hip-thrust.gif" },
+          { name: "Bulgarian Split Squat", sets: 3, reps: "8–10", perSide: true },
           { name: "Kettlebell Romanian Deadlift", sets: 3, reps: "8–10" },
           { name: "Step Ups", sets: 3, reps: "10", perSide: true },
           { name: "Cable Kickback", sets: 3, reps: "12–15", perSide: true },
@@ -481,7 +481,7 @@ export const PHASE2: Record<PlanId, Day[]> = {
       focus: "Glutes + Quads 2.0",
       exercises: [
         { name: "Smith Machine Hip Thrust", sets: 4, reps: "8–10" },
-        { name: "Heel-Elevated Goblet Squat", sets: 3, reps: "10–12" },
+        { name: "Goblet Squat", sets: 3, reps: "10–12" },
         { name: "Reverse Lunge", sets: 3, reps: "10", perSide: true },
         { name: "Single-Leg Leg Press", sets: 3, reps: "10–12", perSide: true },
         { name: "Cable Kickback", sets: 3, reps: "12–15", perSide: true },
@@ -639,7 +639,13 @@ export const PHASE2: Record<PlanId, Day[]> = {
       focus: "Quads + Glutes 2.0",
       exercises: [
         { name: "Smith Machine Squat", sets: 4, reps: "6–8", anchor: true },
-        { name: "Hip Thrust", sets: 4, reps: "6–8", anchor: true },
+        {
+          name: "Hip Thrust",
+          sets: 4,
+          reps: "6–8",
+          anchor: true,
+          media: "/media/smith-hip-thrust.gif",
+        },
         { name: "Single-Leg Leg Press", sets: 3, reps: "8–10", perSide: true },
         { name: "Reverse Lunge", sets: 3, reps: "8–10", perSide: true },
         { name: "Leg Extension", sets: 3, reps: "12–15" },

@@ -23,6 +23,8 @@ export type SetLog = { weight: number; reps: number; done: boolean };
 
 export type ActiveSession = {
   startedAt: number;
+  /** Set when the user taps Start; browsing a day never creates a session. */
+  started?: boolean;
   sets: Record<string, SetLog>; // `${exIdx}-${setIdx}`
   notes: string;
   cardio: boolean;
@@ -118,6 +120,8 @@ const RENAMED_EXERCISES: Record<string, string> = {
   "Cable Bent Over Row": "Cable Bent-Over Row",
   "Cable Kickbacks": "Cable Kickback",
   "Romanian Deadlift": "Kettlebell Romanian Deadlift",
+  "Heel-Elevated Goblet Squat": "Goblet Squat",
+  "Smith Machine Bulgarian Split Squat": "Bulgarian Split Squat",
 };
 
 const renamed = (name: string) => RENAMED_EXERCISES[name] ?? name;
@@ -135,6 +139,31 @@ function renameKeys<T>(rec: Record<string, T>): Record<string, T> {
     if (!(nk in out)) out[nk] = v;
   }
   return out;
+}
+
+/**
+ * Days used to start automatically when opened. Drop those untouched sessions so
+ * a day only shows "in progress" once someone taps Start or logs something.
+ */
+function dropUnstartedSessions(s: State): State {
+  const active: State["active"] = {};
+  let changed = false;
+  for (const [k, sess] of Object.entries(s.active ?? {})) {
+    const logged =
+      Object.values(sess.sets ?? {}).some((x) => x.done || x.weight || x.reps) ||
+      Boolean(sess.notes) ||
+      sess.cardio;
+    if (sess.started) active[k] = sess;
+    else if (logged) {
+      active[k] = { ...sess, started: true };
+      changed = true;
+    } else changed = true;
+  }
+  return changed ? { ...s, active } : s;
+}
+
+function migrateState(s: State): State {
+  return dropUnstartedSessions(migrateExerciseNames(s));
 }
 
 export function migrateExerciseNames(s: State): State {
@@ -200,7 +229,7 @@ async function hydrateFromRemote(userId: string) {
     if (error) throw error;
     const remoteState = data?.state as Partial<State> | undefined;
     if (remoteState && Object.keys(remoteState).length > 0) {
-      state = migrateExerciseNames({ ...empty, ...remoteState });
+      state = migrateState({ ...empty, ...remoteState });
       persist();
       listeners.forEach((l) => l());
     } else {
@@ -252,7 +281,7 @@ function load(): State {
   try {
     const raw = window.localStorage.getItem(KEY);
     if (!raw) return empty;
-    return migrateExerciseNames({ ...empty, ...(JSON.parse(raw) as State) });
+    return migrateState({ ...empty, ...(JSON.parse(raw) as State) });
   } catch {
     return empty;
   }
@@ -322,12 +351,15 @@ export function choosePlan(planId: PlanId) {
 
 export function startSession(planId: string, day: number) {
   const key = sessionKey(planId, day);
-  if (state.active[key]) return;
+  const existing = state.active[key];
+  if (existing?.started) return;
   set({
     ...state,
     active: {
       ...state.active,
-      [key]: { startedAt: Date.now(), sets: {}, notes: "", cardio: false },
+      [key]: existing
+        ? { ...existing, started: true }
+        : { startedAt: Date.now(), started: true, sets: {}, notes: "", cardio: false },
     },
   });
 }

@@ -504,7 +504,7 @@ function PlanPage() {
                       (completed ? "bg-secondary text-ink" : "bg-spicy text-accent-foreground")
                     }
                   >
-                    {completed ? "Repeat Workout" : inProgress ? "Resume Workout" : "Start Workout"}
+                    {completed ? "Repeat Workout" : inProgress ? "Resume Workout" : "View Workout"}
                   </Link>
                 )}
               </article>

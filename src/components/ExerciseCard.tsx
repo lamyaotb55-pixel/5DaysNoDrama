@@ -20,6 +20,7 @@ export function ExerciseCard({
   exercise,
   state,
   restSeconds,
+  preview = false,
 }: {
   planId: string;
   day: number;
@@ -28,6 +29,8 @@ export function ExerciseCard({
   exercise: Exercise;
   state: State;
   restSeconds: number;
+  /** Day not started yet: show targets and demo, but logging is locked. */
+  preview?: boolean;
 }) {
   const session = state.active[`${planId}|${day}`];
   const hint = suggestion(planId, exercise.name, exercise.reps, state.lastSets);
@@ -133,7 +136,7 @@ export function ExerciseCard({
         </div>
       )}
 
-      <div className="mt-4 space-y-2">
+      <div className={"mt-4 space-y-2 " + (preview ? "opacity-60" : "")}>
         <div className="grid grid-cols-[2.6rem_1fr_1fr_2.5rem] items-center gap-2 px-1">
           <span className="eyebrow text-muted-foreground">Set</span>
           <span className="eyebrow text-muted-foreground">Weight</span>
@@ -167,6 +170,7 @@ export function ExerciseCard({
                   value={log.weight || ""}
                   placeholder={prevSet ? String(prevSet.weight) : "kg"}
                   aria-label={`Set ${i + 1} weight in kg`}
+                  disabled={preview}
                   onChange={(e) =>
                     updateSet(planId, day, exIdx, i, { weight: Number(e.target.value) || 0 })
                   }
@@ -186,6 +190,7 @@ export function ExerciseCard({
                   value={log.reps || ""}
                   placeholder={prevSet ? String(prevSet.reps) : "reps"}
                   aria-label={`Set ${i + 1} reps completed`}
+                  disabled={preview}
                   onChange={(e) =>
                     updateSet(planId, day, exIdx, i, { reps: Number(e.target.value) || 0 })
                   }
@@ -201,6 +206,7 @@ export function ExerciseCard({
                 type="button"
                 aria-label={`Mark set ${i + 1} complete`}
                 aria-pressed={log.done}
+                disabled={preview}
                 onClick={() => updateSet(planId, day, exIdx, i, { done: !log.done })}
                 className={
                   "grid size-10 place-items-center rounded-full border transition-colors " +
@@ -220,7 +226,7 @@ export function ExerciseCard({
         })}
       </div>
 
-      <RestTimer seconds={restSeconds} />
+      {!preview && <RestTimer seconds={restSeconds} />}
     </article>
   );
 }

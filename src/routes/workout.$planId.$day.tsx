@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Check, Flame, Footprints, Trophy } from "lucide-react";
+import { useState } from "react";
+import { Check, Flame, Footprints, Play, Trophy } from "lucide-react";
 import { ExerciseCard } from "@/components/ExerciseCard";
 import {
   WEEKS,
@@ -62,10 +62,6 @@ function WorkoutPage() {
   const [cheer, setCheer] = useState<string | null>(null);
   const accent = planAccent(planId);
 
-  useEffect(() => {
-    if (plan && day) startSession(plan.id, day.day);
-  }, [plan?.id, day?.day]);
-
   if (!plan || !day) {
     return (
       <main className="grid min-h-screen place-items-center px-5">
@@ -84,6 +80,10 @@ function WorkoutPage() {
 
   const key = sessionKey(plan.id, day.day);
   const session = state.active[key];
+  // Browsing a day is free; it only counts as in progress after Start.
+  const started = Boolean(session?.started);
+  const doneBefore = Boolean(state.completed[key]);
+  const start = () => startSession(plan.id, day.day);
   const summary = summarize(plan.id, day, session, state.prs);
   const total = day.exercises.length;
   const doneExercises = day.exercises.filter((ex, exIdx) =>
@@ -279,6 +279,23 @@ function WorkoutPage() {
         </button>
       )}
 
+      {!started && (
+        <section className="mt-4 rounded-2xl border border-border bg-card p-4">
+          <p className="text-sm font-semibold">
+            Have a look around: check the moves and watch the demos. Tap Start when you're ready to
+            log your sets.
+          </p>
+          <button
+            type="button"
+            onClick={start}
+            className="spicy-wash mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 text-xs font-bold tracking-wide uppercase shadow-[var(--shadow-lift)]"
+          >
+            <Play className="size-4 fill-current" aria-hidden />{" "}
+            {doneBefore ? "Start again" : "Start workout"}
+          </button>
+        </section>
+      )}
+
       <div className="mt-4">
         {allDone ? (
           <span className="check-pop inline-flex items-center gap-1 rounded-full bg-success px-3 py-1 text-[11px] font-bold text-ink uppercase">
@@ -311,6 +328,7 @@ function WorkoutPage() {
             exercise={ex}
             state={state}
             restSeconds={restSeconds}
+            preview={!started}
           />
         ))}
       </div>
@@ -343,6 +361,7 @@ function WorkoutPage() {
             <input
               type="checkbox"
               checked={session?.cardio ?? false}
+              disabled={!started}
               onChange={(e) => setCardio(plan.id, day.day, e.target.checked)}
               className="size-4 accent-[var(--success)]"
             />
@@ -358,16 +377,26 @@ function WorkoutPage() {
               {summary.sets} sets · {summary.volume.toLocaleString()} kg
             </p>
           </div>
-          <button
-            onClick={() => setReview(true)}
-            key={allDone ? "done" : "todo"}
-            className={
-              "inline-flex items-center gap-2 rounded-full px-5 py-3.5 text-xs font-bold tracking-wide uppercase shadow-[var(--shadow-lift)] " +
-              (allDone ? "bg-success text-ink check-pop" : "bg-spicy text-accent-foreground")
-            }
-          >
-            <Check className="size-4" aria-hidden /> {allDone ? "Smashed!" : "Finish"}
-          </button>
+          {!started ? (
+            <button
+              type="button"
+              onClick={start}
+              className="inline-flex items-center gap-2 rounded-full bg-spicy px-5 py-3.5 text-xs font-bold tracking-wide text-accent-foreground uppercase shadow-[var(--shadow-lift)]"
+            >
+              <Play className="size-4 fill-current" aria-hidden /> Start
+            </button>
+          ) : (
+            <button
+              onClick={() => setReview(true)}
+              key={allDone ? "done" : "todo"}
+              className={
+                "inline-flex items-center gap-2 rounded-full px-5 py-3.5 text-xs font-bold tracking-wide uppercase shadow-[var(--shadow-lift)] " +
+                (allDone ? "bg-success text-ink check-pop" : "bg-spicy text-accent-foreground")
+              }
+            >
+              <Check className="size-4" aria-hidden /> {allDone ? "Smashed!" : "Finish"}
+            </button>
+          )}
         </div>
       </div>
     </main>

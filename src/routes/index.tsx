@@ -234,7 +234,7 @@ function CurrentPlanCard({
                 params={{ planId: plan.id, day: String(next.day) }}
                 className="spicy-wash mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-4 text-sm font-bold tracking-wide uppercase shadow-[var(--shadow-lift)]"
               >
-                Start Workout <ArrowRight className="size-4" aria-hidden />
+                View Workout <ArrowRight className="size-4" aria-hidden />
               </Link>
             </>
           )}
