@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Check, Flame, Footprints, Play, Trophy } from "lucide-react";
+import { Check, Flame, Footprints, Play, Timer, Trophy } from "lucide-react";
 import { ExerciseCard } from "@/components/ExerciseCard";
 import {
   WEEKS,
@@ -21,6 +21,7 @@ import {
   finishSession,
   sessionKey,
   setCardio,
+  setWarmup,
   setKey,
   setNotes,
   startSession,
@@ -188,6 +189,16 @@ function WorkoutPage() {
             </div>
           )}
 
+          <label className="mt-4 flex items-center gap-2 rounded-lg bg-secondary p-3 text-left text-xs font-bold uppercase">
+            <input
+              type="checkbox"
+              checked={session?.warmup ?? false}
+              onChange={(e) => setWarmup(plan.id, day.day, e.target.checked)}
+              className="size-4 accent-[var(--success)]"
+            />
+            Warm-up done — 5 min
+          </label>
+
           {day.finisher && (
             <label className="mt-4 flex items-center gap-2 rounded-lg bg-secondary p-3 text-left text-xs font-bold uppercase">
               <input
@@ -317,7 +328,27 @@ function WorkoutPage() {
         </div>
       </div>
 
-      <div className="mt-6 space-y-4">
+      <section className="surface mt-6 p-5">
+        <p className="eyebrow inline-flex items-center gap-1 text-ice">
+          <Timer className="size-3" aria-hidden /> Warm-up
+        </p>
+        <p className="mt-1.5 text-sm font-semibold">
+          5 min easy cardio (bike, incline walk or cross trainer), then a few light sets of your
+          first exercise.
+        </p>
+        <label className="mt-3 flex items-center gap-2 text-xs font-bold uppercase">
+          <input
+            type="checkbox"
+            checked={session?.warmup ?? false}
+            disabled={!started}
+            onChange={(e) => setWarmup(plan.id, day.day, e.target.checked)}
+            className="size-4 accent-[var(--success)]"
+          />
+          Mark as complete
+        </label>
+      </section>
+
+      <div className="mt-4 space-y-4">
         {day.exercises.map((ex, exIdx) => (
           <ExerciseCard
             key={`${ex.name}-${exIdx}`}

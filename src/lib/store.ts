@@ -28,6 +28,8 @@ export type ActiveSession = {
   sets: Record<string, SetLog>; // `${exIdx}-${setIdx}`
   notes: string;
   cardio: boolean;
+  /** 5-minute warm-up ticked off before the workout. */
+  warmup?: boolean;
 };
 
 export type FinishedSession = {
@@ -43,6 +45,7 @@ export type FinishedSession = {
   prs: string[];
   notes: string;
   cardio: boolean;
+  warmup?: boolean;
   /** Which run of the plan this belongs to (1 = first track, 2 = after first restart…). */
   round?: number;
 };
@@ -152,7 +155,8 @@ function dropUnstartedSessions(s: State): State {
     const logged =
       Object.values(sess.sets ?? {}).some((x) => x.done || x.weight || x.reps) ||
       Boolean(sess.notes) ||
-      sess.cardio;
+      sess.cardio ||
+      Boolean(sess.warmup);
     if (sess.started) active[k] = sess;
     else if (logged) {
       active[k] = { ...sess, started: true };
@@ -394,6 +398,10 @@ export function setCardio(planId: string, day: number, cardio: boolean) {
   withSession(planId, day, (s) => ({ ...s, cardio }));
 }
 
+export function setWarmup(planId: string, day: number, warmup: boolean) {
+  withSession(planId, day, (s) => ({ ...s, warmup }));
+}
+
 export function discardSession(planId: string, day: number) {
   const active = { ...state.active };
   delete active[sessionKey(planId, day)];
@@ -494,6 +502,7 @@ export function finishSession(planId: PlanId, dayNo: number): string | null {
     prs: summary.prs,
     notes: session?.notes ?? "",
     cardio: session?.cardio ?? false,
+    warmup: session?.warmup ?? false,
     round: state.rounds[planId] ?? 1,
   };
 
