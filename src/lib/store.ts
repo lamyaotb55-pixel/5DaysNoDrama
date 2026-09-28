@@ -105,6 +105,79 @@ const empty: State = {
   tracks: [],
 };
 
+/* ---------- Exercise renames ----------
+ * Weights, PRs and trends are stored under the exercise name. When a plan
+ * exercise is renamed, move saved data from the old name so nothing is lost. */
+const RENAMED_EXERCISES: Record<string, string> = {
+  "Chest Press": "Dumbbell Floor Press",
+  "Smith Machine Romanian Deadlift": "Barbell Romanian Deadlift",
+  "Cable Lateral Raise": "Dumbbell Lateral Raise",
+  "Seated Leg Curl": "Lying Leg Curl",
+  "Reverse / Curtsy Lunges": "Curtsy Lunge",
+  "Reverse Lunges": "Reverse Lunge",
+  "Cable Bent Over Row": "Cable Bent-Over Row",
+  "Cable Kickbacks": "Cable Kickback",
+  "Romanian Deadlift": "Kettlebell Romanian Deadlift",
+};
+
+const renamed = (name: string) => RENAMED_EXERCISES[name] ?? name;
+
+/** Rewrite the exercise-name segment (last `|` part) of each key; existing new-name data wins. */
+function renameKeys<T>(rec: Record<string, T>): Record<string, T> {
+  const out: Record<string, T> = {};
+  for (const [k, v] of Object.entries(rec))
+    if (!(k.split("|").pop()! in RENAMED_EXERCISES)) out[k] = v;
+  for (const [k, v] of Object.entries(rec)) {
+    const parts = k.split("|");
+    const name = parts.pop()!;
+    if (!(name in RENAMED_EXERCISES)) continue;
+    const nk = [...parts, renamed(name)].join("|");
+    if (!(nk in out)) out[nk] = v;
+  }
+  return out;
+}
+
+export function migrateExerciseNames(s: State): State {
+  const hasOld = (keys: string[]) => keys.some((k) => k.split("|").pop()! in RENAMED_EXERCISES);
+  const customOld = Object.values(s.customDays ?? {}).some((list) =>
+    list.some((e) => e.name in RENAMED_EXERCISES),
+  );
+  if (
+    !customOld &&
+    !hasOld(Object.keys(s.lastSets ?? {})) &&
+    !hasOld(Object.keys(s.weekSets ?? {})) &&
+    !hasOld(Object.keys(s.prs ?? {})) &&
+    !hasOld(Object.keys(s.trend ?? {}))
+  )
+    return s;
+
+  const prs = renameKeys(s.prs ?? {});
+  const trend = renameKeys(s.trend ?? {});
+  // Merge old-name records into an existing new-name entry instead of dropping them.
+  for (const [oldName, newName] of Object.entries(RENAMED_EXERCISES)) {
+    const oldPr = s.prs?.[oldName];
+    const curPr = prs[newName];
+    if (oldPr && curPr && oldPr.weight > curPr.weight) prs[newName] = oldPr;
+    const oldTrend = s.trend?.[oldName];
+    if (oldTrend && s.trend?.[newName])
+      trend[newName] = [...s.trend[newName]!, ...oldTrend].sort((a, b) => a.at - b.at).slice(-40);
+  }
+
+  return {
+    ...s,
+    lastSets: renameKeys(s.lastSets ?? {}),
+    weekSets: renameKeys(s.weekSets ?? {}),
+    prs,
+    trend,
+    customDays: Object.fromEntries(
+      Object.entries(s.customDays ?? {}).map(([k, list]) => [
+        k,
+        list.map((e) => (e.name in RENAMED_EXERCISES ? { ...e, name: renamed(e.name) } : e)),
+      ]),
+    ),
+  };
+}
+
 let state: State = empty;
 let loaded = false;
 const listeners = new Set<() => void>();
@@ -127,7 +200,7 @@ async function hydrateFromRemote(userId: string) {
     if (error) throw error;
     const remoteState = data?.state as Partial<State> | undefined;
     if (remoteState && Object.keys(remoteState).length > 0) {
-      state = { ...empty, ...remoteState };
+      state = migrateExerciseNames({ ...empty, ...remoteState });
       persist();
       listeners.forEach((l) => l());
     } else {
@@ -179,7 +252,7 @@ function load(): State {
   try {
     const raw = window.localStorage.getItem(KEY);
     if (!raw) return empty;
-    return { ...empty, ...(JSON.parse(raw) as State) };
+    return migrateExerciseNames({ ...empty, ...(JSON.parse(raw) as State) });
   } catch {
     return empty;
   }

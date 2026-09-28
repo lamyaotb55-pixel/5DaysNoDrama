@@ -59,8 +59,8 @@ export const PLANS: Plan[] = [
         focus: "Legs + Cardio",
         exercises: [
           { name: "Goblet Squat", sets: 3, reps: "12–15" },
-          { name: "Romanian Deadlift", sets: 3, reps: "10–12" },
-          { name: "Reverse Lunges", sets: 3, reps: "10", perSide: true },
+          { name: "Kettlebell Romanian Deadlift", sets: 3, reps: "10–12" },
+          { name: "Reverse Lunge", sets: 3, reps: "10", perSide: true },
           { name: "Leg Press", sets: 3, reps: "12–15" },
           { name: "Hip Abductor", sets: 3, reps: "15–20" },
         ],
@@ -74,7 +74,7 @@ export const PLANS: Plan[] = [
           { name: "Lat Pulldown", sets: 3, reps: "10–12" },
           { name: "Seated Cable Row", sets: 3, reps: "10–12" },
           { name: "Dumbbell Shoulder Press", sets: 3, reps: "10–12" },
-          { name: "Chest Press", sets: 3, reps: "10–12" },
+          { name: "Dumbbell Floor Press", sets: 3, reps: "10–12" },
           { name: "Dumbbell Lateral Raise", sets: 3, reps: "12–15" },
         ],
         circuit: {
@@ -108,7 +108,7 @@ export const PLANS: Plan[] = [
         exercises: [
           { name: "Hip Thrust", sets: 3, reps: "10–12" },
           { name: "Bulgarian Split Squat", sets: 3, reps: "10", perSide: true },
-          { name: "Seated Leg Curl", sets: 3, reps: "12–15" },
+          { name: "Lying Leg Curl", sets: 3, reps: "12–15" },
           { name: "Leg Extension", sets: 3, reps: "12–15" },
           { name: "Cable Kickback", sets: 3, reps: "12–15", perSide: true },
         ],
@@ -158,7 +158,7 @@ export const PLANS: Plan[] = [
           { name: "Bulgarian Split Squat", sets: 3, reps: "8–10", perSide: true },
           { name: "Leg Press", sets: 3, reps: "10–12" },
           { name: "Step Ups", sets: 3, reps: "10", perSide: true },
-          { name: "Cable Kickbacks", sets: 3, reps: "12–15", perSide: true },
+          { name: "Cable Kickback", sets: 3, reps: "12–15", perSide: true },
           { name: "Hip Abductor", sets: 3, reps: "15–20" },
         ],
       },
@@ -180,10 +180,10 @@ export const PLANS: Plan[] = [
         title: "Lower Body",
         focus: "Glutes + Hamstrings",
         exercises: [
-          { name: "Romanian Deadlift", sets: 4, reps: "8–10" },
+          { name: "Kettlebell Romanian Deadlift", sets: 4, reps: "8–10" },
           { name: "Smith Machine Squat", sets: 3, reps: "8–10" },
-          { name: "Reverse / Curtsy Lunges", sets: 3, reps: "10", perSide: true },
-          { name: "Seated Leg Curl", sets: 3, reps: "10–12" },
+          { name: "Curtsy Lunge", sets: 3, reps: "10", perSide: true },
+          { name: "Lying Leg Curl", sets: 3, reps: "10–12" },
           { name: "45° Glute-Biased Back Extension", sets: 3, reps: "10–12" },
           { name: "Single-Leg Hip Abductor", sets: 3, reps: "12–15", perSide: true },
         ],
@@ -208,7 +208,7 @@ export const PLANS: Plan[] = [
         exercises: [
           { name: "Goblet Squat", sets: 3, reps: "12" },
           { name: "Glute Bridge", sets: 3, reps: "12–15" },
-          { name: "Cable Bent Over Row", sets: 3, reps: "12" },
+          { name: "Cable Bent-Over Row", sets: 3, reps: "12" },
           { name: "Dumbbell Shoulder Press", sets: 2, reps: "12" },
         ],
         circuit: {
@@ -268,9 +268,9 @@ export const PLANS: Plan[] = [
         title: "Lower Body",
         focus: "Hamstrings + Glutes",
         exercises: [
-          { name: "Romanian Deadlift", sets: 4, reps: "6–10" },
+          { name: "Kettlebell Romanian Deadlift", sets: 4, reps: "6–10" },
           { name: "Hip Thrust", sets: 4, reps: "8–10" },
-          { name: "Seated Leg Curl", sets: 4, reps: "8–12" },
+          { name: "Lying Leg Curl", sets: 4, reps: "8–12" },
           { name: "Reverse Lunge", sets: 3, reps: "8–10", perSide: true },
           { name: "45° Glute-Biased Back Extension", sets: 3, reps: "10–12" },
           { name: "Cable Kickback", sets: 3, reps: "12–15", perSide: true },
@@ -296,7 +296,7 @@ export const PLANS: Plan[] = [
         exercises: [
           { name: "Hip Thrust", sets: 4, reps: "6–8" },
           { name: "Smith Machine Bulgarian Split Squat", sets: 3, reps: "8–10", perSide: true },
-          { name: "Romanian Deadlift", sets: 3, reps: "8–10" },
+          { name: "Kettlebell Romanian Deadlift", sets: 3, reps: "8–10" },
           { name: "Step Ups", sets: 3, reps: "10", perSide: true },
           { name: "Cable Kickback", sets: 3, reps: "12–15", perSide: true },
           { name: "Hip Abductor", sets: 3, reps: "15–20" },
@@ -482,7 +482,7 @@ export const PHASE2: Record<PlanId, Day[]> = {
       exercises: [
         { name: "Smith Machine Hip Thrust", sets: 4, reps: "8–10" },
         { name: "Heel-Elevated Goblet Squat", sets: 3, reps: "10–12" },
-        { name: "Reverse Lunges", sets: 3, reps: "10", perSide: true },
+        { name: "Reverse Lunge", sets: 3, reps: "10", perSide: true },
         { name: "Single-Leg Leg Press", sets: 3, reps: "10–12", perSide: true },
         { name: "Cable Kickback", sets: 3, reps: "12–15", perSide: true },
         { name: "Single-Leg Hip Abductor", sets: 3, reps: "15", perSide: true },
@@ -506,9 +506,9 @@ export const PHASE2: Record<PlanId, Day[]> = {
       title: "Lower Body",
       focus: "Glutes + Hamstrings 2.0",
       exercises: [
-        { name: "Smith Machine Romanian Deadlift", sets: 4, reps: "8–10" },
+        { name: "Barbell Romanian Deadlift", sets: 4, reps: "8–10" },
         { name: "Glute-Biased Bulgarian Split Squat", sets: 3, reps: "8–10", perSide: true },
-        { name: "Seated Leg Curl", sets: 3, reps: "10–12" },
+        { name: "Lying Leg Curl", sets: 3, reps: "10–12" },
         { name: "Sumo Deadlift", sets: 3, reps: "8–10" },
         { name: "45° Glute-Biased Back Extension", sets: 3, reps: "12" },
         { name: "Hip Abductor", sets: 3, reps: "15–20" },
@@ -592,7 +592,7 @@ export const PHASE2: Record<PlanId, Day[]> = {
         { name: "Seated Cable Row", sets: 3, reps: "12", superset: "Superset A" },
         { name: "Sumo Goblet Squat", sets: 3, reps: "15", superset: "Superset B" },
         { name: "Dumbbell Shoulder Press", sets: 3, reps: "12", superset: "Superset B" },
-        { name: "Reverse Lunges", sets: 3, reps: "10", perSide: true, superset: "Superset C" },
+        { name: "Reverse Lunge", sets: 3, reps: "10", perSide: true, superset: "Superset C" },
         { name: "Lat Pulldown", sets: 3, reps: "12", superset: "Superset C" },
       ],
       finisher: { label: "Finisher", detail: "StairMaster — 10–15 min" },
@@ -604,8 +604,8 @@ export const PHASE2: Record<PlanId, Day[]> = {
       exercises: [
         { name: "Glute Bridge", sets: 3, reps: "12–15" },
         { name: "Single-Leg Leg Press", sets: 3, reps: "12", perSide: true },
-        { name: "Seated Leg Curl", sets: 3, reps: "12–15" },
-        { name: "Reverse Lunges", sets: 3, reps: "10", perSide: true },
+        { name: "Lying Leg Curl", sets: 3, reps: "12–15" },
+        { name: "Reverse Lunge", sets: 3, reps: "10", perSide: true },
         { name: "Hip Abductor", sets: 3, reps: "15–20" },
       ],
       circuit: {
@@ -664,9 +664,9 @@ export const PHASE2: Record<PlanId, Day[]> = {
       title: "Lower Body",
       focus: "Hamstrings + Glutes 2.0",
       exercises: [
-        { name: "Romanian Deadlift", sets: 4, reps: "6–8", anchor: true },
+        { name: "Kettlebell Romanian Deadlift", sets: 4, reps: "6–8", anchor: true },
         { name: "Hip Thrust", sets: 4, reps: "8–10", anchor: true },
-        { name: "Seated Leg Curl", sets: 4, reps: "8–12" },
+        { name: "Lying Leg Curl", sets: 4, reps: "8–12" },
         { name: "Glute-Biased Bulgarian Split Squat", sets: 3, reps: "8–10", perSide: true },
         { name: "45° Glute-Biased Back Extension", sets: 3, reps: "10–12" },
         { name: "Cable Kickback", sets: 3, reps: "12–15", perSide: true },
@@ -679,7 +679,7 @@ export const PHASE2: Record<PlanId, Day[]> = {
       exercises: [
         { name: "Seated Dumbbell Shoulder Press", sets: 4, reps: "6–8", anchor: true },
         { name: "Incline Dumbbell Press", sets: 3, reps: "8–10", anchor: true },
-        { name: "Cable Lateral Raise", sets: 3, reps: "12–15" },
+        { name: "Dumbbell Lateral Raise", sets: 3, reps: "12–15" },
         { name: "Machine Chest Fly", sets: 3, reps: "10–15" },
         { name: "Overhead Cable Triceps Extension", sets: 3, reps: "10–12" },
         { name: "Single-Arm Triceps Pushdown", sets: 3, reps: "10–12", perSide: true },
