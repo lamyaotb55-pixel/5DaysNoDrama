@@ -1,3 +1,5 @@
+import { getPlan } from "./program";
+
 /** Presentational accent identity per plan. */
 export type PlanAccent = {
   /** Tailwind text color class */
@@ -32,5 +34,6 @@ const ACCENTS: Record<string, PlanAccent> = {
 };
 
 export function planAccent(planId: string | undefined): PlanAccent {
-  return (planId && ACCENTS[planId]) || ACCENTS["lose-weight"]!;
+  const base = getPlan(planId)?.base ?? planId;
+  return (base && ACCENTS[base]) || ACCENTS["lose-weight"]!;
 }

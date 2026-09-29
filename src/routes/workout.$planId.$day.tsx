@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useHydrated } from "@/hooks/useHydrated";
 import { Check, Flame, Footprints, Play, Timer, Trophy } from "lucide-react";
 import { ExerciseCard } from "@/components/ExerciseCard";
 import {
@@ -8,6 +9,7 @@ import {
   dayOption,
   getDay,
   getPlan,
+  isUserPlanId,
   phaseInfo,
   phaseOf,
   weekGoal,
@@ -62,6 +64,9 @@ function WorkoutPage() {
   const [review, setReview] = useState(false);
   const [cheer, setCheer] = useState<string | null>(null);
   const accent = planAccent(planId);
+  const hydrated = useHydrated();
+
+  if (isUserPlanId(planId) && !hydrated) return null;
 
   if (!plan || !day) {
     return (
@@ -90,9 +95,9 @@ function WorkoutPage() {
   const doneExercises = day.exercises.filter((ex, exIdx) =>
     Array.from({ length: ex.sets }).every((_, i) => session?.sets[setKey(exIdx, i)]?.done),
   ).length;
-  const pct = Math.round((doneExercises / total) * 100);
-  const allDone = doneExercises === total;
-  const restSeconds = plan.id === "build-muscle" ? 120 : plan.id === "tone-up" ? 90 : 60;
+  const pct = total ? Math.round((doneExercises / total) * 100) : 0;
+  const allDone = total > 0 && doneExercises === total;
+  const restSeconds = plan.base === "build-muscle" ? 120 : plan.base === "tone-up" ? 90 : 60;
   const option = dayOption(plan.id, day.day);
   const optionAvailable = altAllowed(day.day) && summary.sets === 0 && !allDone;
   const weekNo = weekOf(day.day);
@@ -349,6 +354,20 @@ function WorkoutPage() {
       </section>
 
       <div className="mt-4 space-y-4">
+        {day.exercises.length === 0 && (
+          <div className="surface p-5 text-center">
+            <p className="text-sm font-semibold">No exercises on this day yet.</p>
+            {plan.custom && (
+              <Link
+                to="/customize/$planId"
+                params={{ planId: plan.id }}
+                className="mt-3 inline-flex rounded-full bg-ink px-4 py-2.5 text-xs font-bold text-paper uppercase"
+              >
+                Add exercises
+              </Link>
+            )}
+          </div>
+        )}
         {day.exercises.map((ex, exIdx) => (
           <ExerciseCard
             key={`${ex.name}-${exIdx}`}

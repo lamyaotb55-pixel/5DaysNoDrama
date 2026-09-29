@@ -14,6 +14,114 @@ export type Database = {
   }
   public: {
     Tables: {
+      community_plans: {
+        Row: {
+          approved_at: string | null
+          author_id: string
+          author_name: string
+          base: string
+          content: Json | null
+          created_at: string
+          description: string
+          followers: number
+          id: string
+          name: string
+          status: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          approved_at?: string | null
+          author_id: string
+          author_name: string
+          base: string
+          content?: Json | null
+          created_at?: string
+          description?: string
+          followers?: number
+          id?: string
+          name: string
+          status?: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          approved_at?: string | null
+          author_id?: string
+          author_name?: string
+          base?: string
+          content?: Json | null
+          created_at?: string
+          description?: string
+          followers?: number
+          id?: string
+          name?: string
+          status?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      plan_follows: {
+        Row: {
+          created_at: string
+          plan_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          plan_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          plan_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      plan_submissions: {
+        Row: {
+          author_id: string
+          base: string
+          content: Json
+          created_at: string
+          description: string
+          id: string
+          name: string
+          note: string | null
+          plan_id: string
+          reviewed_at: string | null
+          status: string
+        }
+        Insert: {
+          author_id: string
+          base: string
+          content: Json
+          created_at?: string
+          description?: string
+          id?: string
+          name: string
+          note?: string | null
+          plan_id: string
+          reviewed_at?: string | null
+          status?: string
+        }
+        Update: {
+          author_id?: string
+          base?: string
+          content?: Json
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          note?: string | null
+          plan_id?: string
+          reviewed_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -64,7 +172,29 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      follow_plan: {
+        Args: { p_follow: boolean; p_plan_id: string }
+        Returns: number
+      }
+      is_admin: { Args: never; Returns: boolean }
+      review_submission: {
+        Args: { p_approve: boolean; p_note: string; p_submission_id: string }
+        Returns: undefined
+      }
+      set_plan_status: {
+        Args: { p_plan_id: string; p_status: string }
+        Returns: undefined
+      }
+      submit_plan: {
+        Args: {
+          p_base: string
+          p_content: Json
+          p_description: string
+          p_name: string
+          p_plan_id: string | null
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

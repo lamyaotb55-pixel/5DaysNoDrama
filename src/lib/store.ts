@@ -8,13 +8,17 @@ import {
   absDay,
   dayInWeek,
   getDay,
+  blankDays,
   getPlan,
+  phaseDays,
+  setUserPlans,
   phaseOf,
   phaseOfDay,
   repRange,
   weekOf,
   type Day,
   type Exercise,
+  type BuiltinPlanId,
   type Plan,
   type PlanId,
 } from "./program";
@@ -88,6 +92,31 @@ export type State = {
   programSeen: Record<string, number>;
   /** Dashboards of previous tracks, newest first. */
   tracks: TrackArchive[];
+  /** Plans the user owns: their own copies, plans built from scratch, followed plans. */
+  myPlans: Record<string, MyPlan>;
+};
+
+/** Where a user plan came from. */
+export type PlanOrigin =
+  | { kind: "builtin"; planId: string }
+  | { kind: "blank" }
+  | { kind: "community"; communityId: string; version: number; author: string };
+
+export type MyPlan = {
+  id: string;
+  name: string;
+  description: string;
+  base: BuiltinPlanId;
+  day5Alt: boolean;
+  /** Weeks 1–4. */
+  days: Day[];
+  /** Weeks 5–8. */
+  phase2: Day[];
+  createdAt: number;
+  updatedAt: number;
+  origin: PlanOrigin;
+  /** Set once the owner sends it to Plans by You. */
+  communityId?: string;
 };
 
 const KEY = "five-days-no-drama-v1";
@@ -108,6 +137,7 @@ const empty: State = {
   phase2: {},
   programSeen: {},
   tracks: [],
+  myPlans: {},
 };
 
 /* ---------- Exercise renames ----------
@@ -234,6 +264,7 @@ async function hydrateFromRemote(userId: string) {
     const remoteState = data?.state as Partial<State> | undefined;
     if (remoteState && Object.keys(remoteState).length > 0) {
       state = migrateState({ ...empty, ...remoteState });
+      syncUserPlans(state);
       persist();
       listeners.forEach((l) => l());
     } else {
@@ -312,7 +343,9 @@ function load(): State {
     if (carried && !window.localStorage.getItem(KEY)) window.localStorage.setItem(KEY, carried);
     const raw = window.localStorage.getItem(KEY);
     if (!raw) return empty;
-    return migrateState({ ...empty, ...(JSON.parse(raw) as State) });
+    const loadedState = migrateState({ ...empty, ...(JSON.parse(raw) as State) });
+    syncUserPlans(loadedState);
+    return loadedState;
   } catch {
     return empty;
   }
@@ -327,8 +360,14 @@ function persist() {
   }
 }
 
+/** Make the user's own plans visible to getPlan() everywhere. */
+function syncUserPlans(s: State) {
+  setUserPlans(Object.values(s.myPlans ?? {}).map(toPlan));
+}
+
 function set(next: State) {
   state = next;
+  syncUserPlans(state);
   persist();
   scheduleRemoteSave();
   listeners.forEach((l) => l());
@@ -621,6 +660,10 @@ export function effectivePlan(plan: Plan, custom: State["customDays"]): Plan {
 }
 
 export function saveDayExercises(planId: string, day: number, exercises: Exercise[]) {
+  if (state.myPlans?.[planId]) {
+    updateMyPlanDay(planId, day, { exercises });
+    return;
+  }
   set({ ...state, customDays: { ...state.customDays, [templateKey(planId, day)]: exercises } });
 }
 
@@ -812,7 +855,7 @@ export function completedWeeks(
 
 /* ---------- Encouragement ---------- */
 
-const PLAN_LINES: Record<PlanId, string[]> = {
+const PLAN_LINES: Record<BuiltinPlanId, string[]> = {
   "lose-weight": [
     "That's movement, sweat and strength in one session.",
     "Every burn session stacks up — fat loss loves consistency.",
@@ -836,7 +879,7 @@ const PLAN_LINES: Record<PlanId, string[]> = {
  */
 export function encouragement(planId: PlanId, dayNo: number, s: State): string {
   const plan = getPlan(planId);
-  const planLines = PLAN_LINES[planId];
+  const planLines = PLAN_LINES[plan?.base ?? "lose-weight"];
   const inWeek = dayInWeek(dayNo);
   const weekNo = weekOf(dayNo);
   const base = planLines[(inWeek - 1) % planLines.length]!;
@@ -1050,4 +1093,192 @@ export function programProgress(plan: Plan, s: State) {
     phase1Share: Math.round((p1.done / overall.total) * 100),
     phase2Share: Math.round((p2.done / overall.total) * 100),
   };
+}
+
+/* ---------- My Plans ---------- */
+
+export function toPlan(p: MyPlan): Plan {
+  const byline =
+    p.origin.kind === "community"
+      ? `By ${p.origin.author}`
+      : p.communityId
+        ? "Shared by you"
+        : "My plan";
+  return {
+    id: p.id,
+    name: p.name,
+    slogan: p.description,
+    label: byline,
+    goal: p.description,
+    style: "",
+    days: p.days,
+    phase2: p.phase2,
+    base: p.base,
+    day5Alt: p.day5Alt,
+    custom: true,
+  };
+}
+
+const newPlanId = () => `my-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+
+const cloneDays = (days: Day[]): Day[] => JSON.parse(JSON.stringify(days)) as Day[];
+
+/**
+ * Start a new plan owned by the user: a copy of a plan (with any edits they
+ * made to it) or a blank one. Returns the new plan id.
+ */
+export function createMyPlan(fromPlanId: string | null): string {
+  const id = newPlanId();
+  const now = Date.now();
+  const source = fromPlanId ? getPlan(fromPlanId) : undefined;
+  let plan: MyPlan;
+  if (source) {
+    const edited = (phase: 1 | 2, week: number) =>
+      phaseDays(source, phase).map((d) =>
+        effectiveDay(source.id, { ...d, day: absDay(week, d.day) }, state.customDays),
+      );
+    const strip = (days: Day[]) => cloneDays(days).map((d, i) => ({ ...d, day: i + 1 }));
+    plan = {
+      id,
+      name: `My ${source.name}`,
+      description: source.custom ? source.goal : source.slogan,
+      base: source.base,
+      day5Alt: source.day5Alt !== false,
+      days: strip(edited(1, 1)),
+      phase2: strip(edited(2, WEEKS_PER_PHASE + 1)),
+      createdAt: now,
+      updatedAt: now,
+      origin: { kind: "builtin", planId: source.id },
+    };
+  } else {
+    plan = {
+      id,
+      name: "My New Plan",
+      description: "",
+      base: "tone-up",
+      day5Alt: false,
+      days: blankDays(),
+      phase2: blankDays(),
+      createdAt: now,
+      updatedAt: now,
+      origin: { kind: "blank" },
+    };
+  }
+  set({ ...state, myPlans: { ...(state.myPlans ?? {}), [id]: plan } });
+  return id;
+}
+
+export type MyPlanPatch = Partial<Pick<MyPlan, "name" | "description" | "base" | "day5Alt">>;
+
+export function updateMyPlan(id: string, patch: MyPlanPatch) {
+  const plan = state.myPlans?.[id];
+  if (!plan) return;
+  set({
+    ...state,
+    myPlans: { ...state.myPlans, [id]: { ...plan, ...patch, updatedAt: Date.now() } },
+  });
+}
+
+/** Change one day template of a user plan; `absDayNo` picks the phase. */
+export function updateMyPlanDay(
+  id: string,
+  absDayNo: number,
+  patch: Partial<Pick<Day, "title" | "focus" | "exercises">>,
+) {
+  const plan = state.myPlans?.[id];
+  if (!plan) return;
+  const key = phaseOfDay(absDayNo) === 1 ? "days" : "phase2";
+  const idx = dayInWeek(absDayNo) - 1;
+  const days = plan[key].map((d, i) => (i === idx ? { ...d, ...patch } : d));
+  set({
+    ...state,
+    myPlans: { ...state.myPlans, [id]: { ...plan, [key]: days, updatedAt: Date.now() } },
+  });
+}
+
+export function deleteMyPlan(id: string) {
+  const myPlans = { ...(state.myPlans ?? {}) };
+  delete myPlans[id];
+  set({
+    ...state,
+    myPlans,
+    activePlanId: state.activePlanId === id ? null : state.activePlanId,
+  });
+}
+
+export function linkCommunityPlan(id: string, communityId: string) {
+  const plan = state.myPlans?.[id];
+  if (!plan) return;
+  set({ ...state, myPlans: { ...state.myPlans, [id]: { ...plan, communityId } } });
+}
+
+/** Published plan content as stored in Plans by You. */
+export type CommunityContent = { day5Alt: boolean; days: Day[]; phase2: Day[] };
+
+export function communityContent(plan: MyPlan): CommunityContent {
+  return { day5Alt: plan.day5Alt, days: plan.days, phase2: plan.phase2 };
+}
+
+/** Copy a published plan into My Plans. Returns the (existing or new) plan id. */
+export function followIntoMyPlans(cp: {
+  id: string;
+  name: string;
+  description: string;
+  base: BuiltinPlanId;
+  version: number;
+  author: string;
+  content: CommunityContent;
+}): string {
+  const existing = Object.values(state.myPlans ?? {}).find(
+    (p) => p.origin.kind === "community" && p.origin.communityId === cp.id,
+  );
+  if (existing) return existing.id;
+  const id = newPlanId();
+  const now = Date.now();
+  const plan: MyPlan = {
+    id,
+    name: cp.name,
+    description: cp.description,
+    base: cp.base,
+    day5Alt: cp.content.day5Alt,
+    days: cloneDays(cp.content.days),
+    phase2: cloneDays(cp.content.phase2),
+    createdAt: now,
+    updatedAt: now,
+    origin: { kind: "community", communityId: cp.id, version: cp.version, author: cp.author },
+  };
+  set({ ...state, myPlans: { ...(state.myPlans ?? {}), [id]: plan } });
+  return id;
+}
+
+/** Switch a followed plan to the latest approved version. Progress is kept. */
+export function applyCommunityUpdate(
+  id: string,
+  cp: {
+    name: string;
+    description: string;
+    base: BuiltinPlanId;
+    version: number;
+    content: CommunityContent;
+  },
+) {
+  const plan = state.myPlans?.[id];
+  if (!plan || plan.origin.kind !== "community") return;
+  set({
+    ...state,
+    myPlans: {
+      ...state.myPlans,
+      [id]: {
+        ...plan,
+        name: cp.name,
+        description: cp.description,
+        base: cp.base,
+        day5Alt: cp.content.day5Alt,
+        days: cloneDays(cp.content.days),
+        phase2: cloneDays(cp.content.phase2),
+        updatedAt: Date.now(),
+        origin: { ...plan.origin, version: cp.version },
+      },
+    },
+  });
 }

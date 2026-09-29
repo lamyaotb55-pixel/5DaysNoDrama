@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useHydrated } from "@/hooks/useHydrated";
 import {
   Check,
   Clock,
@@ -24,6 +25,7 @@ import {
   weekDays,
   weekGoal,
   type Day,
+  isUserPlanId,
 } from "@/lib/program";
 import { planAccent } from "@/lib/plan-theme";
 import {
@@ -79,10 +81,14 @@ function PlanPage() {
   const [altTarget, setAltTarget] = useState<Day | null>(null);
   const [unlockCard, setUnlockCard] = useState(false);
   const [wrapUp, setWrapUp] = useState(true);
+  const hydrated = useHydrated();
 
   const openWeek = basePlan ? currentWeek(basePlan, state) : 1;
   const [week, setWeek] = useState(openWeek);
   const shownWeek = Math.min(Math.max(week, 1), WEEKS);
+
+  // User plans live on this device; wait for it before saying "not found".
+  if (isUserPlanId(planId) && !hydrated) return null;
 
   if (!basePlan) {
     return (
@@ -214,7 +220,8 @@ function PlanPage() {
             params={{ planId: plan.id }}
             className="inline-flex items-center gap-1.5 text-xs font-bold text-ink uppercase"
           >
-            <Pencil className="size-3.5 text-spicy" aria-hidden /> Plan details
+            <Pencil className="size-3.5 text-spicy" aria-hidden />{" "}
+            {plan.custom ? "Edit plan" : "Plan details"}
           </Link>
           <Link
             to="/progress"

@@ -1,4 +1,10 @@
-export type PlanId = "lose-weight" | "tone-up" | "build-muscle";
+/** The three plans that ship with the app. Every plan (built-in or made by a
+ * user) borrows its colors, rest times and Day 5 option from one of these. */
+export type BuiltinPlanId = "lose-weight" | "tone-up" | "build-muscle";
+export type PlanId = string;
+export const BUILTIN_IDS: BuiltinPlanId[] = ["lose-weight", "tone-up", "build-muscle"];
+export const isBuiltinId = (id: string | undefined): id is BuiltinPlanId =>
+  BUILTIN_IDS.includes(id as BuiltinPlanId);
 
 export type Exercise = {
   name: string;
@@ -41,9 +47,17 @@ export type Plan = {
   goal: string;
   style: string;
   days: Day[];
+  /** Built-in plan whose goal, colors and rest times this plan uses. */
+  base: BuiltinPlanId;
+  /** Weeks 5–8 templates; built-in plans read these from PHASE2. */
+  phase2?: Day[];
+  /** Offer the Day 5 "I'll Walk / I'll Mini" choice. */
+  day5Alt?: boolean;
+  /** Made by a user (their own copy, a blank plan or a followed plan). */
+  custom?: boolean;
 };
 
-export const PLANS: Plan[] = [
+const BUILTIN_PLANS: Omit<Plan, "base">[] = [
   {
     id: "lose-weight",
     name: "Lose Weight",
@@ -306,8 +320,37 @@ export const PLANS: Plan[] = [
   },
 ];
 
+export const PLANS: Plan[] = BUILTIN_PLANS.map((p) => ({
+  ...p,
+  base: p.id as BuiltinPlanId,
+  day5Alt: true,
+}));
+
+/* User plans live in the store; it registers them here so every screen can
+ * look a plan up by id without knowing where it came from. */
+const userPlans = new Map<string, Plan>();
+
+export function setUserPlans(plans: Plan[]) {
+  userPlans.clear();
+  plans.forEach((p) => userPlans.set(p.id, p));
+}
+
+/** Ids of plans a user owns always start with "my-". */
+export const isUserPlanId = (id: string | undefined) => Boolean(id?.startsWith("my-"));
+
 export function getPlan(id: string | undefined): Plan | undefined {
-  return PLANS.find((p) => p.id === id);
+  if (!id) return undefined;
+  return PLANS.find((p) => p.id === id) ?? userPlans.get(id);
+}
+
+/** An empty week of five days, used for plans built from scratch. */
+export function blankDays(): Day[] {
+  return Array.from({ length: 5 }, (_, i) => ({
+    day: i + 1,
+    title: `Day ${i + 1}`,
+    focus: "",
+    exercises: [],
+  }));
 }
 
 /* ---------- 8-week structure, 2 phases ----------
@@ -374,7 +417,8 @@ export const weekGoal = (week: number): WeekGoal =>
 
 /** The 5 day templates that serve a given phase. */
 export function phaseDays(plan: Plan, phase: PhaseNo): Day[] {
-  return phase === 1 ? plan.days : (PHASE2[plan.id] ?? plan.days);
+  if (phase === 1) return plan.days;
+  return plan.phase2 ?? (isBuiltinId(plan.id) ? PHASE2[plan.id] : undefined) ?? plan.days;
 }
 
 /** The 5 day templates that serve a given week. */
@@ -433,7 +477,7 @@ export type DayOption = {
   items?: { name: string; reps: string }[];
 };
 
-const DAY_OPTIONS: Record<PlanId, DayOption> = {
+const DAY_OPTIONS: Record<BuiltinPlanId, DayOption> = {
   "lose-weight": {
     kind: "walk",
     button: "I'll Walk",
@@ -466,14 +510,16 @@ const DAY_OPTIONS: Record<PlanId, DayOption> = {
 /** The alternative way to show up on day 5 of a plan. */
 export function dayOption(planId: string | undefined, absDayNo: number): DayOption | undefined {
   if (!planId || dayInWeek(absDayNo) !== DAYS_PER_WEEK) return undefined;
-  return DAY_OPTIONS[planId as PlanId];
+  const plan = getPlan(planId);
+  if (!plan || plan.day5Alt === false) return undefined;
+  return DAY_OPTIONS[plan.base];
 }
 
 /* ---------- Phase 2 templates (weeks 5–8) ----------
  * Same 5-day shape as phase 1, new variations and a bit more stimulus.
  * Edit freely — the UI reads these, nothing is hard-coded in components. */
 
-export const PHASE2: Record<PlanId, Day[]> = {
+export const PHASE2: Record<BuiltinPlanId, Day[]> = {
   "tone-up": [
     {
       day: 1,

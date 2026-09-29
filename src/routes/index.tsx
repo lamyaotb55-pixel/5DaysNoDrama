@@ -1,6 +1,15 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, LineChart, Pencil, RotateCcw, Shuffle, Zap } from "lucide-react";
+import {
+  ArrowRight,
+  LayoutList,
+  LineChart,
+  Pencil,
+  RotateCcw,
+  Shuffle,
+  Users,
+  Zap,
+} from "lucide-react";
 import {
   PLANS,
   WEEKS,
@@ -77,6 +86,29 @@ function Home() {
           No drama. Just reps. Pick your plan, open the day, log every set.
         </p>
       </section>
+
+      <nav className="mb-6 grid grid-cols-2 gap-2" aria-label="Plans">
+        <Link
+          to="/my-plans"
+          className="flex items-center gap-2.5 rounded-2xl border border-border bg-card px-4 py-3.5"
+        >
+          <LayoutList className="size-5 shrink-0 text-spicy" aria-hidden />
+          <span>
+            <span className="block text-xs font-bold uppercase">My Plans</span>
+            <span className="block text-[11px] text-muted-foreground">Build & share yours</span>
+          </span>
+        </Link>
+        <Link
+          to="/plans-by-you"
+          className="flex items-center gap-2.5 rounded-2xl border border-border bg-card px-4 py-3.5"
+        >
+          <Users className="size-5 shrink-0 text-pink" aria-hidden />
+          <span>
+            <span className="block text-xs font-bold uppercase">Plans by You</span>
+            <span className="block text-[11px] text-muted-foreground">Follow the community</span>
+          </span>
+        </Link>
+      </nav>
 
       {activePlan ? (
         <CurrentPlanCard planId={activePlan.id} state={state} />
@@ -252,7 +284,8 @@ function CurrentPlanCard({
               params={{ planId: plan.id }}
               className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-secondary px-4 py-3 text-xs font-bold uppercase"
             >
-              <Pencil className="size-3.5 text-spicy" aria-hidden /> Plan details
+              <Pencil className="size-3.5 text-spicy" aria-hidden />{" "}
+              {plan.custom ? "Edit plan" : "Plan details"}
             </Link>
           </div>
         </div>

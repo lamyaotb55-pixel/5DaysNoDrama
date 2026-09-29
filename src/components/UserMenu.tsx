@@ -1,6 +1,17 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { History, LineChart, LogIn, LogOut, User as UserIcon, X } from "lucide-react";
+import {
+  ClipboardCheck,
+  History,
+  LayoutList,
+  LineChart,
+  LogIn,
+  LogOut,
+  User as UserIcon,
+  Users,
+  X,
+} from "lucide-react";
+import { checkIsAdmin } from "@/lib/community";
 import { supabase } from "@/integrations/supabase/client";
 import { displayNameOf, initialsOf, useAuth } from "@/hooks/useAuth";
 
@@ -9,6 +20,19 @@ export function UserMenu() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const name = displayNameOf(user);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      setIsAdmin(false);
+      return;
+    }
+    let alive = true;
+    checkIsAdmin().then((ok) => alive && setIsAdmin(ok));
+    return () => {
+      alive = false;
+    };
+  }, [user]);
 
   useEffect(() => {
     if (!open) return;
@@ -103,6 +127,29 @@ export function UserMenu() {
               >
                 History
               </MenuLink>
+              <MenuLink
+                to="/my-plans"
+                onClick={() => setOpen(false)}
+                icon={<LayoutList className="size-4" aria-hidden />}
+              >
+                My Plans
+              </MenuLink>
+              <MenuLink
+                to="/plans-by-you"
+                onClick={() => setOpen(false)}
+                icon={<Users className="size-4" aria-hidden />}
+              >
+                Plans by You
+              </MenuLink>
+              {isAdmin && (
+                <MenuLink
+                  to="/admin/review"
+                  onClick={() => setOpen(false)}
+                  icon={<ClipboardCheck className="size-4" aria-hidden />}
+                >
+                  Review plans
+                </MenuLink>
+              )}
             </nav>
 
             {isAuthenticated && (
@@ -127,7 +174,14 @@ function MenuLink({
   children,
   onClick,
 }: {
-  to: "/profile" | "/progress" | "/history" | "/auth";
+  to:
+    | "/profile"
+    | "/progress"
+    | "/history"
+    | "/auth"
+    | "/my-plans"
+    | "/plans-by-you"
+    | "/admin/review";
   icon: React.ReactNode;
   children: React.ReactNode;
   onClick: () => void;

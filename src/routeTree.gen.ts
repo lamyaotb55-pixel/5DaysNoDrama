@@ -13,11 +13,15 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as HistoryRouteImport } from './routes/history'
+import { Route as MyPlansRouteImport } from './routes/my-plans'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as ThemeRouteImport } from './routes/theme'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AdminReviewRouteImport } from './routes/admin.review'
 import { Route as CustomizePlanIdRouteImport } from './routes/customize.$planId'
 import { Route as PlanPlanIdRouteImport } from './routes/plan.$planId'
+import { Route as PlansByYouIndexRouteImport } from './routes/plans-by-you.index'
+import { Route as PlansByYouPlanIdRouteImport } from './routes/plans-by-you.$planId'
 import { Route as WorkoutPlanIdDayRouteImport } from './routes/workout.$planId.$day'
 
 const IndexRoute = IndexRouteImport.update({
@@ -39,6 +43,11 @@ const HistoryRoute = HistoryRouteImport.update({
   path: '/history',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MyPlansRoute = MyPlansRouteImport.update({
+  id: '/my-plans',
+  path: '/my-plans',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProgressRoute = ProgressRouteImport.update({
   id: '/progress',
   path: '/progress',
@@ -54,6 +63,11 @@ const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AdminReviewRoute = AdminReviewRouteImport.update({
+  id: '/admin/review',
+  path: '/admin/review',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CustomizePlanIdRoute = CustomizePlanIdRouteImport.update({
   id: '/customize/$planId',
   path: '/customize/$planId',
@@ -62,6 +76,16 @@ const CustomizePlanIdRoute = CustomizePlanIdRouteImport.update({
 const PlanPlanIdRoute = PlanPlanIdRouteImport.update({
   id: '/plan/$planId',
   path: '/plan/$planId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlansByYouIndexRoute = PlansByYouIndexRouteImport.update({
+  id: '/plans-by-you/',
+  path: '/plans-by-you/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlansByYouPlanIdRoute = PlansByYouPlanIdRouteImport.update({
+  id: '/plans-by-you/$planId',
+  path: '/plans-by-you/$planId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WorkoutPlanIdDayRoute = WorkoutPlanIdDayRouteImport.update({
@@ -74,22 +98,30 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/history': typeof HistoryRoute
+  '/my-plans': typeof MyPlansRoute
   '/progress': typeof ProgressRoute
   '/theme': typeof ThemeRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/admin/review': typeof AdminReviewRoute
   '/customize/$planId': typeof CustomizePlanIdRoute
   '/plan/$planId': typeof PlanPlanIdRoute
+  '/plans-by-you/$planId': typeof PlansByYouPlanIdRoute
+  '/plans-by-you/': typeof PlansByYouIndexRoute
   '/workout/$planId/$day': typeof WorkoutPlanIdDayRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/history': typeof HistoryRoute
+  '/my-plans': typeof MyPlansRoute
   '/progress': typeof ProgressRoute
   '/theme': typeof ThemeRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/admin/review': typeof AdminReviewRoute
   '/customize/$planId': typeof CustomizePlanIdRoute
   '/plan/$planId': typeof PlanPlanIdRoute
+  '/plans-by-you/$planId': typeof PlansByYouPlanIdRoute
+  '/plans-by-you': typeof PlansByYouIndexRoute
   '/workout/$planId/$day': typeof WorkoutPlanIdDayRoute
 }
 export interface FileRoutesById {
@@ -98,11 +130,15 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/history': typeof HistoryRoute
+  '/my-plans': typeof MyPlansRoute
   '/progress': typeof ProgressRoute
   '/theme': typeof ThemeRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/admin/review': typeof AdminReviewRoute
   '/customize/$planId': typeof CustomizePlanIdRoute
   '/plan/$planId': typeof PlanPlanIdRoute
+  '/plans-by-you/$planId': typeof PlansByYouPlanIdRoute
+  '/plans-by-you/': typeof PlansByYouIndexRoute
   '/workout/$planId/$day': typeof WorkoutPlanIdDayRoute
 }
 export interface FileRouteTypes {
@@ -111,22 +147,30 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/history'
+    | '/my-plans'
     | '/progress'
     | '/theme'
     | '/profile'
+    | '/admin/review'
     | '/customize/$planId'
     | '/plan/$planId'
+    | '/plans-by-you/$planId'
+    | '/plans-by-you/'
     | '/workout/$planId/$day'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/history'
+    | '/my-plans'
     | '/progress'
     | '/theme'
     | '/profile'
+    | '/admin/review'
     | '/customize/$planId'
     | '/plan/$planId'
+    | '/plans-by-you/$planId'
+    | '/plans-by-you'
     | '/workout/$planId/$day'
   id:
     | '__root__'
@@ -134,11 +178,15 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/history'
+    | '/my-plans'
     | '/progress'
     | '/theme'
     | '/_authenticated/profile'
+    | '/admin/review'
     | '/customize/$planId'
     | '/plan/$planId'
+    | '/plans-by-you/$planId'
+    | '/plans-by-you/'
     | '/workout/$planId/$day'
   fileRoutesById: FileRoutesById
 }
@@ -147,10 +195,14 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   HistoryRoute: typeof HistoryRoute
+  MyPlansRoute: typeof MyPlansRoute
   ProgressRoute: typeof ProgressRoute
   ThemeRoute: typeof ThemeRoute
+  AdminReviewRoute: typeof AdminReviewRoute
   CustomizePlanIdRoute: typeof CustomizePlanIdRoute
   PlanPlanIdRoute: typeof PlanPlanIdRoute
+  PlansByYouPlanIdRoute: typeof PlansByYouPlanIdRoute
+  PlansByYouIndexRoute: typeof PlansByYouIndexRoute
   WorkoutPlanIdDayRoute: typeof WorkoutPlanIdDayRoute
 }
 
@@ -184,6 +236,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/my-plans': {
+      id: '/my-plans'
+      path: '/my-plans'
+      fullPath: '/my-plans'
+      preLoaderRoute: typeof MyPlansRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/progress': {
       id: '/progress'
       path: '/progress'
@@ -205,6 +264,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/admin/review': {
+      id: '/admin/review'
+      path: '/admin/review'
+      fullPath: '/admin/review'
+      preLoaderRoute: typeof AdminReviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/customize/$planId': {
       id: '/customize/$planId'
       path: '/customize/$planId'
@@ -217,6 +283,20 @@ declare module '@tanstack/react-router' {
       path: '/plan/$planId'
       fullPath: '/plan/$planId'
       preLoaderRoute: typeof PlanPlanIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plans-by-you/': {
+      id: '/plans-by-you/'
+      path: '/plans-by-you'
+      fullPath: '/plans-by-you/'
+      preLoaderRoute: typeof PlansByYouIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plans-by-you/$planId': {
+      id: '/plans-by-you/$planId'
+      path: '/plans-by-you/$planId'
+      fullPath: '/plans-by-you/$planId'
+      preLoaderRoute: typeof PlansByYouPlanIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/workout/$planId/$day': {
@@ -245,10 +325,14 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   HistoryRoute: HistoryRoute,
+  MyPlansRoute: MyPlansRoute,
   ProgressRoute: ProgressRoute,
   ThemeRoute: ThemeRoute,
+  AdminReviewRoute: AdminReviewRoute,
   CustomizePlanIdRoute: CustomizePlanIdRoute,
   PlanPlanIdRoute: PlanPlanIdRoute,
+  PlansByYouPlanIdRoute: PlansByYouPlanIdRoute,
+  PlansByYouIndexRoute: PlansByYouIndexRoute,
   WorkoutPlanIdDayRoute: WorkoutPlanIdDayRoute,
 }
 export const routeTree = rootRouteImport
