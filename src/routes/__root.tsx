@@ -124,7 +124,7 @@ const moveToPrimaryDomain = `(function(){
   var parts = [];
   try {
     var raw = localStorage.getItem("five-days-no-drama-v1");
-    if (raw) parts.push("carry=" + btoa(unescape(encodeURIComponent(raw))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""));
+    if (raw) parts.push("carry=" + btoa(unescape(encodeURIComponent(raw))).split("+").join("-").split("/").join("_").split("=").join(""));
   } catch (e) {}
   if (location.hash.length > 1) parts.push(location.hash.slice(1));
   location.replace("https://${PRIMARY_HOST}" + location.pathname + location.search + (parts.length ? "#" + parts.join("&") : ""));
