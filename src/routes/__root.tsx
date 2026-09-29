@@ -107,10 +107,34 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+/**
+ * Old addresses send everyone to the main domain before the page draws.
+ * Browser-saved progress (guests) rides along in the URL fragment, which is
+ * never sent to a server, and the store on the main domain picks it up.
+ */
+const PRIMARY_HOST = "5daysnodrama.app";
+const OLD_HOSTS = [
+  "5daysnodrama.vercel.app",
+  "color-your-fitness.vercel.app",
+  "color-your-fitness.lovable.app",
+];
+const moveToPrimaryDomain = `(function(){
+  var OLD=${JSON.stringify(OLD_HOSTS)};
+  if (OLD.indexOf(location.hostname) < 0) return;
+  var parts = [];
+  try {
+    var raw = localStorage.getItem("five-days-no-drama-v1");
+    if (raw) parts.push("carry=" + btoa(unescape(encodeURIComponent(raw))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""));
+  } catch (e) {}
+  if (location.hash.length > 1) parts.push(location.hash.slice(1));
+  location.replace("https://${PRIMARY_HOST}" + location.pathname + location.search + (parts.length ? "#" + parts.join("&") : ""));
+})();`;
+
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
+        <script dangerouslySetInnerHTML={{ __html: moveToPrimaryDomain }} />
         <HeadContent />
       </head>
       <body>

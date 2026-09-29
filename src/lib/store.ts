@@ -280,9 +280,36 @@ function wireAuthSync() {
   });
 }
 
+/**
+ * Progress carried over from an old address (see __root.tsx). Used only when
+ * this browser has no progress of its own on the main domain.
+ */
+function takeCarriedState(): string | null {
+  const params = new URLSearchParams(window.location.hash.slice(1));
+  const carry = params.get("carry");
+  if (!carry) return null;
+  params.delete("carry");
+  const rest = params.toString();
+  window.history.replaceState(
+    null,
+    "",
+    window.location.pathname + window.location.search + (rest ? `#${rest}` : ""),
+  );
+  try {
+    const b64 = carry.replace(/-/g, "+").replace(/_/g, "/");
+    const json = decodeURIComponent(escape(window.atob(b64)));
+    JSON.parse(json);
+    return json;
+  } catch {
+    return null;
+  }
+}
+
 function load(): State {
   if (typeof window === "undefined") return empty;
   try {
+    const carried = takeCarriedState();
+    if (carried && !window.localStorage.getItem(KEY)) window.localStorage.setItem(KEY, carried);
     const raw = window.localStorage.getItem(KEY);
     if (!raw) return empty;
     return migrateState({ ...empty, ...(JSON.parse(raw) as State) });
