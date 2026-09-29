@@ -44,8 +44,28 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
+/**
+ * "Continue with Google" goes through Lovable's sign-in service, which starts at
+ * /~oauth/initiate on the app's own domain. Lovable's hosting forwards those paths;
+ * on any other host (Vercel, custom domain) we forward them the same way.
+ */
+const LOVABLE_OAUTH = "https://oauth.lovable.app";
+const LOVABLE_PROJECT_ID = "lovp_2cpv1hg59x9whbb99ff1f9td97";
+
+function lovableOAuthRedirect(request: Request): Response | null {
+  const url = new URL(request.url);
+  if (!url.pathname.startsWith("/~oauth/")) return null;
+  const target = new URL(LOVABLE_OAUTH + url.pathname.slice("/~oauth".length) + url.search);
+  if (target.pathname === "/initiate" && !target.searchParams.has("project_id")) {
+    target.searchParams.set("project_id", LOVABLE_PROJECT_ID);
+  }
+  return Response.redirect(target.toString(), 302);
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    const oauth = lovableOAuthRedirect(request);
+    if (oauth) return oauth;
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
