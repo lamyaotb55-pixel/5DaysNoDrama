@@ -372,7 +372,7 @@ export const ar: Record<string, string> = {
   "hist.workouts_other": "{count} تمرين",
   "hist.workouts_zero": "ما فيه تمارين",
   "prog.palette": "الألوان",
-  "prog.title": "وحضرتي يا وحش.",
+  "prog.title": "انتي قدها!",
   "prog.currentPlan": "الخطة الحالية:",
   "prog.noPlan": "ما اخترتي خطة للحين.",
   "prog.workoutsDone": "التمارين المنجزة",

@@ -30,7 +30,8 @@ export const CONTENT_AR: Record<string, string> = {
     "خلّصتي الشغل الثقيل. عضلاتك وصلها الإشارة انها تكبر.",
   "Progressive overload in action — muscle is being built.":
     "زيادة تدريجية على أصولها — العضل ينبني.",
-  "You lifted, you progressed. Next session goes heavier.": "رفعتي وتطوّرتي. الحصة الجاية أثقل.",
+  "You lifted, you progressed. Next session goes heavier.":
+    "شلتي الثقيل وتطوّرتي. التمرين الجاي خليه أثقل.",
   "Lose Weight": "نزول الوزن",
   "Move More. Get Stronger. Burn More.": "تحرّكي أكثر. تقوّي أكثر. احرقي أكثر.",
   "Fat Loss + Conditioning": "حرق دهون + لياقة",
