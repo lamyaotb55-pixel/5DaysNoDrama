@@ -130,11 +130,25 @@ const moveToPrimaryDomain = `(function(){
   location.replace("https://${PRIMARY_HOST}" + location.pathname + location.search + (parts.length ? "#" + parts.join("&") : ""));
 })();`;
 
+/**
+ * Vercel Web Analytics (visits, pages, countries, devices — no cookies).
+ * The script is served by Vercel itself, so it only loads on the deployed site.
+ */
+const VERCEL_ANALYTICS = `(function(){
+  if (/^(localhost|127\\.0\\.0\\.1)$/.test(location.hostname)) return;
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  var s = document.createElement("script");
+  s.defer = true;
+  s.src = "/_vercel/insights/script.js";
+  document.head.appendChild(s);
+})();`;
+
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: EARLY_LANG_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: VERCEL_ANALYTICS }} />
         <script dangerouslySetInnerHTML={{ __html: moveToPrimaryDomain }} />
         <HeadContent />
       </head>

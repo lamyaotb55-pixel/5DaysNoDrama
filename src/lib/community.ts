@@ -299,3 +299,45 @@ export function shareStatus(
     return { label: "Not approved", tone: "warn", note: sub.note ?? undefined };
   return { label: "Waiting for review", tone: "wait" };
 }
+
+/* ---------- Admin dashboard ---------- */
+
+export type AdminStats = {
+  generatedAt: string;
+  users: {
+    total: number;
+    confirmed: number;
+    new7: number;
+    new30: number;
+    signedIn7: number;
+    google: number;
+    withProgress: number;
+  };
+  activity: {
+    workoutsTotal: number;
+    workouts7: number;
+    active7: number;
+    active30: number;
+    finished8Weeks: number;
+    perDay: { day: string; workouts: number }[];
+  };
+  plans: Record<string, number>;
+  language: Record<string, number>;
+  unit: Record<string, number>;
+  community: { live: number; waiting: number; follows: number };
+  recent: {
+    email: string;
+    name: string;
+    created_at: string;
+    last_sign_in_at: string | null;
+    provider: string | null;
+    workouts: number;
+    last_workout: string | null;
+  }[];
+};
+
+export async function adminStats(): Promise<AdminStats> {
+  const { data, error } = await supabase.rpc("admin_stats");
+  if (error) throw error;
+  return data as unknown as AdminStats;
+}

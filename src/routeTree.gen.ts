@@ -17,6 +17,7 @@ import { Route as MyPlansRouteImport } from './routes/my-plans'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as ThemeRouteImport } from './routes/theme'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminReviewRouteImport } from './routes/admin.review'
 import { Route as CustomizePlanIdRouteImport } from './routes/customize.$planId'
 import { Route as PlanPlanIdRouteImport } from './routes/plan.$planId'
@@ -63,6 +64,11 @@ const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/admin/dashboard',
+  path: '/admin/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminReviewRoute = AdminReviewRouteImport.update({
   id: '/admin/review',
   path: '/admin/review',
@@ -102,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/progress': typeof ProgressRoute
   '/theme': typeof ThemeRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/review': typeof AdminReviewRoute
   '/customize/$planId': typeof CustomizePlanIdRoute
   '/plan/$planId': typeof PlanPlanIdRoute
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/progress': typeof ProgressRoute
   '/theme': typeof ThemeRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/review': typeof AdminReviewRoute
   '/customize/$planId': typeof CustomizePlanIdRoute
   '/plan/$planId': typeof PlanPlanIdRoute
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/progress': typeof ProgressRoute
   '/theme': typeof ThemeRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/review': typeof AdminReviewRoute
   '/customize/$planId': typeof CustomizePlanIdRoute
   '/plan/$planId': typeof PlanPlanIdRoute
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/progress'
     | '/theme'
     | '/profile'
+    | '/admin/dashboard'
     | '/admin/review'
     | '/customize/$planId'
     | '/plan/$planId'
@@ -166,6 +176,7 @@ export interface FileRouteTypes {
     | '/progress'
     | '/theme'
     | '/profile'
+    | '/admin/dashboard'
     | '/admin/review'
     | '/customize/$planId'
     | '/plan/$planId'
@@ -182,6 +193,7 @@ export interface FileRouteTypes {
     | '/progress'
     | '/theme'
     | '/_authenticated/profile'
+    | '/admin/dashboard'
     | '/admin/review'
     | '/customize/$planId'
     | '/plan/$planId'
@@ -198,6 +210,7 @@ export interface RootRouteChildren {
   MyPlansRoute: typeof MyPlansRoute
   ProgressRoute: typeof ProgressRoute
   ThemeRoute: typeof ThemeRoute
+  AdminDashboardRoute: typeof AdminDashboardRoute
   AdminReviewRoute: typeof AdminReviewRoute
   CustomizePlanIdRoute: typeof CustomizePlanIdRoute
   PlanPlanIdRoute: typeof PlanPlanIdRoute
@@ -264,6 +277,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/admin/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/review': {
       id: '/admin/review'
       path: '/admin/review'
@@ -328,6 +348,7 @@ const rootRouteChildren: RootRouteChildren = {
   MyPlansRoute: MyPlansRoute,
   ProgressRoute: ProgressRoute,
   ThemeRoute: ThemeRoute,
+  AdminDashboardRoute: AdminDashboardRoute,
   AdminReviewRoute: AdminReviewRoute,
   CustomizePlanIdRoute: CustomizePlanIdRoute,
   PlanPlanIdRoute: PlanPlanIdRoute,

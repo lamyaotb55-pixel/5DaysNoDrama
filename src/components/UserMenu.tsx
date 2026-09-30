@@ -2,6 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   ClipboardCheck,
+  LayoutDashboard,
   History,
   LayoutList,
   LineChart,
@@ -152,6 +153,15 @@ export function UserMenu() {
               </MenuLink>
               {isAdmin && (
                 <MenuLink
+                  to="/admin/dashboard"
+                  onClick={() => setOpen(false)}
+                  icon={<LayoutDashboard className="size-4" aria-hidden />}
+                >
+                  {t("dash.title")}
+                </MenuLink>
+              )}
+              {isAdmin && (
+                <MenuLink
                   to="/admin/review"
                   onClick={() => setOpen(false)}
                   icon={<ClipboardCheck className="size-4" aria-hidden />}
@@ -190,7 +200,8 @@ function MenuLink({
     | "/auth"
     | "/my-plans"
     | "/plans-by-you"
-    | "/admin/review";
+    | "/admin/review"
+    | "/admin/dashboard";
   icon: React.ReactNode;
   children: React.ReactNode;
   onClick: () => void;

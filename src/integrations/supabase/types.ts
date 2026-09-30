@@ -172,6 +172,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_stats: { Args: never; Returns: Json }
       follow_plan: {
         Args: { p_follow: boolean; p_plan_id: string }
         Returns: number
