@@ -447,15 +447,6 @@ export function allDays(plan: Plan): Day[] {
   return Array.from({ length: WEEKS }, (_, i) => weekDays(plan, i + 1)).flat();
 }
 
-/** Rough duration estimate: working sets + circuit + finisher. */
-export function estimateMinutes(day: Day): number {
-  const sets = day.exercises.reduce((n, e) => n + e.sets, 0);
-  let mins = sets * 3.5 + 8;
-  if (day.circuit) mins += day.circuit.rounds * 3;
-  if (day.finisher && !day.finisher.optional) mins += 18;
-  return Math.round(mins / 5) * 5;
-}
-
 /** Parse "8–10" / "12" / "10" into a min/max rep range. */
 export function repRange(reps: string): { min: number; max: number } {
   const nums = reps.match(/\d+/g)?.map(Number) ?? [10];

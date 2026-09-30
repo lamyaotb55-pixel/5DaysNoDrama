@@ -104,7 +104,6 @@ export const en = {
   "common.exercises_few": "{count} exercises",
   "common.exercises_other": "{count} exercises",
   "common.exercises_zero": "0 exercises",
-  "common.aboutMin": "~{min} min",
   "common.viewWorkout": "View Workout",
   "home.eightWeekPlan": "8-week plan",
   "common.editPlan": "Edit plan",

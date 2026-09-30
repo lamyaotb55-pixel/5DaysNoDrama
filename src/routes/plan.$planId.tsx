@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useHydrated } from "@/hooks/useHydrated";
 import {
   Check,
-  Clock,
   Dumbbell,
   Footprints,
   LineChart,
@@ -18,7 +17,6 @@ import {
   WEEKS_PER_PHASE,
   dayInWeek,
   dayOption,
-  estimateMinutes,
   getPlan,
   phaseInfo,
   phaseOf,
@@ -444,10 +442,6 @@ function PlanPage() {
                         <span className="inline-flex items-center gap-1">
                           <Dumbbell className="size-3" aria-hidden />{" "}
                           {t.plural("common.exercises", count)}
-                        </span>
-                        <span className="inline-flex items-center gap-1">
-                          <Clock className="size-3" aria-hidden />{" "}
-                          {t("common.aboutMin", { min: estimateMinutes(day) })}
                         </span>
                       </p>
                     </div>

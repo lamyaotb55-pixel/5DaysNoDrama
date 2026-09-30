@@ -5,7 +5,7 @@ import { useT } from "@/lib/i18n";
 const fmt = (s: number) =>
   `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
 
-export function RestTimer({ seconds = 90 }: { seconds?: number }) {
+export function RestTimer({ seconds = 60 }: { seconds?: number }) {
   const [left, setLeft] = useState(seconds);
   const [running, setRunning] = useState(false);
   const t = useT();

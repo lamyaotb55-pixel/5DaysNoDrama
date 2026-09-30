@@ -14,7 +14,6 @@ import {
   PLANS,
   WEEKS,
   dayInWeek,
-  estimateMinutes,
   getPlan,
   phaseInfo,
   phaseOf,
@@ -266,8 +265,7 @@ function CurrentPlanCard({
                 </span>
               </Link>
               <p className="mt-2 text-[11px] font-bold text-muted-foreground uppercase">
-                {t.plural("common.exercises", next.exercises.length + (next.circuit ? 1 : 0))} ·{" "}
-                {t("common.aboutMin", { min: estimateMinutes(next) })}
+                {t.plural("common.exercises", next.exercises.length + (next.circuit ? 1 : 0))}
               </p>
 
               <Link

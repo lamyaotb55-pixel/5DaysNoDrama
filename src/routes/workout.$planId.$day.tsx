@@ -100,7 +100,7 @@ function WorkoutPage() {
   ).length;
   const pct = total ? Math.round((doneExercises / total) * 100) : 0;
   const allDone = total > 0 && doneExercises === total;
-  const restSeconds = plan.base === "build-muscle" ? 120 : plan.base === "tone-up" ? 90 : 60;
+  const restSeconds = 60;
   const option = dayOption(plan.id, day.day);
   const optionAvailable = altAllowed(day.day) && summary.sets === 0 && !allDone;
   const weekNo = weekOf(day.day);
