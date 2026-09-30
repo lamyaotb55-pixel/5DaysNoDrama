@@ -145,9 +145,13 @@ export type T = ReturnType<typeof useT>;
 /** Runs in <head> before first paint: sets direction early and hides the swap. */
 export const EARLY_LANG_SCRIPT = `(function(){try{var s=localStorage.getItem("${LANG_STORAGE_KEY}");var l=s==="ar"||s==="en"?s:((navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language]).some(function(x){return /^ar(-|$)/i.test(x||"")})?"ar":"en");if(l==="ar"){var h=document.documentElement;h.lang="ar";h.dir="rtl";h.classList.add("lang-pending");}}catch(e){}})();`;
 
-/** PR lines are stored in English ("Hip Thrust — 60 kg × 8"); show them in the reader's language. */
-export function prText(t: T, pr: string): string {
+/**
+ * PR lines are stored in English and kg ("Hip Thrust — 60 kg × 8"); show them in
+ * the reader's language and weight unit.
+ */
+export function prText(t: T, pr: string, w?: { fmt: (kg: number) => string }): string {
   const m = /^(.*) — ([\d.]+) kg × (\d+)$/.exec(pr);
   if (!m) return t.c(pr);
-  return `${t.c(m[1]!)} — ${m[2]} ${t("unit.kg")} × ${m[3]}`;
+  const weight = w ? w.fmt(Number(m[2])) : `${m[2]} ${t("unit.kg")}`;
+  return `${t.c(m[1]!)} — ${weight} × ${m[3]}`;
 }

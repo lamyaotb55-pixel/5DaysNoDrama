@@ -3,6 +3,7 @@ import { ArrowLeft, Check, Dumbbell, Footprints } from "lucide-react";
 import { DAYS_PER_WEEK, dayInWeek, dayOption, getPlan, weekOf } from "@/lib/program";
 import { sessionRound, useStore, type TrackArchive } from "@/lib/store";
 import { useT } from "@/lib/i18n";
+import { useWeights } from "@/lib/units";
 
 export const Route = createFileRoute("/history")({
   head: () => ({
@@ -50,6 +51,7 @@ type AltItem = {
 function HistoryPage() {
   const state = useStore();
   const t = useT();
+  const w = useWeights();
 
   const trained: TrainedItem[] = state.history.map((h) => ({
     kind: "trained",
@@ -226,7 +228,7 @@ function HistoryPage() {
                                     {t("hist.sets", { n: item.sets })}
                                   </span>
                                   <span className="text-muted-foreground">
-                                    {t("hist.volume", { n: t.num(Math.round(item.volume)) })}
+                                    {t("hist.volume", { n: t.num(w.volume(item.volume)) })}
                                   </span>
                                   <span className="text-muted-foreground">
                                     {t("workout.minutes", { min: item.durationMin })}
@@ -269,6 +271,7 @@ function TrackCard({ track }: { track: TrackArchive }) {
   const total = track.weeks.length * DAYS_PER_WEEK;
   const pct = total ? Math.round((track.daysDone / total) * 100) : 0;
   const t = useT();
+  const w = useWeights();
   const fmt = (at: number) => t.date(at);
   return (
     <li className="surface p-5">
@@ -310,7 +313,7 @@ function TrackCard({ track }: { track: TrackArchive }) {
         <span>{t("hist.trackDays", { done: track.daysDone, total })}</span>
         <span className="text-muted-foreground">{t.plural("hist.workouts", track.sessions)}</span>
         <span className="text-muted-foreground">
-          {t("hist.volume", { n: t.num(Math.round(track.volume)) })}
+          {t("hist.volume", { n: t.num(w.volume(track.volume)) })}
         </span>
         {track.prs > 0 && <span className="text-spicy">⚡ {t.plural("hist.prs", track.prs)}</span>}
       </p>

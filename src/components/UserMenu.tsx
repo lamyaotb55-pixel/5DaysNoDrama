@@ -15,6 +15,7 @@ import { checkIsAdmin } from "@/lib/community";
 import { supabase } from "@/integrations/supabase/client";
 import { displayNameOf, initialsOf, useAuth } from "@/hooks/useAuth";
 import { useT } from "@/lib/i18n";
+import { UnitSwitch } from "./UnitSwitch";
 
 export function UserMenu() {
   const { user, isAuthenticated } = useAuth();
@@ -99,7 +100,11 @@ export function UserMenu() {
               </button>
             </div>
 
-            <nav className="mt-7 space-y-2.5">
+            <div className="mt-6 rounded-2xl bg-secondary px-4 py-3">
+              <UnitSwitch />
+            </div>
+
+            <nav className="mt-4 space-y-2.5">
               {isAuthenticated ? (
                 <MenuLink
                   to="/profile"

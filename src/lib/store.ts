@@ -104,7 +104,11 @@ export type State = {
   myPlans: Record<string, MyPlan>;
   /** Chosen app language; follows a signed-in user across devices. */
   language?: Lang;
+  /** How weights are shown and typed. Weights are always stored in kg. */
+  unit?: WeightUnit;
 };
+
+export type WeightUnit = "kg" | "lb";
 
 /** Where a user plan came from. */
 export type PlanOrigin =
@@ -1309,4 +1313,10 @@ export function applyCommunityUpdate(
 export function setLanguage(language: Lang) {
   applyLang(language);
   if (state.language !== language) set({ ...state, language });
+}
+
+/* ---------- Weight unit ---------- */
+
+export function setUnit(unit: WeightUnit) {
+  if (state.unit !== unit) set({ ...state, unit });
 }

@@ -5,6 +5,7 @@ import { PrCelebration } from "@/components/PrCelebration";
 import { WeightChart } from "@/components/WeightChart";
 import { ExerciseName } from "@/components/ExerciseName";
 import { prText, useT } from "@/lib/i18n";
+import { useWeights } from "@/lib/units";
 import { PHASES, WEEKS, dayInWeek, getPlan, phaseInfo, phaseOf, weekOf } from "@/lib/program";
 import {
   currentWeek,
@@ -39,6 +40,7 @@ export const Route = createFileRoute("/progress")({
 function ProgressPage() {
   const state = useStore();
   const t = useT();
+  const w = useWeights();
   const plan = getPlan(state.activePlanId ?? undefined);
   const consistency = weeklyConsistency(state.history);
   const volume = totalVolume(state.history);
@@ -65,9 +67,7 @@ function ProgressPage() {
     <main className="mx-auto max-w-2xl px-5 pb-16">
       {celebrate && (
         <PrCelebration
-          prs={freshPrs.map(
-            ([name, pr]) => `${t.c(name)} · ${pr.weight} ${t("unit.kg")} × ${pr.reps}`,
-          )}
+          prs={freshPrs.map(([name, pr]) => `${t.c(name)} · ${w.fmt(pr.weight)} × ${pr.reps}`)}
           onDone={() => setCelebrate(false)}
         />
       )}
@@ -110,7 +110,7 @@ function ProgressPage() {
           label={t("home.thisWeek")}
           value={`${consistency.thisWeek}/5 · ${consistency.pct}%`}
         />
-        <Stat label={t("prog.totalVolume")} value={`${t.num(volume)} ${t("unit.kg")}`} />
+        <Stat label={t("prog.totalVolume")} value={`${t.num(w.volume(volume))} ${w.label}`} />
         <Stat label={t("wrap.prs")} value={String(prs.length)} accent="acid" />
       </section>
 
@@ -187,7 +187,9 @@ function ProgressPage() {
               </div>
               <div className="rounded-lg bg-ice p-3">
                 <p className="eyebrow text-ink/70">{t("workout.volume")}</p>
-                <p className="mt-0.5 font-display text-xl text-ink">{t.num(week.volume)}</p>
+                <p className="mt-0.5 font-display text-xl text-ink">
+                  {t.num(w.volume(week.volume))}
+                </p>
               </div>
               <div className="rounded-lg bg-ice p-3">
                 <p className="eyebrow text-ink/70">{t("edit.sets")}</p>
@@ -206,7 +208,7 @@ function ProgressPage() {
                 <ul className="mt-1 space-y-0.5 text-xs font-bold text-ink uppercase">
                   {week.prs.map((pr) => (
                     <li key={pr}>
-                      {t("pr.title")} ⚡ {prText(t, pr)}
+                      {t("pr.title")} ⚡ {prText(t, pr, w)}
                     </li>
                   ))}
                 </ul>
@@ -256,7 +258,7 @@ function ProgressPage() {
                     }
                   >
                     <bdi>
-                      {pr.weight} {t("unit.kg")} × {pr.reps}
+                      {w.fmt(pr.weight)} × {pr.reps}
                     </bdi>
                   </span>
                 </li>
@@ -287,8 +289,8 @@ function ProgressPage() {
                   </span>
                 </div>
                 <p className="mt-0.5 text-xs font-semibold text-muted-foreground">
-                  {t.c(h.focus)} · {t("hist.sets", { n: h.sets })} · {t.num(h.volume)}{" "}
-                  {t("unit.kg")} · {t("workout.minutes", { min: h.durationMin })}
+                  {t.c(h.focus)} · {t("hist.sets", { n: h.sets })} · {t.num(w.volume(h.volume))}{" "}
+                  {w.label} · {t("workout.minutes", { min: h.durationMin })}
                   {h.cardio ? ` · ${t("prog.cardioDone")}` : ""}
                 </p>
                 {h.notes && (

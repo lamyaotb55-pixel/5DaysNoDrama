@@ -2,6 +2,7 @@ import { Check } from "lucide-react";
 import { ExerciseName } from "./ExerciseName";
 import { MediaBox } from "./MediaBox";
 import { useT } from "@/lib/i18n";
+import { useWeights } from "@/lib/units";
 import { RestTimer } from "./RestTimer";
 import { repRange, weekGoal, type Exercise } from "@/lib/program";
 import {
@@ -35,6 +36,7 @@ export function ExerciseCard({
   preview?: boolean;
 }) {
   const t = useT();
+  const w = useWeights();
   const session = state.active[`${planId}|${day}`];
   const hint = suggestion(planId, exercise.name, exercise.reps, state.lastSets);
   const prev = previousWeekSets(planId, week, exercise.name, state);
@@ -52,9 +54,9 @@ export function ExerciseCard({
   const suggestMore = goal.nudge === "load" && Boolean(hint?.progress);
   const rangeText = `${range.min}${range.max !== range.min ? `–${range.max}` : ""}`;
   const today = suggestMore
-    ? t("ex.kgTimes", { kg: hint?.target ?? 0, reps: rangeText })
+    ? t("ex.kgTimes", { kg: w.target(hint?.target ?? 0), unit: w.label, reps: rangeText })
     : prevBest?.weight
-      ? t("ex.kgTimes", { kg: prevBest.weight, reps: rangeText })
+      ? t("ex.kgTimes", { kg: w.show(prevBest.weight), unit: w.label, reps: rangeText })
       : t("ex.repsOnly", { reps: rangeText });
 
   return (
@@ -106,7 +108,11 @@ export function ExerciseCard({
             </p>
             <p className="mt-0.5 font-bold uppercase">
               {prevBest.weight
-                ? t("ex.kgTimes", { kg: prevBest.weight, reps: prevBest.reps })
+                ? t("ex.kgTimes", {
+                    kg: w.show(prevBest.weight),
+                    unit: w.label,
+                    reps: prevBest.reps,
+                  })
                 : t("ex.repsOnly", { reps: prevBest.reps })}
             </p>
           </div>
@@ -130,7 +136,7 @@ export function ExerciseCard({
             <p className="eyebrow text-ink/70">{t("ex.progressionWeekByWeek")}</p>
             {anchor.gain > 0 && (
               <span className="text-[10px] font-bold text-ink uppercase">
-                +{anchor.gain} {t("unit.kg")}
+                +{w.fmt(anchor.gain)}
               </span>
             )}
           </div>
@@ -146,7 +152,7 @@ export function ExerciseCard({
                 {t("ex.weekShort", { n: p.week })}
                 <span className="text-ink/60"> {t("ex.phaseShort", { n: p.phase })}</span> ·{" "}
                 <bdi>
-                  {p.weight ? `${p.weight}${t("unit.kg")} ` : ""}×{p.reps}
+                  {p.weight ? `${w.fmt(p.weight)} ` : ""}×{p.reps}
                 </bdi>
               </li>
             ))}
@@ -183,20 +189,22 @@ export function ExerciseCard({
                 <input
                   type="number"
                   inputMode="decimal"
-                  step={2.5}
+                  step={w.step}
                   min={0}
-                  value={log.weight || ""}
-                  placeholder={prevSet ? String(prevSet.weight) : t("unit.kg")}
-                  aria-label={t("ex.setWeightLabel", { n: i + 1 })}
+                  value={w.show(log.weight) || ""}
+                  placeholder={prevSet ? String(w.show(prevSet.weight)) : w.label}
+                  aria-label={t("ex.setWeightLabel", { n: i + 1, unit: w.label })}
                   disabled={preview}
                   onChange={(e) =>
-                    updateSet(planId, day, exIdx, i, { weight: Number(e.target.value) || 0 })
+                    updateSet(planId, day, exIdx, i, {
+                      weight: w.toKg(Number(e.target.value) || 0),
+                    })
                   }
                   className="w-full rounded-lg bg-secondary px-2 py-3 text-center text-base font-bold outline-none focus:ring-2 focus:ring-ring"
                 />
                 {prevSet && (
                   <span className="mt-0.5 text-center text-[10px] font-semibold text-muted-foreground">
-                    {t("ex.prevKg", { kg: prevSet.weight })}
+                    {t("ex.prevKg", { kg: w.show(prevSet.weight), unit: w.label })}
                   </span>
                 )}
               </label>

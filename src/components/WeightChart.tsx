@@ -10,6 +10,7 @@ import {
 } from "recharts";
 import type { BestSet } from "@/lib/store";
 import { useT } from "@/lib/i18n";
+import { useWeights } from "@/lib/units";
 
 export function WeightChart({ trend }: { trend: Record<string, BestSet[]> }) {
   const names = Object.keys(trend)
@@ -17,10 +18,11 @@ export function WeightChart({ trend }: { trend: Record<string, BestSet[]> }) {
     .sort();
   const [selected, setSelected] = useState(names[0] ?? "");
   const t = useT();
+  const w = useWeights();
   const active = names.includes(selected) ? selected : (names[0] ?? "");
   const data = (trend[active] ?? []).map((p, i) => ({
     session: `S${i + 1}`,
-    weight: p.weight,
+    weight: w.show(p.weight),
     reps: p.reps,
   }));
 
@@ -50,11 +52,11 @@ export function WeightChart({ trend }: { trend: Record<string, BestSet[]> }) {
             {/* Charts read left to right in both languages. */}
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis dataKey="session" tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
-            <YAxis tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" unit="kg" />
+            <YAxis tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" unit={w.label} />
             <Tooltip
               formatter={(value: number | string, name) =>
                 name === "weight"
-                  ? [`${value} ${t("unit.kg")}`, t("chart.topSet")]
+                  ? [`${value} ${w.label}`, t("chart.topSet")]
                   : [String(value), t("common.reps")]
               }
               contentStyle={{

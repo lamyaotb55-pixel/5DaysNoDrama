@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { displayNameOf, initialsOf, useAuth } from "@/hooks/useAuth";
 import { getPlan } from "@/lib/program";
 import { useT } from "@/lib/i18n";
+import { useWeights } from "@/lib/units";
 import { currentStreak, totalVolume, useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/_authenticated/profile")({
@@ -27,6 +28,7 @@ function ProfilePage() {
   const state = useStore();
   const navigate = useNavigate();
   const t = useT();
+  const w = useWeights();
   const [name, setName] = useState("");
   const [goal, setGoal] = useState("");
   const [saved, setSaved] = useState(false);
@@ -105,7 +107,7 @@ function ProfilePage() {
       <section className="grid grid-cols-3 gap-3">
         <Stat label={t("prog.workouts")} value={String(state.history.length)} />
         <Stat label={t("profile.streak")} value={`${streak}`} accent="bg-acid text-ink" />
-        <Stat label={t("workout.volume")} value={t.num(Math.round(totalVolume(state.history)))} />
+        <Stat label={t("workout.volume")} value={t.num(w.volume(totalVolume(state.history)))} />
       </section>
 
       <section className="surface mt-5 p-5">

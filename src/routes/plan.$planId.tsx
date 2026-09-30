@@ -27,6 +27,7 @@ import {
 } from "@/lib/program";
 import { planAccent } from "@/lib/plan-theme";
 import { useT } from "@/lib/i18n";
+import { useWeights } from "@/lib/units";
 import {
   altAllowed,
   chooseAlt,
@@ -82,6 +83,7 @@ function PlanPage() {
   const [wrapUp, setWrapUp] = useState(true);
   const hydrated = useHydrated();
   const t = useT();
+  const w = useWeights();
 
   const openWeek = basePlan ? currentWeek(basePlan, state) : 1;
   const [week, setWeek] = useState(openWeek);
@@ -155,9 +157,9 @@ function PlanPage() {
                     <li key={i.name}>
                       {t.c(i.name)} —{" "}
                       <bdi>
-                        {i.from} → {i.to}
+                        {w.show(i.from)} → {w.show(i.to)}
                       </bdi>{" "}
-                      {t("unit.kg")}
+                      {w.label}
                     </li>
                   ))}
                 </ul>

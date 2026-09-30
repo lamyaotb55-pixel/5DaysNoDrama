@@ -17,6 +17,8 @@ import {
 } from "@/lib/program";
 import { planAccent } from "@/lib/plan-theme";
 import { prText, useT } from "@/lib/i18n";
+import { useWeights } from "@/lib/units";
+import { UnitSwitch } from "@/components/UnitSwitch";
 import { ExerciseName } from "@/components/ExerciseName";
 import {
   altAllowed,
@@ -68,6 +70,7 @@ function WorkoutPage() {
   const accent = planAccent(planId);
   const hydrated = useHydrated();
   const t = useT();
+  const w = useWeights();
 
   if (isUserPlanId(planId) && !hydrated) return null;
 
@@ -186,7 +189,10 @@ function WorkoutPage() {
             />
             <Stat label={t("workout.exercises")} value={`${summary.exercises}/${total}`} />
             <Stat label={t("workout.setsCompleted")} value={String(summary.sets)} />
-            <Stat label={t("workout.volume")} value={`${t.num(summary.volume)} ${t("unit.kg")}`} />
+            <Stat
+              label={t("workout.volume")}
+              value={`${t.num(w.volume(summary.volume))} ${w.label}`}
+            />
           </dl>
 
           {summary.prs.length > 0 && (
@@ -196,7 +202,7 @@ function WorkoutPage() {
               </p>
               <ul className="mt-1 space-y-0.5 text-xs font-bold text-ink uppercase">
                 {summary.prs.map((pr) => (
-                  <li key={pr}>{prText(t, pr)}</li>
+                  <li key={pr}>{prText(t, pr, w)}</li>
                 ))}
               </ul>
             </div>
@@ -322,7 +328,11 @@ function WorkoutPage() {
         </section>
       )}
 
-      <div className="mt-4">
+      <div className="mt-4 flex justify-end">
+        <UnitSwitch compact />
+      </div>
+
+      <div className="mt-3">
         {allDone ? (
           <span className="check-pop inline-flex items-center gap-1 rounded-full bg-success px-3 py-1 text-[11px] font-bold text-ink uppercase">
             <Check className="size-3.5" aria-hidden /> {t("workout.dayComplete")}
@@ -433,7 +443,11 @@ function WorkoutPage() {
         <div className="mx-auto flex max-w-2xl items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="truncate text-[11px] font-bold text-muted-foreground uppercase">
-              {t("workout.barSummary", { sets: summary.sets, kg: t.num(summary.volume) })}
+              {t("workout.barSummary", {
+                sets: summary.sets,
+                kg: t.num(w.volume(summary.volume)),
+                unit: w.label,
+              })}
             </p>
           </div>
           {!started ? (
