@@ -14,6 +14,7 @@ import {
 } from "@/lib/community";
 import { PLANS, getPlan } from "@/lib/program";
 import { planAccent } from "@/lib/plan-theme";
+import { useT } from "@/lib/i18n";
 import {
   applyCommunityUpdate,
   choosePlan,
@@ -49,6 +50,7 @@ function MyPlansPage() {
   const hydrated = useHydrated();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const t = useT();
   const plans = Object.values(state.myPlans ?? {}).sort((a, b) => b.updatedAt - a.updatedAt);
   const [community, setCommunity] = useState<Record<string, PublicPlan>>({});
   const [subs, setSubs] = useState<Record<string, Submission>>({});
@@ -69,7 +71,7 @@ function MyPlansPage() {
     let alive = true;
     getCommunityPlans(linkedKey.split(","))
       .then((list) => alive && setCommunity(Object.fromEntries(list.map((p) => [p.id, p]))))
-      .catch((e) => alive && setLoadError(errorText(e)));
+      .catch((e) => alive && setLoadError(t.c(errorText(e))));
     return () => {
       alive = false;
     };
@@ -93,25 +95,22 @@ function MyPlansPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-5 pb-16">
-      <div className="flex items-center justify-between gap-3 pt-6 pr-14">
+      <div className="flex items-center justify-between gap-3 pt-6 pe-40">
         <Link to="/" className="text-xs font-bold text-muted-foreground uppercase">
-          ← Home
+          <span className="inline-block rtl:-scale-x-100">←</span> {t("common.home")}
         </Link>
         <Link
           to="/plans-by-you"
           className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-2 text-xs font-bold uppercase"
         >
-          <Users className="size-3.5 text-pink" aria-hidden /> Plans by You
+          <Users className="size-3.5 text-pink" aria-hidden /> {t("menu.plansByYou")}
         </Link>
       </div>
 
       <header className="pt-8 pb-6">
-        <p className="eyebrow text-spicy">Your programs</p>
-        <h1 className="mt-2 text-4xl leading-[0.9]">My Plans</h1>
-        <p className="mt-3 text-sm font-semibold text-muted-foreground">
-          Make a plan yours: copy one of ours or start blank, rename it, change every day. Share it
-          on Plans by You when it's ready.
-        </p>
+        <p className="eyebrow text-spicy">{t("mine.eyebrow")}</p>
+        <h1 className="mt-2 text-4xl leading-[0.9]">{t("menu.myPlans")}</h1>
+        <p className="mt-3 text-sm font-semibold text-muted-foreground">{t("mine.lede")}</p>
       </header>
 
       {hydrated && plans.length > 0 && (
@@ -135,12 +134,14 @@ function MyPlansPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className={`eyebrow ${accent.text}`}>
-                      {goalName(p.base)} ·{" "}
+                      {t.c(goalName(p.base))} ·{" "}
                       {p.origin.kind === "community"
-                        ? `by ${p.origin.author}`
+                        ? t("common.byAuthor", { author: p.origin.author })
                         : p.origin.kind === "blank"
-                          ? "built from scratch"
-                          : `from ${getPlan(p.origin.planId)?.name ?? "a plan"}`}
+                          ? t("mine.fromScratch")
+                          : t("mine.fromPlan", {
+                              plan: t.c(getPlan(p.origin.planId)?.name ?? ""),
+                            })}
                     </p>
                     <h2 className="mt-1 text-2xl leading-tight break-words">{p.name}</h2>
                     {p.description && (
@@ -157,19 +158,19 @@ function MyPlansPage() {
                       <span
                         className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${TONES[status.tone]}`}
                       >
-                        {status.label}
+                        {t.c(status.label)}
                       </span>
                     )}
                     {updateReady && (
                       <span className="rounded-full bg-acid px-2.5 py-1 text-[10px] font-bold text-ink uppercase">
-                        Update available
+                        {t("mine.updateAvailable")}
                       </span>
                     )}
                   </div>
                 )}
                 {status?.note && (
                   <p className="mt-2 rounded-lg bg-secondary p-2.5 text-xs">
-                    <b>Review note:</b> {status.note}
+                    <b>{t("share.reviewNote")}</b> {status.note}
                   </p>
                 )}
 
@@ -180,7 +181,8 @@ function MyPlansPage() {
                     onClick={() => choosePlan(p.id)}
                     className={`inline-flex items-center gap-1.5 rounded-full ${accent.bg} ${accent.on} px-4 py-2.5 text-xs font-bold uppercase`}
                   >
-                    Train <ArrowRight className="size-3.5" aria-hidden />
+                    {t("mine.train")}{" "}
+                    <ArrowRight className="size-3.5 rtl:-scale-x-100" aria-hidden />
                   </Link>
                   <Link
                     to="/customize/$planId"
@@ -188,7 +190,7 @@ function MyPlansPage() {
                     className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 text-xs font-bold uppercase"
                   >
                     <Pencil className="size-3.5" aria-hidden />
-                    {p.origin.kind === "community" ? "View & edit" : "Edit & share"}
+                    {p.origin.kind === "community" ? t("mine.viewEdit") : t("mine.editShare")}
                   </Link>
                   {updateReady && followed?.content && (
                     <button
@@ -204,12 +206,12 @@ function MyPlansPage() {
                       }
                       className="inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2.5 text-xs font-bold text-paper uppercase"
                     >
-                      <Sparkles className="size-3.5" aria-hidden /> Get the update
+                      <Sparkles className="size-3.5" aria-hidden /> {t("mine.getUpdate")}
                     </button>
                   )}
                   {confirmDelete === p.id ? (
                     <span className="inline-flex items-center gap-2 rounded-full bg-spicy/10 px-3 py-1.5 text-xs font-bold">
-                      Delete this plan?
+                      {t("mine.deleteQ")}
                       <button
                         type="button"
                         onClick={() => {
@@ -218,22 +220,22 @@ function MyPlansPage() {
                         }}
                         className="rounded-full bg-spicy px-3 py-1 text-paper uppercase"
                       >
-                        Delete
+                        {t("mine.delete")}
                       </button>
                       <button
                         type="button"
                         onClick={() => setConfirmDelete(null)}
                         className="uppercase text-muted-foreground"
                       >
-                        Keep
+                        {t("mine.keep")}
                       </button>
                     </span>
                   ) : (
                     <button
                       type="button"
-                      aria-label={`Delete ${p.name}`}
+                      aria-label={t("mine.deleteNamed", { name: p.name })}
                       onClick={() => setConfirmDelete(p.id)}
-                      className="ml-auto grid size-10 place-items-center rounded-full border border-border text-spicy"
+                      className="ms-auto grid size-10 place-items-center rounded-full border border-border text-spicy"
                     >
                       <Trash2 className="size-4" aria-hidden />
                     </button>
@@ -247,9 +249,9 @@ function MyPlansPage() {
       {loadError && <p className="mt-3 text-xs font-semibold text-spicy">{loadError}</p>}
 
       <section className="mt-8">
-        <h2 className="text-xl">Start a new plan</h2>
+        <h2 className="text-xl">{t("mine.startNew")}</h2>
         <p className="mt-1 text-xs font-semibold text-muted-foreground uppercase">
-          Copy one of ours, or build from scratch
+          {t("mine.startNewSub")}
         </p>
         <div className="mt-3 grid grid-cols-2 gap-2">
           {PLANS.map((plan) => {
@@ -259,11 +261,11 @@ function MyPlansPage() {
                 key={plan.id}
                 type="button"
                 onClick={() => start(plan.id)}
-                className={`rounded-2xl ${accent.bg} ${accent.on} p-4 text-left`}
+                className={`rounded-2xl ${accent.bg} ${accent.on} p-4 text-start`}
               >
-                <span className="eyebrow opacity-80">Copy</span>
+                <span className="eyebrow opacity-80">{t("mine.copy")}</span>
                 <span className="mt-1 block font-display text-lg leading-tight uppercase">
-                  {plan.name}
+                  {t.c(plan.name)}
                 </span>
               </button>
             );
@@ -271,13 +273,13 @@ function MyPlansPage() {
           <button
             type="button"
             onClick={() => start(null)}
-            className="rounded-2xl border-2 border-dashed border-border bg-card p-4 text-left"
+            className="rounded-2xl border-2 border-dashed border-border bg-card p-4 text-start"
           >
             <span className="eyebrow inline-flex items-center gap-1 text-muted-foreground">
-              <Plus className="size-3" aria-hidden /> Blank
+              <Plus className="size-3" aria-hidden /> {t("mine.blank")}
             </span>
             <span className="mt-1 block font-display text-lg leading-tight uppercase">
-              From scratch
+              {t("mine.fromScratchCard")}
             </span>
           </button>
         </div>

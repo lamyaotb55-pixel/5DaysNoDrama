@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
+import { useT } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/hooks/useAuth";
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
+  const t = useT();
   const [mode, setMode] = useState<"signup" | "signin">("signup");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -56,14 +58,14 @@ function AuthPage() {
         });
         if (error) throw error;
         if (!data.session) {
-          setInfo("Check your inbox and tap the confirmation link to finish signing up.");
+          setInfo(t("auth.checkInbox"));
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Try again.");
+      setError(err instanceof Error ? t.c(err.message) : t("auth.genericError"));
     } finally {
       setBusy(false);
     }
@@ -75,7 +77,7 @@ function AuthPage() {
       redirect_uri: window.location.origin,
     });
     if (result.error) {
-      setError("Google sign-in didn't work. Try again or use your email.");
+      setError(t("auth.googleError"));
       return;
     }
     if (result.redirected) return;
@@ -86,17 +88,18 @@ function AuthPage() {
     <main className="mx-auto max-w-md px-5 pb-16">
       <div className="pt-6">
         <Link to="/" className="inline-flex items-center gap-1.5 text-xs font-bold uppercase">
-          <ArrowLeft className="size-3.5 text-spicy" aria-hidden /> Home
+          <ArrowLeft className="size-3.5 text-spicy rtl:-scale-x-100" aria-hidden />{" "}
+          {t("common.home")}
         </Link>
       </div>
 
       <header className="pt-8 pb-6">
-        <p className="eyebrow text-spicy">No drama. Just reps.</p>
+        <p className="eyebrow text-spicy">{t("auth.eyebrow")}</p>
         <h1 className="mt-3 text-4xl leading-[0.9]">
-          {mode === "signup" ? "Create your account" : "Welcome back"}
+          {mode === "signup" ? t("auth.createTitle") : t("auth.welcomeBack")}
         </h1>
         <p className="mt-3 text-sm font-semibold text-muted-foreground uppercase">
-          Keep your plan, progress and history in one place.
+          {t("auth.lede")}
         </p>
       </header>
 
@@ -116,42 +119,43 @@ function AuthPage() {
                 (mode === m ? "bg-spicy text-accent-foreground" : "text-ink")
               }
             >
-              {m === "signup" ? "Register" : "Sign in"}
+              {m === "signup" ? t("auth.register") : t("common.signIn")}
             </button>
           ))}
         </div>
 
         <form onSubmit={submit} className="space-y-3.5">
           {mode === "signup" && (
-            <Field label="Name">
+            <Field label={t("auth.name")}>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
+                placeholder={t("auth.namePlaceholder")}
                 autoComplete="name"
                 className="input-field"
               />
             </Field>
           )}
-          <Field label="Email">
+          <Field label={t("auth.email")}>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@email.com"
+              dir="ltr"
               autoComplete="email"
               className="input-field"
             />
           </Field>
-          <Field label="Password">
+          <Field label={t("auth.password")}>
             <input
               type="password"
               required
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="At least 6 characters"
+              placeholder={t("auth.passwordPlaceholder")}
               autoComplete={mode === "signup" ? "new-password" : "current-password"}
               className="input-field"
             />
@@ -169,13 +173,19 @@ function AuthPage() {
             disabled={busy}
             className="w-full rounded-full bg-spicy px-5 py-3.5 text-sm font-bold tracking-wide text-accent-foreground uppercase disabled:opacity-60"
           >
-            {busy ? "One sec…" : mode === "signup" ? "Create account" : "Sign in"}
+            {busy
+              ? t("auth.oneSec")
+              : mode === "signup"
+                ? t("auth.createAccount")
+                : t("common.signIn")}
           </button>
         </form>
 
         <div className="my-5 flex items-center gap-3">
           <span className="h-px flex-1 bg-border" />
-          <span className="text-[10px] font-bold text-muted-foreground uppercase">or</span>
+          <span className="text-[10px] font-bold text-muted-foreground uppercase">
+            {t("auth.or")}
+          </span>
           <span className="h-px flex-1 bg-border" />
         </div>
 
@@ -184,7 +194,7 @@ function AuthPage() {
           onClick={google}
           className="w-full rounded-full border border-border px-5 py-3.5 text-sm font-bold uppercase"
         >
-          Continue with Google
+          {t("auth.google")}
         </button>
       </div>
     </main>

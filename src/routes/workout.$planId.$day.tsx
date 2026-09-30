@@ -16,6 +16,8 @@ import {
   weekOf,
 } from "@/lib/program";
 import { planAccent } from "@/lib/plan-theme";
+import { prText, useT } from "@/lib/i18n";
+import { ExerciseName } from "@/components/ExerciseName";
 import {
   altAllowed,
   chooseAlt,
@@ -65,6 +67,7 @@ function WorkoutPage() {
   const [cheer, setCheer] = useState<string | null>(null);
   const accent = planAccent(planId);
   const hydrated = useHydrated();
+  const t = useT();
 
   if (isUserPlanId(planId) && !hydrated) return null;
 
@@ -72,12 +75,12 @@ function WorkoutPage() {
     return (
       <main className="grid min-h-screen place-items-center px-5">
         <div className="surface p-8 text-center">
-          <h1 className="text-2xl">Workout not found</h1>
+          <h1 className="text-2xl">{t("workout.notFound")}</h1>
           <Link
             to="/"
             className="mt-5 inline-flex rounded-full bg-spicy px-5 py-3 text-xs font-bold text-accent-foreground uppercase"
           >
-            Choose a plan
+            {t("common.choosePlan")}
           </Link>
         </div>
       </main>
@@ -104,23 +107,25 @@ function WorkoutPage() {
   const goal = weekGoal(weekNo);
   const phase = phaseInfo(phaseOf(weekNo));
   const locked = weekLocked(plan, weekNo, state);
-  const dayLabel = `Week ${weekNo} · Day ${dayInWeek(day.day)}`;
+  const dayLabel = t("common.weekDay", { week: weekNo, day: dayInWeek(day.day) });
 
   if (locked) {
     return (
       <main className="mx-auto grid min-h-screen max-w-md place-items-center px-5">
         <div className="surface p-8 text-center">
-          <p className="eyebrow text-pink">Phase 2 · Level It Up 🌶️</p>
-          <h1 className="mt-2 text-2xl">Weeks 5–8 aren't open yet</h1>
+          <p className="eyebrow text-pink">
+            {t("common.phaseN", { n: 2 })} · {t.c("Level It Up 🌶️")}
+          </p>
+          <h1 className="mt-2 text-2xl">{t("workout.weeks58NotOpen")}</h1>
           <p className="mt-2 text-sm font-semibold text-muted-foreground">
-            Finish weeks 1–4 first, then unlock the second phase from your plan.
+            {t("workout.finishFirst")}
           </p>
           <Link
             to="/plan/$planId"
             params={{ planId: plan.id }}
             className="mt-5 inline-flex rounded-full bg-spicy px-5 py-3 text-xs font-bold text-accent-foreground uppercase"
           >
-            Back to my plan
+            {t("workout.backToPlan")}
           </Link>
         </div>
       </main>
@@ -133,13 +138,13 @@ function WorkoutPage() {
         <div className="surface overflow-hidden text-center">
           <div className="spicy-wash px-6 py-8">
             <p className="eyebrow opacity-85">
-              {dayLabel} · {day.title}
+              {dayLabel} · {t.c(day.title)}
             </p>
-            <h1 className="mt-2 text-4xl leading-[0.9]">Smashed!</h1>
+            <h1 className="mt-2 text-4xl leading-[0.9]">{t("workout.smashedTitle")}</h1>
           </div>
           <div className="px-6 py-6">
             <span className="check-pop inline-flex items-center gap-1 rounded-full bg-success px-3 py-1 text-[11px] font-bold text-ink uppercase">
-              <Check className="size-3.5" aria-hidden /> Workout complete
+              <Check className="size-3.5" aria-hidden /> {t("workout.complete")}
             </span>
             <p className="mt-4 text-sm leading-relaxed font-semibold text-muted-foreground">
               {cheer}
@@ -149,13 +154,13 @@ function WorkoutPage() {
                 onClick={() => navigate({ to: "/" })}
                 className="w-full rounded-full bg-spicy px-6 py-4 text-xs font-bold text-accent-foreground uppercase"
               >
-                Back to my plan
+                {t("workout.backToPlan")}
               </button>
               <button
                 onClick={() => navigate({ to: "/progress" })}
                 className="w-full rounded-full bg-secondary px-6 py-3.5 text-xs font-bold uppercase"
               >
-                See my progress
+                {t("common.seeProgress")}
               </button>
             </div>
           </div>
@@ -169,60 +174,66 @@ function WorkoutPage() {
       <main className="mx-auto max-w-md px-5 pb-16">
         <div className="surface mt-10 p-6 text-center">
           <Trophy className="mx-auto size-8 text-spicy" aria-hidden />
-          <h1 className="mt-3 text-2xl">One more set? Nope — done.</h1>
+          <h1 className="mt-3 text-2xl">{t("workout.reviewTitle")}</h1>
           <p className="mt-1 text-xs font-bold text-muted-foreground uppercase">
-            {dayLabel} · {day.title} — {day.focus}
+            {dayLabel} · {t.c(day.title)} — {t.c(day.focus)}
           </p>
 
-          <dl className="mt-6 grid grid-cols-2 gap-3 text-left">
-            <Stat label="Duration" value={`${summary.durationMin} min`} />
-            <Stat label="Exercises" value={`${summary.exercises}/${total}`} />
-            <Stat label="Sets completed" value={String(summary.sets)} />
-            <Stat label="Volume" value={`${summary.volume.toLocaleString()} kg`} />
+          <dl className="mt-6 grid grid-cols-2 gap-3 text-start">
+            <Stat
+              label={t("workout.duration")}
+              value={t("workout.minutes", { min: summary.durationMin })}
+            />
+            <Stat label={t("workout.exercises")} value={`${summary.exercises}/${total}`} />
+            <Stat label={t("workout.setsCompleted")} value={String(summary.sets)} />
+            <Stat label={t("workout.volume")} value={`${t.num(summary.volume)} ${t("unit.kg")}`} />
           </dl>
 
           {summary.prs.length > 0 && (
-            <div className="pr-pop mt-4 rounded-lg bg-acid p-3 text-left">
+            <div className="pr-pop mt-4 rounded-lg bg-acid p-3 text-start">
               <p className="eyebrow text-ink">
-                New PR <span className="pr-bolt">⚡</span>
+                {t("pr.title")} <span className="pr-bolt">⚡</span>
               </p>
               <ul className="mt-1 space-y-0.5 text-xs font-bold text-ink uppercase">
                 {summary.prs.map((pr) => (
-                  <li key={pr}>{pr}</li>
+                  <li key={pr}>{prText(t, pr)}</li>
                 ))}
               </ul>
             </div>
           )}
 
-          <label className="mt-4 flex items-center gap-2 rounded-lg bg-secondary p-3 text-left text-xs font-bold uppercase">
+          <label className="mt-4 flex items-center gap-2 rounded-lg bg-secondary p-3 text-start text-xs font-bold uppercase">
             <input
               type="checkbox"
               checked={session?.warmup ?? false}
               onChange={(e) => setWarmup(plan.id, day.day, e.target.checked)}
               className="size-4 accent-[var(--success)]"
             />
-            Warm-up done — 5 min
+            {t("workout.warmupDone")}
           </label>
 
           {day.finisher && (
-            <label className="mt-4 flex items-center gap-2 rounded-lg bg-secondary p-3 text-left text-xs font-bold uppercase">
+            <label className="mt-4 flex items-center gap-2 rounded-lg bg-secondary p-3 text-start text-xs font-bold uppercase">
               <input
                 type="checkbox"
                 checked={session?.cardio ?? false}
                 onChange={(e) => setCardio(plan.id, day.day, e.target.checked)}
                 className="size-4 accent-[var(--success)]"
               />
-              {day.finisher.label} done — {day.finisher.detail}
+              {t("workout.finisherDone", {
+                label: t.c(day.finisher.label),
+                detail: t.c(day.finisher.detail),
+              })}
             </label>
           )}
 
-          <label className="mt-4 block text-left">
-            <span className="eyebrow text-muted-foreground">Notes</span>
+          <label className="mt-4 block text-start">
+            <span className="eyebrow text-muted-foreground">{t("workout.notes")}</span>
             <textarea
               rows={3}
               value={session?.notes ?? ""}
               onChange={(e) => setNotes(plan.id, day.day, e.target.value)}
-              placeholder="How did it feel? Energy, form, anything to remember."
+              placeholder={t("workout.notesPlaceholder")}
               className="mt-1.5 w-full resize-y rounded-lg border border-input bg-card px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
             />
           </label>
@@ -230,17 +241,17 @@ function WorkoutPage() {
           <button
             onClick={() => {
               const message = finishSession(plan.id, day.day);
-              setCheer(message ?? "Day done. Strong looks good on you.");
+              setCheer(message ?? t("workout.dayDoneFallback"));
             }}
             className="spicy-wash mt-5 w-full rounded-full px-6 py-4 text-xs font-bold tracking-wide uppercase shadow-[var(--shadow-lift)]"
           >
-            Smashed it — Finish
+            {t("workout.smashedFinish")}
           </button>
           <button
             onClick={() => setReview(false)}
             className="mt-3 text-[11px] font-bold text-muted-foreground uppercase"
           >
-            ← Back to workout
+            <span className="inline-block rtl:-scale-x-100">←</span> {t("workout.backToWorkout")}
           </button>
         </div>
       </main>
@@ -255,7 +266,7 @@ function WorkoutPage() {
           params={{ planId: plan.id }}
           className="text-xs font-bold text-muted-foreground uppercase"
         >
-          ← {plan.name}
+          <span className="inline-block rtl:-scale-x-100">←</span> {t.c(plan.name)}
         </Link>
       </div>
 
@@ -265,21 +276,22 @@ function WorkoutPage() {
         </span>
         <div className="min-w-0 pb-1">
           <p className="eyebrow text-muted-foreground">
-            Week {weekOf(day.day)} of {WEEKS} · Day {dayInWeek(day.day)}
+            {t("home.weekOf", { week: weekOf(day.day), total: WEEKS })} ·{" "}
+            {t("common.dayN", { n: dayInWeek(day.day) })}
           </p>
-          <h1 className="text-2xl leading-tight sm:text-3xl">{day.title}</h1>
-          <p className="text-sm font-semibold text-muted-foreground">{day.focus}</p>
+          <h1 className="text-2xl leading-tight sm:text-3xl">{t.c(day.title)}</h1>
+          <p className="text-sm font-semibold text-muted-foreground">{t.c(day.focus)}</p>
         </div>
       </header>
 
       <section className="mt-4 rounded-2xl bg-secondary p-4">
         <p className="eyebrow text-pink">
-          Phase {phase.no} · {phase.name}
+          {t("common.phaseN", { n: phase.no })} · {t.c(phase.name)}
         </p>
         <p className="mt-1 font-display text-base uppercase">
-          Week {weekNo}: {goal.title}
+          {t("workout.weekGoal", { week: weekNo, goal: t.c(goal.title) })}
         </p>
-        <p className="mt-1 text-xs font-semibold text-muted-foreground">{goal.copy}</p>
+        <p className="mt-1 text-xs font-semibold text-muted-foreground">{t.c(goal.copy)}</p>
       </section>
 
       {option && optionAvailable && (
@@ -291,23 +303,21 @@ function WorkoutPage() {
           }}
           className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-full border-2 border-pink px-5 py-3 text-[11px] font-bold text-pink uppercase"
         >
-          <Footprints className="size-3.5" aria-hidden /> {option.button} instead
+          <Footprints className="size-3.5" aria-hidden />{" "}
+          {t("workout.optionInstead", { option: t.c(option.button) })}
         </button>
       )}
 
       {!started && (
         <section className="mt-4 rounded-2xl border border-border bg-card p-4">
-          <p className="text-sm font-semibold">
-            Have a look around: check the moves and watch the demos. Tap Start when you're ready to
-            log your sets.
-          </p>
+          <p className="text-sm font-semibold">{t("workout.lookAround")}</p>
           <button
             type="button"
             onClick={start}
             className="spicy-wash mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 text-xs font-bold tracking-wide uppercase shadow-[var(--shadow-lift)]"
           >
             <Play className="size-4 fill-current" aria-hidden />{" "}
-            {doneBefore ? "Start again" : "Start workout"}
+            {doneBefore ? t("workout.startAgain") : t("workout.startWorkout")}
           </button>
         </section>
       )}
@@ -315,11 +325,11 @@ function WorkoutPage() {
       <div className="mt-4">
         {allDone ? (
           <span className="check-pop inline-flex items-center gap-1 rounded-full bg-success px-3 py-1 text-[11px] font-bold text-ink uppercase">
-            <Check className="size-3.5" aria-hidden /> ✓ Day complete
+            <Check className="size-3.5" aria-hidden /> {t("workout.dayComplete")}
           </span>
         ) : (
           <p className="text-[11px] font-bold tracking-wide text-muted-foreground uppercase">
-            {doneExercises} / {total} exercises · one more set.
+            {t("workout.progressLine", { done: doneExercises, total })}
           </p>
         )}
         <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-secondary">
@@ -335,12 +345,9 @@ function WorkoutPage() {
 
       <section className="surface mt-6 p-5">
         <p className="eyebrow inline-flex items-center gap-1 text-ice">
-          <Timer className="size-3" aria-hidden /> Warm-up
+          <Timer className="size-3" aria-hidden /> {t("workout.warmup")}
         </p>
-        <p className="mt-1.5 text-sm font-semibold">
-          5 min easy cardio (bike, incline walk or cross trainer), then a few light sets of your
-          first exercise.
-        </p>
+        <p className="mt-1.5 text-sm font-semibold">{t("workout.warmupBody")}</p>
         <label className="mt-3 flex items-center gap-2 text-xs font-bold uppercase">
           <input
             type="checkbox"
@@ -349,21 +356,21 @@ function WorkoutPage() {
             onChange={(e) => setWarmup(plan.id, day.day, e.target.checked)}
             className="size-4 accent-[var(--success)]"
           />
-          Mark as complete
+          {t("workout.markComplete")}
         </label>
       </section>
 
       <div className="mt-4 space-y-4">
         {day.exercises.length === 0 && (
           <div className="surface p-5 text-center">
-            <p className="text-sm font-semibold">No exercises on this day yet.</p>
+            <p className="text-sm font-semibold">{t("workout.noExercises")}</p>
             {plan.custom && (
               <Link
                 to="/customize/$planId"
                 params={{ planId: plan.id }}
                 className="mt-3 inline-flex rounded-full bg-ink px-4 py-2.5 text-xs font-bold text-paper uppercase"
               >
-                Add exercises
+                {t("workout.addExercises")}
               </Link>
             )}
           </div>
@@ -385,16 +392,18 @@ function WorkoutPage() {
 
       {day.circuit && (
         <section className="surface mt-4 p-5">
-          <p className="eyebrow text-pink">{day.circuit.rounds} rounds</p>
-          <h2 className="mt-1 text-lg">{day.circuit.name}</h2>
+          <p className="eyebrow text-pink">{t.plural("workout.rounds", day.circuit.rounds)}</p>
+          <h2 className="mt-1 text-lg">{t.c(day.circuit.name)}</h2>
           <ul className="mt-3 space-y-2 text-sm">
             {day.circuit.items.map((item) => (
               <li
                 key={item.name}
                 className="flex justify-between gap-3 border-b border-border pb-2 last:border-0"
               >
-                <span className="font-semibold">{item.name}</span>
-                <span className="font-semibold text-muted-foreground">{item.reps}</span>
+                <span className="font-semibold">
+                  <ExerciseName name={item.name} />
+                </span>
+                <span className="font-semibold text-muted-foreground">{t.c(item.reps)}</span>
               </li>
             ))}
           </ul>
@@ -404,9 +413,9 @@ function WorkoutPage() {
       {day.finisher && (
         <section className="surface mt-4 p-5">
           <p className="eyebrow inline-flex items-center gap-1 text-spicy">
-            <Flame className="size-3" aria-hidden /> {day.finisher.label}
+            <Flame className="size-3" aria-hidden /> {t.c(day.finisher.label)}
           </p>
-          <p className="mt-1.5 text-sm font-semibold">{day.finisher.detail}</p>
+          <p className="mt-1.5 text-sm font-semibold">{t.c(day.finisher.detail)}</p>
           <label className="mt-3 flex items-center gap-2 text-xs font-bold uppercase">
             <input
               type="checkbox"
@@ -415,7 +424,7 @@ function WorkoutPage() {
               onChange={(e) => setCardio(plan.id, day.day, e.target.checked)}
               className="size-4 accent-[var(--success)]"
             />
-            Mark as complete
+            {t("workout.markComplete")}
           </label>
         </section>
       )}
@@ -424,7 +433,7 @@ function WorkoutPage() {
         <div className="mx-auto flex max-w-2xl items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="truncate text-[11px] font-bold text-muted-foreground uppercase">
-              {summary.sets} sets · {summary.volume.toLocaleString()} kg
+              {t("workout.barSummary", { sets: summary.sets, kg: t.num(summary.volume) })}
             </p>
           </div>
           {!started ? (
@@ -433,7 +442,7 @@ function WorkoutPage() {
               onClick={start}
               className="inline-flex items-center gap-2 rounded-full bg-spicy px-5 py-3.5 text-xs font-bold tracking-wide text-accent-foreground uppercase shadow-[var(--shadow-lift)]"
             >
-              <Play className="size-4 fill-current" aria-hidden /> Start
+              <Play className="size-4 fill-current" aria-hidden /> {t("workout.start")}
             </button>
           ) : (
             <button
@@ -444,7 +453,8 @@ function WorkoutPage() {
                 (allDone ? "bg-success text-ink check-pop" : "bg-spicy text-accent-foreground")
               }
             >
-              <Check className="size-4" aria-hidden /> {allDone ? "Smashed!" : "Finish"}
+              <Check className="size-4" aria-hidden />{" "}
+              {allDone ? t("workout.smashed") : t("workout.finish")}
             </button>
           )}
         </div>

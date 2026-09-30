@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Play, X } from "lucide-react";
 import { defaultMedia } from "@/lib/media";
+import { useT } from "@/lib/i18n";
+import { ExerciseName } from "./ExerciseName";
 
 const isVideo = (src: string) => /\.(mp4|webm|mov)(\?|#|$)/i.test(src);
 
@@ -9,6 +11,7 @@ const demoUrl = (name: string) =>
   `https://www.youtube.com/results?search_query=${encodeURIComponent(`${name} exercise proper form`)}`;
 
 function Media({ src, name, className }: { src: string; name: string; className: string }) {
+  const t = useT();
   const ref = useRef<HTMLVideoElement>(null);
   const [blocked, setBlocked] = useState(false);
 
@@ -42,11 +45,16 @@ function Media({ src, name, className }: { src: string; name: string; className:
       playsInline
       controls={blocked}
       preload="auto"
-      aria-label={`${name} demonstration`}
+      aria-label={t("media.demoOf", { name: t.c(name) })}
       className={className}
     />
   ) : (
-    <img src={src} alt={`${name} demonstration`} decoding="async" className={className} />
+    <img
+      src={src}
+      alt={t("media.demoOf", { name: t.c(name) })}
+      decoding="async"
+      className={className}
+    />
   );
 }
 
@@ -66,6 +74,7 @@ export function MediaBox({
   wide?: boolean;
   src?: string | undefined;
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const media = src || defaultMedia(name);
 
@@ -95,7 +104,7 @@ export function MediaBox({
           type="button"
           onClick={() => setOpen(true)}
           className={frame + " bg-white"}
-          aria-label={`Show ${name} demonstration`}
+          aria-label={t("media.show", { name: t.c(name) })}
         >
           <Media src={media} name={name} className="absolute inset-0 size-full object-contain" />
         </button>
@@ -103,7 +112,7 @@ export function MediaBox({
           <div
             role="dialog"
             aria-modal="true"
-            aria-label={`${name} demonstration`}
+            aria-label={t("media.demoOf", { name: t.c(name) })}
             onClick={() => setOpen(false)}
             className="fixed inset-0 z-50 grid place-items-center bg-ink/70 p-5"
           >
@@ -112,12 +121,14 @@ export function MediaBox({
               className="relative w-full max-w-lg overflow-hidden rounded-2xl bg-white"
             >
               <Media src={media} name={name} className="aspect-square w-full object-contain" />
-              <p className="px-4 pb-4 text-center font-display text-lg uppercase">{name}</p>
+              <p className="px-4 pb-4 text-center font-display text-lg uppercase">
+                <ExerciseName name={name} />
+              </p>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                aria-label="Close"
-                className="absolute top-3 right-3 grid size-9 place-items-center rounded-full bg-secondary"
+                aria-label={t("common.close")}
+                className="absolute top-3 end-3 grid size-9 place-items-center rounded-full bg-secondary"
               >
                 <X className="size-4" aria-hidden />
               </button>
@@ -134,15 +145,15 @@ export function MediaBox({
       target="_blank"
       rel="noopener noreferrer"
       className={frame + " bg-secondary"}
-      aria-label={`Watch a ${name} demo`}
-      title={`Watch a ${name} demo`}
+      aria-label={t("media.watch", { name: t.c(name) })}
+      title={t("media.watch", { name: t.c(name) })}
     >
       <span className="absolute inset-0 flex items-center justify-center">
         <span className="font-display text-2xl text-ink/25">{initials}</span>
       </span>
       {!compact && (
-        <span className="absolute bottom-1.5 left-1.5 inline-flex items-center gap-1 rounded-full bg-card px-2 py-0.5 text-[9px] font-bold text-ink uppercase">
-          <Play className="size-2.5" aria-hidden /> Demo
+        <span className="absolute bottom-1.5 start-1.5 inline-flex items-center gap-1 rounded-full bg-card px-2 py-0.5 text-[9px] font-bold text-ink uppercase">
+          <Play className="size-2.5" aria-hidden /> {t("media.demo")}
         </span>
       )}
     </a>

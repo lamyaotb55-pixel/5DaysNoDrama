@@ -22,6 +22,7 @@ import {
   weekOf,
 } from "@/lib/program";
 import { planAccent } from "@/lib/plan-theme";
+import { useT } from "@/lib/i18n";
 import {
   choosePlan,
   clearPlan,
@@ -58,44 +59,45 @@ export const Route = createFileRoute("/")({
 function Home() {
   const state = useStore();
   const activePlan = getPlan(state.activePlanId ?? undefined);
+  const t = useT();
 
   return (
     <main className="mx-auto max-w-2xl px-5 pb-16">
-      <div className="flex items-center justify-between gap-3 pt-6 pr-14">
-        <Link to="/theme" className="eyebrow text-spicy">
+      <div className="flex items-center justify-between gap-3 pt-6 pe-40">
+        <Link to="/theme" className="eyebrow whitespace-nowrap text-spicy" dir="ltr">
           5 Days No Drama
         </Link>
         <Link
           to="/progress"
           className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-2 text-xs font-bold uppercase"
         >
-          <LineChart className="size-3.5 text-spicy" aria-hidden /> Progress
+          <LineChart className="size-3.5 text-spicy" aria-hidden /> {t("menu.progress")}
         </Link>
       </div>
 
       <section className="pt-8 pb-7">
         <span className="eyebrow inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-ink">
-          <Zap className="size-3 text-spicy" aria-hidden /> 3 plans · 8 weeks · 5 days a week
+          <Zap className="size-3 text-spicy" aria-hidden /> {t("home.badge")}
         </span>
         <h1 className="mt-5 text-5xl leading-[0.88] sm:text-6xl">
-          5 Days
+          {t("home.title1")}
           <br />
-          <span className="text-spicy">No Drama.</span>
+          <span className="text-spicy">{t("home.title2")}</span>
         </h1>
         <p className="mt-4 max-w-sm text-sm font-semibold text-muted-foreground uppercase">
-          No drama. Just reps. Pick your plan, open the day, log every set.
+          {t("home.lede")}
         </p>
       </section>
 
-      <nav className="mb-6 grid grid-cols-2 gap-2" aria-label="Plans">
+      <nav className="mb-6 grid grid-cols-2 gap-2" aria-label={t("home.plansNav")}>
         <Link
           to="/my-plans"
           className="flex items-center gap-2.5 rounded-2xl border border-border bg-card px-4 py-3.5"
         >
           <LayoutList className="size-5 shrink-0 text-spicy" aria-hidden />
           <span>
-            <span className="block text-xs font-bold uppercase">My Plans</span>
-            <span className="block text-[11px] text-muted-foreground">Build & share yours</span>
+            <span className="block text-xs font-bold uppercase">{t("menu.myPlans")}</span>
+            <span className="block text-[11px] text-muted-foreground">{t("home.myPlansSub")}</span>
           </span>
         </Link>
         <Link
@@ -104,8 +106,10 @@ function Home() {
         >
           <Users className="size-5 shrink-0 text-pink" aria-hidden />
           <span>
-            <span className="block text-xs font-bold uppercase">Plans by You</span>
-            <span className="block text-[11px] text-muted-foreground">Follow the community</span>
+            <span className="block text-xs font-bold uppercase">{t("menu.plansByYou")}</span>
+            <span className="block text-[11px] text-muted-foreground">
+              {t("home.plansByYouSub")}
+            </span>
           </span>
         </Link>
       </nav>
@@ -119,20 +123,22 @@ function Home() {
             return (
               <article key={plan.id} className="surface overflow-hidden">
                 <div className={`${accent.bg} ${accent.on} px-5 py-6`}>
-                  <p className="eyebrow opacity-80">{plan.label}</p>
-                  <h2 className="mt-1.5 text-3xl">{plan.name}</h2>
-                  <p className="mt-1.5 text-sm font-bold uppercase opacity-90">{plan.slogan}</p>
+                  <p className="eyebrow opacity-80">{t.c(plan.label)}</p>
+                  <h2 className="mt-1.5 text-3xl">{t.c(plan.name)}</h2>
+                  <p className="mt-1.5 text-sm font-bold uppercase opacity-90">
+                    {t.c(plan.slogan)}
+                  </p>
                 </div>
                 <div className="px-5 py-5">
-                  <p className="text-xs leading-relaxed text-muted-foreground">{plan.style}</p>
+                  <p className="text-xs leading-relaxed text-muted-foreground">{t.c(plan.style)}</p>
                   <Link
                     to="/plan/$planId"
                     params={{ planId: plan.id }}
                     onClick={() => choosePlan(plan.id)}
                     className={`mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full ${accent.bg} ${accent.on} px-5 py-3.5 text-sm font-bold tracking-wide uppercase`}
                   >
-                    Start Plan
-                    <ArrowRight className="size-4" aria-hidden />
+                    {t("home.startPlan")}
+                    <ArrowRight className="size-4 rtl:-scale-x-100" aria-hidden />
                   </Link>
                 </div>
               </article>
@@ -152,6 +158,7 @@ function CurrentPlanCard({
   state: ReturnType<typeof useStore>;
 }) {
   const plan = getPlan(planId)!;
+  const t = useT();
   const [confirm, setConfirm] = useState<"restart" | "change" | null>(null);
   const accent = planAccent(plan.id);
   const progress = programProgress(plan, state);
@@ -174,9 +181,9 @@ function CurrentPlanCard({
     <>
       <article className="surface overflow-hidden">
         <div className={`${accent.bg} ${accent.on} px-5 py-6`}>
-          <p className="eyebrow opacity-80">Current plan · Round {round}</p>
-          <h2 className="mt-1.5 text-3xl">{plan.name}</h2>
-          <p className="mt-1.5 text-sm font-bold uppercase opacity-90">{plan.slogan}</p>
+          <p className="eyebrow opacity-80">{t("home.currentPlan", { round })}</p>
+          <h2 className="mt-1.5 text-3xl">{t.c(plan.name)}</h2>
+          <p className="mt-1.5 text-sm font-bold uppercase opacity-90">{t.c(plan.slogan)}</p>
           {/* Filled by finished weeks and workouts only, never by calendar time. */}
           <div className="mt-4 flex h-2 overflow-hidden rounded-full bg-paper/35">
             <div
@@ -195,19 +202,21 @@ function CurrentPlanCard({
           </div>
           <p className="mt-2.5 flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase">
             <span>
-              Week {currentWeek} of {WEEKS} · {weeksDone} weeks done · {progress.pct}%
-              {planDone ? " ✓ all 8 weeks" : ""}
+              {t("home.weekOf", { week: currentWeek, total: WEEKS })} ·{" "}
+              {t.plural("home.weeksDone", weeksDone)} · {progress.pct}%
+              {planDone ? ` ${t("home.allWeeks")}` : ""}
             </span>
             <span className="rounded-full bg-paper/25 px-2 py-0.5">
-              {wp.done}/{wp.total} this week
+              {t("home.thisWeekCount", { done: wp.done, total: wp.total })}
             </span>
             <span className="rounded-full bg-paper/25 px-2 py-0.5">
-              Phase {phase.no} · {phase.name} · {progress.phase2.done > 0 ? "P2 live" : "P1"}
+              {t("common.phaseN", { n: phase.no })} · {t.c(phase.name)} ·{" "}
+              {progress.phase2.done > 0 ? t("home.p2Live") : t("home.p1")}
             </span>
-            <span className="rounded-full bg-paper/25 px-2 py-0.5">Day 5, your call</span>
+            <span className="rounded-full bg-paper/25 px-2 py-0.5">{t("home.day5Call")}</span>
             {streak > 0 && (
               <span className="rounded-full bg-acid px-2 py-0.5 text-ink">
-                ⚡ {streak} day streak
+                ⚡ {t.plural("home.streak", streak)}
               </span>
             )}
           </p>
@@ -215,27 +224,27 @@ function CurrentPlanCard({
 
         <div className="px-5 py-5">
           <div className="rounded-xl bg-secondary px-4 py-3">
-            <p className="eyebrow text-muted-foreground">This week</p>
-            <p className="mt-0.5 font-display text-base uppercase">{goal.title}</p>
-            <p className="mt-0.5 text-xs font-semibold text-muted-foreground">{goal.copy}</p>
+            <p className="eyebrow text-muted-foreground">{t("home.thisWeek")}</p>
+            <p className="mt-0.5 font-display text-base uppercase">{t.c(goal.title)}</p>
+            <p className="mt-0.5 text-xs font-semibold text-muted-foreground">{t.c(goal.copy)}</p>
           </div>
           {nextLocked ? (
             <div className="mt-4">
-              <p className="font-display text-xl uppercase">Phase 1 done. 🌶️</p>
+              <p className="font-display text-xl uppercase">{t("home.phase1Done")}</p>
               <p className="mt-1 text-sm font-semibold text-muted-foreground">
-                Weeks 5–8 are waiting — new moves, more stimulus.
+                {t("home.weeks58Waiting")}
               </p>
               <Link
                 to="/plan/$planId"
                 params={{ planId: plan.id }}
                 className="spicy-wash mt-3 inline-flex w-full items-center justify-center rounded-full px-5 py-4 text-xs font-bold uppercase"
               >
-                Unlock phase 2
+                {t("home.unlockPhase2")}
               </Link>
             </div>
           ) : (
             <>
-              <p className="mt-4 eyebrow text-muted-foreground">Next up</p>
+              <p className="mt-4 eyebrow text-muted-foreground">{t("home.nextUp")}</p>
               <Link
                 to="/workout/$planId/$day"
                 params={{ planId: plan.id, day: String(next.day) }}
@@ -246,19 +255,19 @@ function CurrentPlanCard({
                 </span>
                 <span className="min-w-0 pb-1">
                   <span className="block text-[11px] font-bold text-muted-foreground uppercase">
-                    Week {weekOf(next.day)} · Day {dayInWeek(next.day)}
+                    {t("common.weekDay", { week: weekOf(next.day), day: dayInWeek(next.day) })}
                   </span>
                   <span className="block text-xl leading-tight font-display uppercase">
-                    {next.title}
+                    {t.c(next.title)}
                   </span>
                   <span className="block text-sm font-semibold text-muted-foreground">
-                    {next.focus}
+                    {t.c(next.focus)}
                   </span>
                 </span>
               </Link>
               <p className="mt-2 text-[11px] font-bold text-muted-foreground uppercase">
-                {next.exercises.length + (next.circuit ? 1 : 0)} exercises · ~
-                {estimateMinutes(next)} min
+                {t.plural("common.exercises", next.exercises.length + (next.circuit ? 1 : 0))} ·{" "}
+                {t("common.aboutMin", { min: estimateMinutes(next) })}
               </p>
 
               <Link
@@ -266,7 +275,8 @@ function CurrentPlanCard({
                 params={{ planId: plan.id, day: String(next.day) }}
                 className="spicy-wash mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-4 text-sm font-bold tracking-wide uppercase shadow-[var(--shadow-lift)]"
               >
-                View Workout <ArrowRight className="size-4" aria-hidden />
+                {t("common.viewWorkout")}{" "}
+                <ArrowRight className="size-4 rtl:-scale-x-100" aria-hidden />
               </Link>
             </>
           )}
@@ -277,7 +287,7 @@ function CurrentPlanCard({
               params={{ planId: plan.id }}
               className="inline-flex flex-1 items-center justify-center rounded-full bg-secondary px-4 py-3 text-xs font-bold uppercase"
             >
-              8-week plan
+              {t("home.eightWeekPlan")}
             </Link>
             <Link
               to="/customize/$planId"
@@ -285,7 +295,7 @@ function CurrentPlanCard({
               className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-secondary px-4 py-3 text-xs font-bold uppercase"
             >
               <Pencil className="size-3.5 text-spicy" aria-hidden />{" "}
-              {plan.custom ? "Edit plan" : "Plan details"}
+              {plan.custom ? t("common.editPlan") : t("common.planDetails")}
             </Link>
           </div>
         </div>
@@ -297,14 +307,14 @@ function CurrentPlanCard({
           onClick={() => setConfirm("restart")}
           className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-3.5 text-xs font-bold uppercase"
         >
-          <RotateCcw className="size-4 text-spicy" aria-hidden /> Restart plan
+          <RotateCcw className="size-4 text-spicy" aria-hidden /> {t("home.restartPlan")}
         </button>
         <button
           type="button"
           onClick={() => setConfirm("change")}
           className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-3.5 text-xs font-bold uppercase"
         >
-          <Shuffle className="size-4 text-pink" aria-hidden /> Change plan
+          <Shuffle className="size-4 text-pink" aria-hidden /> {t("home.changePlan")}
         </button>
       </div>
 
@@ -321,12 +331,12 @@ function CurrentPlanCard({
               <Shuffle className="mx-auto size-7 text-pink" aria-hidden />
             )}
             <h2 className="mt-2 text-xl leading-tight">
-              {confirm === "restart" ? "Start this plan again?" : "Switch to another plan?"}
+              {confirm === "restart" ? t("home.restartQ") : t("home.changeQ")}
             </h2>
             <p className="mt-1.5 text-sm text-muted-foreground">
               {confirm === "restart"
-                ? "Your day check-marks reset for a fresh round. Your history, records and progress are kept."
-                : `You'll pick a new plan. ${plan.name} stays saved with all your history and records.`}
+                ? t("home.restartBody")
+                : t("home.changeBody", { plan: t.c(plan.name) })}
             </p>
             <div className="mt-5 flex gap-3">
               <button
@@ -334,7 +344,7 @@ function CurrentPlanCard({
                 onClick={() => setConfirm(null)}
                 className="flex-1 rounded-full border border-border bg-card px-4 py-3 text-xs font-bold uppercase"
               >
-                Not now
+                {t("common.notNow")}
               </button>
               <button
                 type="button"
@@ -350,7 +360,7 @@ function CurrentPlanCard({
                     : "border-2 border-pink text-pink")
                 }
               >
-                {confirm === "restart" ? "Yes, restart" : "Yes, change plan"}
+                {confirm === "restart" ? t("home.yesRestart") : t("home.yesChange")}
               </button>
             </div>
           </div>

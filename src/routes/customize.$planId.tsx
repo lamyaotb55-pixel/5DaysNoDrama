@@ -12,6 +12,8 @@ import {
   Undo2,
 } from "lucide-react";
 import { MediaBox } from "@/components/MediaBox";
+import { ExerciseName } from "@/components/ExerciseName";
+import { useT } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { useHydrated } from "@/hooks/useHydrated";
 import {
@@ -85,6 +87,7 @@ function CustomizePage() {
   const [phase, setPhase] = useState<PhaseNo>(1);
   const hydrated = useHydrated();
   const navigate = useNavigate();
+  const t = useT();
   const mine = state.myPlans?.[planId];
 
   if (isUserPlanId(planId) && !hydrated) return null;
@@ -93,12 +96,12 @@ function CustomizePage() {
     return (
       <main className="grid min-h-screen place-items-center px-5">
         <div className="surface p-8 text-center">
-          <h1 className="text-2xl font-semibold">Plan not found</h1>
+          <h1 className="text-2xl font-semibold">{t("plan.notFound")}</h1>
           <Link
             to="/"
             className="mt-5 inline-flex rounded-full bg-spicy px-5 py-3 text-xs font-bold uppercase text-accent-foreground"
           >
-            Choose a plan
+            {t("common.choosePlan")}
           </Link>
         </div>
       </main>
@@ -146,19 +149,19 @@ function CustomizePage() {
     <main className="mx-auto max-w-2xl px-5 pb-16">
       <div className="pt-8">
         <Link to="/" className="text-xs font-semibold text-muted-foreground">
-          ← Home
+          <span className="inline-block rtl:-scale-x-100">←</span> {t("common.home")}
         </Link>
       </div>
 
       <header className="mt-3">
-        <p className="eyebrow text-spicy">{mine ? "Edit my plan" : "Plan details"}</p>
+        <p className="eyebrow text-spicy">
+          {mine ? t("edit.eyebrowMine") : t("common.planDetails")}
+        </p>
         <h1 className="mt-1 text-3xl font-semibold uppercase break-words sm:text-4xl">
-          {basePlan.name}
+          {mine ? basePlan.name : t.c(basePlan.name)}
         </h1>
         <p className="mt-1.5 text-sm text-muted-foreground">
-          {mine
-            ? "Name it, set the goal, and shape every day: add, reorder, edit or remove exercises."
-            : "Rename any workout, change sets and reps, add a demo image link or remove what you don't do."}
+          {mine ? t("edit.ledeMine") : t("edit.ledeBuiltin")}
         </p>
       </header>
 
@@ -167,7 +170,7 @@ function CustomizePage() {
           <PlanSettings plan={mine} />
           {mine.origin.kind === "community" ? (
             <p className="mt-4 rounded-2xl bg-secondary p-4 text-xs font-semibold">
-              You follow this plan by {mine.origin.author}. Your edits stay private to you.
+              {t("edit.followNote", { author: mine.origin.author })}
             </p>
           ) : (
             <SharePanel plan={mine} />
@@ -180,19 +183,17 @@ function CustomizePage() {
             const id = createMyPlan(basePlan.id);
             navigate({ to: "/customize/$planId", params: { planId: id } });
           }}
-          className="mt-4 flex w-full items-center gap-3 rounded-2xl border-2 border-dashed border-border bg-card p-4 text-left"
+          className="mt-4 flex w-full items-center gap-3 rounded-2xl border-2 border-dashed border-border bg-card p-4 text-start"
         >
           <Copy className="size-5 shrink-0 text-spicy" aria-hidden />
           <span>
-            <span className="block text-sm font-bold uppercase">Make it my own</span>
-            <span className="block text-xs text-muted-foreground">
-              Copy this plan into My Plans to rename it, change every day and share it.
-            </span>
+            <span className="block text-sm font-bold uppercase">{t("edit.makeItMine")}</span>
+            <span className="block text-xs text-muted-foreground">{t("edit.makeItMineBody")}</span>
           </span>
         </button>
       )}
 
-      <div className="mt-5 flex gap-2" role="tablist" aria-label="Phases">
+      <div className="mt-5 flex gap-2" role="tablist" aria-label={t("plan.phases")}>
         {PHASES.map((ph) => (
           <button
             key={ph.no}
@@ -207,12 +208,12 @@ function CustomizePage() {
                 : "border border-border bg-card text-muted-foreground")
             }
           >
-            Phase {ph.no} · {ph.name}
+            {t("common.phaseN", { n: ph.no })} · {t.c(ph.name)}
           </button>
         ))}
       </div>
       <p className="mt-2 text-[10px] font-bold text-muted-foreground uppercase">
-        Phase {phase} runs weeks {phase === 1 ? "1–4" : "5–8"}. Edits apply to every week in it.
+        {t("edit.phaseNote", { n: phase, weeks: phase === 1 ? "1–4" : "5–8" })}
       </p>
 
       <div className="mt-6 space-y-4">
@@ -223,10 +224,12 @@ function CustomizePage() {
               <div className="flex items-start justify-between gap-3">
                 {mine ? (
                   <div className="min-w-0 flex-1 space-y-1.5">
-                    <p className="eyebrow text-muted-foreground">Day {dayInWeek(day.day)}</p>
+                    <p className="eyebrow text-muted-foreground">
+                      {t("common.dayN", { n: dayInWeek(day.day) })}
+                    </p>
                     <input
                       id={`title-${day.day}`}
-                      aria-label={`Day ${dayInWeek(day.day)} name`}
+                      aria-label={t("edit.dayName", { n: dayInWeek(day.day) })}
                       value={day.title}
                       maxLength={40}
                       onChange={(e) => updateMyPlanDay(mine.id, day.day, { title: e.target.value })}
@@ -234,19 +237,21 @@ function CustomizePage() {
                     />
                     <input
                       id={`focus-${day.day}`}
-                      aria-label={`Day ${dayInWeek(day.day)} focus`}
+                      aria-label={t("edit.dayFocus", { n: dayInWeek(day.day) })}
                       value={day.focus}
                       maxLength={60}
-                      placeholder="Focus, e.g. Glutes + Core"
+                      placeholder={t("edit.focusPlaceholder")}
                       onChange={(e) => updateMyPlanDay(mine.id, day.day, { focus: e.target.value })}
                       className="w-full rounded-xl border border-input bg-card px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
                     />
                   </div>
                 ) : (
                   <div>
-                    <p className="eyebrow text-muted-foreground">Day {dayInWeek(day.day)}</p>
-                    <h2 className="mt-1 text-xl font-semibold uppercase">{day.title}</h2>
-                    <p className="text-sm text-muted-foreground">{day.focus}</p>
+                    <p className="eyebrow text-muted-foreground">
+                      {t("common.dayN", { n: dayInWeek(day.day) })}
+                    </p>
+                    <h2 className="mt-1 text-xl font-semibold uppercase">{t.c(day.title)}</h2>
+                    <p className="text-sm text-muted-foreground">{t.c(day.focus)}</p>
                   </div>
                 )}
                 {edited && !mine && (
@@ -255,7 +260,7 @@ function CustomizePage() {
                     onClick={() => resetDayExercises(basePlan.id, day.day)}
                     className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-[10px] font-bold text-muted-foreground"
                   >
-                    <RotateCcw className="size-3" aria-hidden /> Reset day
+                    <RotateCcw className="size-3" aria-hidden /> {t("edit.resetDay")}
                   </button>
                 )}
               </div>
@@ -270,16 +275,20 @@ function CustomizePage() {
                       <MediaBox name={ex.name} compact src={ex.media} />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold">{ex.name}</p>
+                      <p className="text-sm font-semibold">
+                        <ExerciseName name={ex.name} />
+                      </p>
                       <p className="text-[11px] font-semibold text-muted-foreground">
-                        {ex.sets} × {ex.reps}
-                        {ex.perSide ? " per side" : ""}
+                        <bdi>
+                          {ex.sets} × {ex.reps}
+                        </bdi>
+                        {ex.perSide ? ` ${t("ex.perSide")}` : ""}
                       </p>
                     </div>
                     <div className="flex flex-col">
                       <button
                         type="button"
-                        aria-label={`Move ${ex.name} up`}
+                        aria-label={t("edit.moveUp", { name: t.c(ex.name) })}
                         disabled={i === 0}
                         onClick={() => move(day.day, day.exercises, i, i - 1)}
                         className="grid size-6 place-items-center text-muted-foreground disabled:opacity-25"
@@ -288,7 +297,7 @@ function CustomizePage() {
                       </button>
                       <button
                         type="button"
-                        aria-label={`Move ${ex.name} down`}
+                        aria-label={t("edit.moveDown", { name: t.c(ex.name) })}
                         disabled={i === day.exercises.length - 1}
                         onClick={() => move(day.day, day.exercises, i, i + 1)}
                         className="grid size-6 place-items-center text-muted-foreground disabled:opacity-25"
@@ -298,7 +307,7 @@ function CustomizePage() {
                     </div>
                     <button
                       type="button"
-                      aria-label={`Edit ${ex.name}`}
+                      aria-label={t("edit.editEx", { name: t.c(ex.name) })}
                       onClick={() => setDraft({ day: day.day, ex: { ...ex, index: i } })}
                       className="grid size-9 place-items-center rounded-full border border-border text-muted-foreground"
                     >
@@ -306,7 +315,7 @@ function CustomizePage() {
                     </button>
                     <button
                       type="button"
-                      aria-label={`Remove ${ex.name}`}
+                      aria-label={t("edit.removeEx", { name: t.c(ex.name) })}
                       onClick={() => setPending({ day: day.day, index: i, name: ex.name })}
                       className="grid size-9 place-items-center rounded-full border border-border text-spicy"
                     >
@@ -326,7 +335,7 @@ function CustomizePage() {
                 }
                 className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-xs font-semibold"
               >
-                <Plus className="size-3.5 text-spicy" aria-hidden /> Add exercise
+                <Plus className="size-3.5 text-spicy" aria-hidden /> {t("edit.addExercise")}
               </button>
             </section>
           );
@@ -337,10 +346,10 @@ function CustomizePage() {
         <div className="fixed inset-0 z-20 grid place-items-end bg-ink/50 p-0 sm:place-items-center sm:p-5">
           <div className="w-full max-w-md rounded-t-2xl border border-border bg-card p-5 sm:rounded-2xl">
             <h2 className="text-lg font-semibold">
-              {draft.ex.name ? "Edit exercise" : "New exercise"}
+              {draft.ex.name ? t("edit.editExercise") : t("edit.newExercise")}
             </h2>
             <div className="mt-4 space-y-3">
-              <Field label="Workout name">
+              <Field label={t("edit.workoutName")}>
                 <input
                   value={draft.ex.name}
                   onChange={(e) =>
@@ -351,7 +360,7 @@ function CustomizePage() {
                 />
               </Field>
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Sets">
+                <Field label={t("edit.sets")}>
                   <input
                     type="number"
                     min={1}
@@ -366,7 +375,7 @@ function CustomizePage() {
                     className="w-full rounded-xl border border-input bg-card px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
                   />
                 </Field>
-                <Field label="Reps">
+                <Field label={t("common.reps")}>
                   <input
                     value={draft.ex.reps}
                     onChange={(e) =>
@@ -377,7 +386,7 @@ function CustomizePage() {
                   />
                 </Field>
               </div>
-              <Field label="Demo image or GIF link (optional)">
+              <Field label={t("edit.demoLink")}>
                 <input
                   value={draft.ex.media ?? ""}
                   onChange={(e) =>
@@ -399,7 +408,7 @@ function CustomizePage() {
                   }
                   className="size-4 accent-[var(--spicy)]"
                 />
-                Reps are per side
+                {t("edit.perSideCheck")}
               </label>
             </div>
 
@@ -409,7 +418,7 @@ function CustomizePage() {
                 onClick={() => setDraft(null)}
                 className="flex-1 rounded-full border border-border px-4 py-3 text-sm font-semibold"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 type="button"
@@ -417,7 +426,7 @@ function CustomizePage() {
                 onClick={saveDraft}
                 className="flex-1 rounded-full bg-ink px-4 py-3 text-xs font-bold uppercase text-paper disabled:opacity-40"
               >
-                Save
+                {t("common.save")}
               </button>
             </div>
           </div>
@@ -427,10 +436,9 @@ function CustomizePage() {
       {pending && (
         <div className="fixed inset-0 z-30 grid place-items-center bg-ink/50 p-5">
           <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-5 text-center">
-            <h2 className="text-lg font-semibold">Remove this workout?</h2>
+            <h2 className="text-lg font-semibold">{t("edit.removeQ")}</h2>
             <p className="mt-1.5 text-sm text-muted-foreground">
-              “{pending.name}” will be taken out of Day {dayInWeek(pending.day)}. You can undo it
-              right after.
+              {t("edit.removeBody", { name: t.c(pending.name), n: dayInWeek(pending.day) })}
             </p>
             <div className="mt-5 flex gap-3">
               <button
@@ -438,14 +446,14 @@ function CustomizePage() {
                 onClick={() => setPending(null)}
                 className="flex-1 rounded-full border border-border px-4 py-3 text-sm font-semibold"
               >
-                Keep it
+                {t("edit.keepIt")}
               </button>
               <button
                 type="button"
                 onClick={confirmRemove}
                 className="flex-1 rounded-full bg-spicy px-4 py-3 text-sm font-semibold text-accent-foreground"
               >
-                Remove
+                {t("edit.remove")}
               </button>
             </div>
           </div>
@@ -455,7 +463,9 @@ function CustomizePage() {
       {undo && (
         <div className="fixed inset-x-0 bottom-0 z-20 px-5 pb-5">
           <div className="mx-auto flex max-w-md items-center gap-3 rounded-full border border-border bg-card px-4 py-3 shadow-[var(--shadow-lift)]">
-            <p className="min-w-0 flex-1 truncate text-xs font-semibold">Removed “{undo.name}”</p>
+            <p className="min-w-0 flex-1 truncate text-xs font-semibold">
+              {t("edit.removed", { name: t.c(undo.name) })}
+            </p>
             <button
               type="button"
               onClick={() => {
@@ -464,11 +474,11 @@ function CustomizePage() {
               }}
               className="inline-flex items-center gap-1 rounded-full bg-ink px-3.5 py-1.5 text-xs font-bold uppercase text-paper"
             >
-              <Undo2 className="size-3.5" aria-hidden /> Undo
+              <Undo2 className="size-3.5" aria-hidden /> {t("edit.undo")}
             </button>
             <button
               type="button"
-              aria-label="Dismiss"
+              aria-label={t("edit.dismiss")}
               onClick={() => setUndo(null)}
               className="text-xs font-semibold text-muted-foreground"
             >
@@ -503,9 +513,10 @@ function hasOwnName(plan: MyPlan) {
 }
 
 function PlanSettings({ plan }: { plan: MyPlan }) {
+  const t = useT();
   return (
     <section className="surface mt-5 space-y-3 p-5">
-      <Field label="Plan name">
+      <Field label={t("edit.planName")}>
         <input
           id="plan-name"
           value={plan.name}
@@ -514,18 +525,18 @@ function PlanSettings({ plan }: { plan: MyPlan }) {
           className="w-full rounded-xl border border-input bg-card px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-ring"
         />
       </Field>
-      <Field label="Description (optional)">
+      <Field label={t("edit.description")}>
         <textarea
           id="plan-description"
           rows={3}
           maxLength={500}
           value={plan.description}
-          placeholder="Who it's for, what it focuses on, the equipment it needs."
+          placeholder={t("edit.descriptionPlaceholder")}
           onChange={(e) => updateMyPlan(plan.id, { description: e.target.value })}
           className="w-full resize-y rounded-xl border border-input bg-card px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
         />
       </Field>
-      <Field label="Goal">
+      <Field label={t("edit.goal")}>
         <select
           id="plan-goal"
           value={plan.base}
@@ -534,7 +545,7 @@ function PlanSettings({ plan }: { plan: MyPlan }) {
         >
           {BUILTIN_IDS.map((id) => (
             <option key={id} value={id}>
-              {goalName(id)}
+              {t.c(goalName(id))}
             </option>
           ))}
         </select>
@@ -548,10 +559,11 @@ function PlanSettings({ plan }: { plan: MyPlan }) {
           className="mt-0.5 size-4 accent-[var(--spicy)]"
         />
         <span>
-          <span className="block font-semibold">Offer a Day 5 alternative</span>
+          <span className="block font-semibold">{t("edit.day5Offer")}</span>
           <span className="block text-xs text-muted-foreground">
-            On Day 5, people can choose {plan.base === "build-muscle" ? "I'll Mini" : "I'll Walk"}{" "}
-            instead of the full workout.
+            {t("edit.day5Body", {
+              option: t.c(plan.base === "build-muscle" ? "I'll Mini" : "I'll Walk"),
+            })}
           </span>
         </span>
       </label>
@@ -561,6 +573,7 @@ function PlanSettings({ plan }: { plan: MyPlan }) {
 
 function SharePanel({ plan }: { plan: MyPlan }) {
   const { user, loading } = useAuth();
+  const t = useT();
   const [live, setLive] = useState<PublicPlan | undefined>();
   const [sub, setSub] = useState<Submission | undefined>();
   const [confirming, setConfirming] = useState(false);
@@ -597,10 +610,10 @@ function SharePanel({ plan }: { plan: MyPlan }) {
       const id = await submitPlan(plan);
       if (!plan.communityId) linkCommunityPlan(plan.id, id);
       setConfirming(false);
-      setMessage("Sent for review. You'll see the status here.");
+      setMessage(t("share.sent"));
       setTick((t) => t + 1);
     } catch (e) {
-      setMessage(errorText(e));
+      setMessage(t.c(errorText(e)));
     } finally {
       setBusy(false);
     }
@@ -612,7 +625,7 @@ function SharePanel({ plan }: { plan: MyPlan }) {
     setMessage(null);
     try {
       await unpublishPlan(plan.communityId);
-      setMessage("Unpublished. People who already follow it keep their copy.");
+      setMessage(t("share.unpublished"));
       setTick((t) => t + 1);
     } catch (e) {
       setMessage(errorText(e));
@@ -624,44 +637,38 @@ function SharePanel({ plan }: { plan: MyPlan }) {
   return (
     <section className="mt-4 rounded-2xl border border-border bg-card p-5">
       <p className="eyebrow inline-flex items-center gap-1.5 text-pink">
-        <Send className="size-3" aria-hidden /> Plans by You
+        <Send className="size-3" aria-hidden /> {t("menu.plansByYou")}
       </p>
 
       {status && (
         <p className="mt-2 text-sm font-bold">
-          Status: <span className="uppercase">{status.label}</span>
+          {t("share.status")} <span className="uppercase">{t.c(status.label)}</span>
         </p>
       )}
       {status?.note && (
         <p className="mt-2 rounded-lg bg-secondary p-2.5 text-xs">
-          <b>Review note:</b> {status.note}
+          <b>{t("share.reviewNote")}</b> {status.note}
         </p>
       )}
 
       {!loading && !user ? (
         <>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Sign in to share this plan with everyone on Plans by You.
-          </p>
+          <p className="mt-2 text-sm text-muted-foreground">{t("share.signInToShare")}</p>
           <Link
             to="/auth"
             className="mt-3 inline-flex rounded-full bg-ink px-4 py-2.5 text-xs font-bold text-paper uppercase"
           >
-            Sign in
+            {t("common.signIn")}
           </Link>
         </>
       ) : !ready ? (
         <p className="mt-2 text-sm text-muted-foreground">
-          {!named
-            ? "Give your plan its own name to share it on Plans by You."
-            : "Add at least one exercise to share this plan."}
+          {!named ? t("share.needName") : t("share.needExercise")}
         </p>
       ) : confirming ? (
         <div className="mt-2">
           <p className="text-sm">
-            {plan.communityId
-              ? "Your changes will be reviewed. The current version stays live until they're approved."
-              : "Your plan will be reviewed before it appears. Your display name is shown as the author."}
+            {plan.communityId ? t("share.confirmUpdate") : t("share.confirmNew")}
           </p>
           <div className="mt-3 flex gap-2">
             <button
@@ -669,7 +676,7 @@ function SharePanel({ plan }: { plan: MyPlan }) {
               onClick={() => setConfirming(false)}
               className="flex-1 rounded-full border border-border px-4 py-2.5 text-xs font-bold uppercase"
             >
-              Cancel
+              {t("common.cancel")}
             </button>
             <button
               type="button"
@@ -677,16 +684,14 @@ function SharePanel({ plan }: { plan: MyPlan }) {
               onClick={send}
               className="flex-1 rounded-full bg-spicy px-4 py-2.5 text-xs font-bold text-accent-foreground uppercase disabled:opacity-50"
             >
-              {busy ? "Sending…" : "Send for review"}
+              {busy ? t("share.sending") : t("share.sendForReview")}
             </button>
           </div>
         </div>
       ) : (
         <>
           <p className="mt-2 text-sm text-muted-foreground">
-            {plan.communityId
-              ? "Made changes? Send them for review to update the shared version."
-              : "Share this plan so others can follow it. The team reviews every plan first."}
+            {plan.communityId ? t("share.madeChanges") : t("share.shareIntro")}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <button
@@ -695,7 +700,7 @@ function SharePanel({ plan }: { plan: MyPlan }) {
               className="inline-flex items-center gap-1.5 rounded-full bg-spicy px-4 py-2.5 text-xs font-bold text-accent-foreground uppercase"
             >
               <Send className="size-3.5" aria-hidden />
-              {plan.communityId ? "Send update" : "Publish to Plans by You"}
+              {plan.communityId ? t("share.sendUpdate") : t("share.publish")}
             </button>
             {canUnpublish && (
               <button
@@ -704,7 +709,7 @@ function SharePanel({ plan }: { plan: MyPlan }) {
                 onClick={unpublish}
                 className="rounded-full border border-border px-4 py-2.5 text-xs font-bold uppercase disabled:opacity-50"
               >
-                Unpublish
+                {t("share.unpublish")}
               </button>
             )}
           </div>

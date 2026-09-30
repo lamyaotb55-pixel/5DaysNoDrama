@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { Trophy } from "lucide-react";
 import { PrCelebration } from "@/components/PrCelebration";
 import { WeightChart } from "@/components/WeightChart";
+import { ExerciseName } from "@/components/ExerciseName";
+import { prText, useT } from "@/lib/i18n";
 import { PHASES, WEEKS, dayInWeek, getPlan, phaseInfo, phaseOf, weekOf } from "@/lib/program";
 import {
   currentWeek,
@@ -36,6 +38,7 @@ export const Route = createFileRoute("/progress")({
 
 function ProgressPage() {
   const state = useStore();
+  const t = useT();
   const plan = getPlan(state.activePlanId ?? undefined);
   const consistency = weeklyConsistency(state.history);
   const volume = totalVolume(state.history);
@@ -62,59 +65,64 @@ function ProgressPage() {
     <main className="mx-auto max-w-2xl px-5 pb-16">
       {celebrate && (
         <PrCelebration
-          prs={freshPrs.map(([name, pr]) => `${name} · ${pr.weight} kg × ${pr.reps}`)}
+          prs={freshPrs.map(
+            ([name, pr]) => `${t.c(name)} · ${pr.weight} ${t("unit.kg")} × ${pr.reps}`,
+          )}
           onDone={() => setCelebrate(false)}
         />
       )}
-      <div className="flex items-center justify-between pt-8">
+      <div className="flex items-center justify-between pt-8 pe-40">
         <Link to="/" className="text-xs font-bold text-muted-foreground uppercase">
-          ← Home
+          <span className="inline-block rtl:-scale-x-100">←</span> {t("common.home")}
         </Link>
         <Link
           to="/theme"
           className="rounded-full bg-secondary px-3 py-1.5 text-[11px] font-bold uppercase"
         >
-          Palette
+          {t("prog.palette")}
         </Link>
       </div>
 
       <header className="mt-4">
-        <p className="eyebrow text-spicy">Progress</p>
-        <h1 className="mt-1.5 text-4xl leading-[0.9] sm:text-5xl">You showed up.</h1>
+        <p className="eyebrow text-spicy">{t("menu.progress")}</p>
+        <h1 className="mt-1.5 text-4xl leading-[0.9] sm:text-5xl">{t("prog.title")}</h1>
         <p className="mt-2 text-sm font-bold text-muted-foreground uppercase">
           {plan ? (
             <>
-              Current plan:{" "}
+              {t("prog.currentPlan")}{" "}
               <Link
                 to="/plan/$planId"
                 params={{ planId: plan.id }}
                 className="text-ink underline decoration-spicy decoration-2 underline-offset-4"
               >
-                {plan.name}
+                {t.c(plan.name)}
               </Link>
             </>
           ) : (
-            "No plan selected yet."
+            t("prog.noPlan")
           )}
         </p>
       </header>
 
       <section className="mt-6 grid grid-cols-2 gap-3">
-        <Stat label="Workouts done" value={String(state.history.length)} />
-        <Stat label="This week" value={`${consistency.thisWeek}/5 · ${consistency.pct}%`} />
-        <Stat label="Total volume" value={`${volume.toLocaleString()} kg`} />
-        <Stat label="Personal records" value={String(prs.length)} accent="acid" />
+        <Stat label={t("prog.workoutsDone")} value={String(state.history.length)} />
+        <Stat
+          label={t("home.thisWeek")}
+          value={`${consistency.thisWeek}/5 · ${consistency.pct}%`}
+        />
+        <Stat label={t("prog.totalVolume")} value={`${t.num(volume)} ${t("unit.kg")}`} />
+        <Stat label={t("wrap.prs")} value={String(prs.length)} accent="acid" />
       </section>
 
       {plan && pp && (
         <section className="surface mt-4 p-5">
-          <p className="eyebrow text-pink">8-week program</p>
+          <p className="eyebrow text-pink">{t("plan.eightWeekProgram")}</p>
           <div className="mt-2 flex items-baseline justify-between gap-3">
             <p className="font-display text-2xl uppercase">
-              Week {currentWeek(plan, state)} of {WEEKS}
+              {t("home.weekOf", { week: currentWeek(plan, state), total: WEEKS })}
             </p>
             <p className="text-xs font-bold text-muted-foreground uppercase">
-              {pp.pct}% done · {pp.done}/{pp.total} days
+              {t("prog.pctDays", { pct: pp.pct, done: pp.done, total: pp.total })}
             </p>
           </div>
           {/* Bar is filled by finished work only — phase 1 in red, phase 2 in pink. */}
@@ -129,8 +137,9 @@ function ProgressPage() {
             />
           </div>
           <p className="mt-2 text-[11px] font-bold text-muted-foreground uppercase">
-            {pp.weeksDone}/{pp.weeksTotal} weeks complete · {pp.trained} workouts
-            {pp.alt > 0 ? ` · ${pp.alt} challenges` : ""}
+            {t("prog.weeksComplete", { done: pp.weeksDone, total: pp.weeksTotal })} ·{" "}
+            {t.plural("hist.workouts", pp.trained)}
+            {pp.alt > 0 ? ` · ${t.plural("plan.challenges", pp.alt)}` : ""}
           </p>
           <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
             {PHASES.map((ph) => {
@@ -139,69 +148,66 @@ function ProgressPage() {
               return (
                 <div key={ph.no} className="rounded-xl bg-secondary p-3.5">
                   <p className="eyebrow text-muted-foreground">
-                    Phase {ph.no} · W{ph.firstWeek}–{ph.lastWeek}
+                    {t("common.phaseN", { n: ph.no })} ·{" "}
+                    {t("prog.weekRange", { from: ph.firstWeek, to: ph.lastWeek })}
                   </p>
                   <p className="mt-0.5 text-sm font-bold uppercase">
                     {locked ? "🔒 " : ""}
-                    {ph.name}
+                    {t.c(ph.name)}
                   </p>
                   <p className="mt-0.5 text-[11px] font-bold text-muted-foreground uppercase">
-                    {phase.pct}% · {phase.trained} workouts · {phase.done}/{phase.total} days
+                    {phase.pct}% · {t.plural("hist.workouts", phase.trained)} ·{" "}
+                    {t("hist.trackDays", { done: phase.done, total: phase.total })}
                   </p>
                 </div>
               );
             })}
           </div>
           <p className="mt-3 text-[11px] font-bold text-muted-foreground uppercase">
-            Now in phase {phaseOf(currentWeek(plan, state))} —{" "}
-            {phaseInfo(phaseOf(currentWeek(plan, state))).name} ·{" "}
-            {programSummary(plan, state).challenges} challenge
-            {programSummary(plan, state).challenges === 1 ? "" : "s"} completed
+            {t("prog.nowInPhase", { n: phaseOf(currentWeek(plan, state)) })} —{" "}
+            {t.c(phaseInfo(phaseOf(currentWeek(plan, state))).name)} ·{" "}
+            {t.plural("prog.challengesDone", programSummary(plan, state).challenges)}
           </p>
         </section>
       )}
 
       <section className="surface mt-4 p-5">
-        <p className="eyebrow text-pink">This week</p>
-        <h2 className="mt-1 text-xl">
-          {weekComplete ? "5/5. That's the week ✓" : "Weekly highlights"}
-        </h2>
+        <p className="eyebrow text-pink">{t("home.thisWeek")}</p>
+        <h2 className="mt-1 text-xl">{weekComplete ? t("plan.fullWeek") : t("prog.highlights")}</h2>
         {week.workouts === 0 ? (
           <p className="mt-2 text-sm font-semibold text-muted-foreground">
-            Nothing logged in the last 7 days yet — finish a day and it lands here.
+            {t("prog.nothingThisWeek")}
           </p>
         ) : (
           <>
             <div className="mt-3 grid grid-cols-3 gap-3">
               <div className={"rounded-lg p-3 " + (weekComplete ? "bg-success" : "bg-ice")}>
-                <p className="eyebrow text-ink/70">Workouts</p>
+                <p className="eyebrow text-ink/70">{t("prog.workouts")}</p>
                 <p className="mt-0.5 font-display text-xl text-ink">{week.workouts}/5</p>
               </div>
               <div className="rounded-lg bg-ice p-3">
-                <p className="eyebrow text-ink/70">Volume</p>
-                <p className="mt-0.5 font-display text-xl text-ink">
-                  {week.volume.toLocaleString()}
-                </p>
+                <p className="eyebrow text-ink/70">{t("workout.volume")}</p>
+                <p className="mt-0.5 font-display text-xl text-ink">{t.num(week.volume)}</p>
               </div>
               <div className="rounded-lg bg-ice p-3">
-                <p className="eyebrow text-ink/70">Sets</p>
+                <p className="eyebrow text-ink/70">{t("edit.sets")}</p>
                 <p className="mt-0.5 font-display text-xl text-ink">{week.sets}</p>
               </div>
             </div>
             <p className="mt-3 text-xs font-bold text-muted-foreground uppercase">
-              {week.minutes} min trained
-              {week.bestDay ? ` · biggest day: ${week.bestDay.title}` : ""}
+              {t("prog.minTrained", { min: week.minutes })}
+              {week.bestDay ? ` · ${t("prog.biggestDay", { day: t.c(week.bestDay.title) })}` : ""}
             </p>
             <div className="mt-3 rounded-lg bg-acid p-3">
-              <p className="eyebrow text-ink">Records this week</p>
+              <p className="eyebrow text-ink">{t("prog.recordsThisWeek")}</p>
               {week.prs.length === 0 ? (
-                <p className="mt-1 text-xs font-bold text-ink/70 uppercase">
-                  No new PRs yet — add a little weight next session.
-                </p>
+                <p className="mt-1 text-xs font-bold text-ink/70 uppercase">{t("prog.noPrs")}</p>
               ) : (
                 <ul className="mt-1 space-y-0.5 text-xs font-bold text-ink uppercase">
                   {week.prs.map((pr) => (
-                    <li key={pr}>New PR ⚡ {pr}</li>
+                    <li key={pr}>
+                      {t("pr.title")} ⚡ {prText(t, pr)}
+                    </li>
                   ))}
                 </ul>
               )}
@@ -211,19 +217,17 @@ function ProgressPage() {
       </section>
 
       <section className="surface mt-4 p-5">
-        <h2 className="text-xl">Weight progression</h2>
+        <h2 className="text-xl">{t("prog.weightProgression")}</h2>
         <p className="mt-1 mb-4 text-xs font-semibold text-muted-foreground">
-          Top set per session for each exercise — progressive overload made visible.
+          {t("prog.weightProgressionBody")}
         </p>
         <WeightChart trend={state.trend} />
       </section>
 
       <section className="surface mt-4 p-5">
-        <h2 className="text-xl">Personal records</h2>
+        <h2 className="text-xl">{t("wrap.prs")}</h2>
         {prs.length === 0 ? (
-          <p className="mt-2 text-sm font-semibold text-muted-foreground">
-            Your heaviest set for each exercise shows up here after your first workout.
-          </p>
+          <p className="mt-2 text-sm font-semibold text-muted-foreground">{t("prog.prsEmpty")}</p>
         ) : (
           <ul className="mt-3 space-y-2">
             {prs.map(([name, pr]) => {
@@ -238,10 +242,10 @@ function ProgressPage() {
                       className={"size-3.5 " + (isNew ? "text-spicy" : "text-ink")}
                       aria-hidden
                     />
-                    {name}
+                    <ExerciseName name={name} />
                     {isNew && (
                       <span className="pr-pop inline-flex items-center gap-0.5 rounded-full bg-acid px-1.5 py-0.5 text-[10px] font-bold text-ink uppercase">
-                        New <span className="pr-bolt">⚡</span>
+                        {t("prog.new")} <span className="pr-bolt">⚡</span>
                       </span>
                     )}
                   </span>
@@ -251,7 +255,9 @@ function ProgressPage() {
                       (isNew ? "pr-ring" : "")
                     }
                   >
-                    {pr.weight} kg × {pr.reps}
+                    <bdi>
+                      {pr.weight} {t("unit.kg")} × {pr.reps}
+                    </bdi>
                   </span>
                 </li>
               );
@@ -261,11 +267,9 @@ function ProgressPage() {
       </section>
 
       <section className="surface mt-4 p-5">
-        <h2 className="text-xl">Workout history</h2>
+        <h2 className="text-xl">{t("prog.workoutHistory")}</h2>
         {state.history.length === 0 ? (
-          <p className="mt-2 text-sm font-semibold text-muted-foreground">
-            No workouts logged yet.
-          </p>
+          <p className="mt-2 text-sm font-semibold text-muted-foreground">{t("prog.noWorkouts")}</p>
         ) : (
           <ul className="mt-3 space-y-3">
             {state.history.map((h) => (
@@ -275,15 +279,17 @@ function ProgressPage() {
               >
                 <div className="flex items-baseline justify-between gap-3">
                   <p className="text-sm font-bold uppercase">
-                    W{weekOf(h.day)} · Day {dayInWeek(h.day)} · {h.title}
+                    {t("ex.weekShort", { n: weekOf(h.day) })} ·{" "}
+                    {t("common.dayN", { n: dayInWeek(h.day) })} · {t.c(h.title)}
                   </p>
                   <span className="text-[11px] font-semibold text-muted-foreground">
-                    {new Date(h.at).toLocaleDateString()}
+                    {t.date(h.at)}
                   </span>
                 </div>
                 <p className="mt-0.5 text-xs font-semibold text-muted-foreground">
-                  {h.focus} · {h.sets} sets · {h.volume.toLocaleString()} kg · {h.durationMin} min
-                  {h.cardio ? " · cardio ✓" : ""}
+                  {t.c(h.focus)} · {t("hist.sets", { n: h.sets })} · {t.num(h.volume)}{" "}
+                  {t("unit.kg")} · {t("workout.minutes", { min: h.durationMin })}
+                  {h.cardio ? ` · ${t("prog.cardioDone")}` : ""}
                 </p>
                 {h.notes && (
                   <p className="mt-1 text-xs whitespace-pre-wrap text-muted-foreground italic">

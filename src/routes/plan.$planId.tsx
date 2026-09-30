@@ -28,6 +28,7 @@ import {
   isUserPlanId,
 } from "@/lib/program";
 import { planAccent } from "@/lib/plan-theme";
+import { useT } from "@/lib/i18n";
 import {
   altAllowed,
   chooseAlt,
@@ -82,6 +83,7 @@ function PlanPage() {
   const [unlockCard, setUnlockCard] = useState(false);
   const [wrapUp, setWrapUp] = useState(true);
   const hydrated = useHydrated();
+  const t = useT();
 
   const openWeek = basePlan ? currentWeek(basePlan, state) : 1;
   const [week, setWeek] = useState(openWeek);
@@ -94,12 +96,12 @@ function PlanPage() {
     return (
       <main className="grid min-h-screen place-items-center px-5">
         <div className="surface p-8 text-center">
-          <h1 className="text-2xl">Plan not found</h1>
+          <h1 className="text-2xl">{t("plan.notFound")}</h1>
           <Link
             to="/"
             className="mt-5 inline-flex rounded-full bg-spicy px-5 py-3 text-xs font-bold text-accent-foreground uppercase"
           >
-            Choose a plan
+            {t("common.choosePlan")}
           </Link>
         </div>
       </main>
@@ -129,31 +131,35 @@ function PlanPage() {
           <div className="spicy-wash px-6 py-9 text-center">
             <Trophy className="mx-auto size-8" aria-hidden />
             <h1 className="mt-3 text-4xl leading-[0.9]">
-              8 weeks.
+              {t("wrap.line1")}
               <br />
-              No drama.
+              {t("wrap.line2")}
               <br />
-              You did that. 🌶️
+              {t("wrap.line3")}
             </h1>
             <p className="mt-3 text-xs font-bold uppercase opacity-90">
-              {plan.name} · program completed
+              {t("wrap.completed", { plan: t.c(plan.name) })}
             </p>
           </div>
           <div className="px-6 py-6">
             <dl className="grid grid-cols-2 gap-3">
-              <Cell label="Workouts completed" value={String(summary.workouts)} />
-              <Cell label="Challenges completed" value={String(summary.challenges)} />
-              <Cell label="Consistency" value={`${summary.consistency}%`} />
-              <Cell label="Personal records" value={String(summary.prCount)} tone="acid" />
+              <Cell label={t("wrap.workouts")} value={String(summary.workouts)} />
+              <Cell label={t("wrap.challenges")} value={String(summary.challenges)} />
+              <Cell label={t("wrap.consistency")} value={`${summary.consistency}%`} />
+              <Cell label={t("wrap.prs")} value={String(summary.prCount)} tone="acid" />
             </dl>
 
             {summary.improvements.length > 0 && (
               <div className="mt-4 rounded-xl bg-ice p-4">
-                <p className="eyebrow text-ink/70">Biggest jumps</p>
+                <p className="eyebrow text-ink/70">{t("wrap.biggestJumps")}</p>
                 <ul className="mt-1.5 space-y-1 text-xs font-bold text-ink uppercase">
                   {summary.improvements.map((i) => (
                     <li key={i.name}>
-                      {i.name} — {i.from} → {i.to} kg
+                      {t.c(i.name)} —{" "}
+                      <bdi>
+                        {i.from} → {i.to}
+                      </bdi>{" "}
+                      {t("unit.kg")}
                     </li>
                   ))}
                 </ul>
@@ -162,11 +168,11 @@ function PlanPage() {
 
             {summary.topDays.length > 0 && (
               <div className="mt-3 rounded-xl bg-secondary p-4">
-                <p className="eyebrow text-muted-foreground">Most trained</p>
+                <p className="eyebrow text-muted-foreground">{t("wrap.mostTrained")}</p>
                 <ul className="mt-1.5 space-y-1 text-xs font-bold uppercase">
                   {summary.topDays.map(([title, n]) => (
                     <li key={title}>
-                      {title} — {n}×
+                      {t.c(title)} — {n}×
                     </li>
                   ))}
                 </ul>
@@ -178,7 +184,7 @@ function PlanPage() {
               onClick={() => markProgramSeen(plan.id)}
               className="spicy-wash mt-6 inline-flex w-full items-center justify-center rounded-full px-6 py-4 text-xs font-bold uppercase shadow-[var(--shadow-lift)]"
             >
-              See my progress
+              {t("common.seeProgress")}
             </Link>
             <button
               type="button"
@@ -190,7 +196,7 @@ function PlanPage() {
               }}
               className="mt-3 inline-flex w-full items-center justify-center rounded-full border-2 border-pink px-6 py-3.5 text-xs font-bold text-pink uppercase"
             >
-              Do it again
+              {t("wrap.again")}
             </button>
             <button
               type="button"
@@ -200,7 +206,7 @@ function PlanPage() {
               }}
               className="mt-3 w-full text-[11px] font-bold text-muted-foreground uppercase"
             >
-              Back to my weeks
+              {t("wrap.back")}
             </button>
           </div>
         </section>
@@ -212,35 +218,39 @@ function PlanPage() {
     <main className="mx-auto max-w-2xl px-5 pb-16">
       <div className="flex items-center justify-between gap-3 pt-8">
         <Link to="/" className="text-xs font-bold text-muted-foreground uppercase">
-          ← Home
+          <span className="rtl:hidden">←</span>
+          <span className="ltr:hidden">→</span> {t("common.home")}
         </Link>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 pe-40">
           <Link
             to="/customize/$planId"
             params={{ planId: plan.id }}
             className="inline-flex items-center gap-1.5 text-xs font-bold text-ink uppercase"
           >
             <Pencil className="size-3.5 text-spicy" aria-hidden />{" "}
-            {plan.custom ? "Edit plan" : "Plan details"}
+            {plan.custom ? t("common.editPlan") : t("common.planDetails")}
           </Link>
           <Link
             to="/progress"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-ink uppercase"
           >
-            <LineChart className="size-3.5 text-spicy" aria-hidden /> Progress
+            <LineChart className="size-3.5 text-spicy" aria-hidden /> {t("menu.progress")}
           </Link>
         </div>
       </div>
 
       <header className="mt-5">
-        <p className={`eyebrow ${accent.text}`}>{plan.label} · 8 week program</p>
-        <h1 className="mt-1.5 text-4xl leading-[0.9] sm:text-5xl">{plan.name}</h1>
-        <p className="mt-2 text-sm font-bold text-muted-foreground uppercase">{plan.slogan}</p>
-        <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{plan.goal}</p>
+        <p className={`eyebrow ${accent.text}`}>
+          {t.c(plan.label)} · {t("plan.eightWeekProgram")}
+        </p>
+        <h1 className="mt-1.5 text-4xl leading-[0.9] break-words sm:text-5xl">{t.c(plan.name)}</h1>
+        <p className="mt-2 text-sm font-bold text-muted-foreground uppercase">{t.c(plan.slogan)}</p>
+        <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{t.c(plan.goal)}</p>
         <p className="mt-4 text-[11px] font-bold uppercase">
-          Week {openWeek} of {WEEKS} ·{" "}
+          {t("home.weekOf", { week: openWeek, total: WEEKS })} ·{" "}
           <span className={phaseOf(openWeek) === 2 ? "text-pink" : "text-spicy"}>
-            Phase {phaseOf(openWeek)} — {phaseInfo(phaseOf(openWeek)).name}
+            {t("common.phaseN", { n: phaseOf(openWeek) })} —{" "}
+            {t.c(phaseInfo(phaseOf(openWeek)).name)}
           </span>
         </p>
         <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-secondary">
@@ -253,8 +263,13 @@ function PlanPage() {
           />
         </div>
         <p className="mt-2 text-[11px] font-bold text-muted-foreground uppercase">
-          {overall.pct}% complete · {overall.done}/{overall.total} days · {weeksDone}/{WEEKS} weeks
-          done
+          {t("plan.overall", {
+            pct: overall.pct,
+            done: overall.done,
+            total: overall.total,
+            weeks: weeksDone,
+            allWeeks: WEEKS,
+          })}
         </p>
       </header>
 
@@ -275,15 +290,20 @@ function PlanPage() {
                     : "border-border bg-card")
               }
             >
-              <p className="eyebrow text-muted-foreground">Phase {p.no}</p>
+              <p className="eyebrow text-muted-foreground">{t("common.phaseN", { n: p.no })}</p>
               <h2 className="mt-1 flex items-center gap-1.5 text-lg leading-tight">
                 {isLocked && <Lock className="size-4 text-muted-foreground" aria-hidden />}
-                {p.name}
+                {t.c(p.name)}
               </h2>
               <p className="mt-0.5 text-[11px] font-bold text-muted-foreground uppercase">
-                Weeks {p.firstWeek}–{p.lastWeek} · {pp.done}/{pp.total} days
+                {t("plan.phaseWeeks", {
+                  from: p.firstWeek,
+                  to: p.lastWeek,
+                  done: pp.done,
+                  total: pp.total,
+                })}
               </p>
-              <p className="mt-1.5 text-xs text-muted-foreground">{p.purpose}</p>
+              <p className="mt-1.5 text-xs text-muted-foreground">{t.c(p.purpose)}</p>
             </article>
           );
         })}
@@ -295,11 +315,11 @@ function PlanPage() {
           onClick={() => setUnlockCard(true)}
           className="spicy-wash mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-4 text-xs font-bold uppercase shadow-[var(--shadow-lift)]"
         >
-          <Sparkles className="size-4" aria-hidden /> Unlock phase 2
+          <Sparkles className="size-4" aria-hidden /> {t("home.unlockPhase2")}
         </button>
       )}
 
-      <nav aria-label="Weeks" className="-mx-5 mt-6 overflow-x-auto px-5">
+      <nav aria-label={t("plan.weeks")} className="-mx-5 mt-6 overflow-x-auto px-5">
         <ul className="flex gap-2 pb-1">
           {Array.from({ length: WEEKS }, (_, i) => i + 1).map((w) => {
             const p = weekProgress(plan, w, state.completed, state.walks);
@@ -324,10 +344,15 @@ function PlanPage() {
                   }
                 >
                   <span className="font-display text-base leading-none">
-                    {isLocked ? "🔒" : ""}W{w}
+                    {isLocked ? "🔒" : ""}
+                    {t("ex.weekShort", { n: w })}
                   </span>
                   <span className="mt-1">
-                    {isLocked ? "locked" : full ? "✓ done" : `${p.done}/${p.total}`}
+                    {isLocked
+                      ? t("plan.locked")
+                      : full
+                        ? t("plan.weekDone")
+                        : `${p.done}/${p.total}`}
                   </span>
                 </button>
               </li>
@@ -335,7 +360,11 @@ function PlanPage() {
           })}
         </ul>
         <p className="mt-2 text-[10px] font-bold text-muted-foreground uppercase">
-          Phase 1: W1–W{WEEKS_PER_PHASE} · Phase 2: W{WEEKS_PER_PHASE + 1}–W{WEEKS}
+          {t("plan.phaseLegend", {
+            a: WEEKS_PER_PHASE,
+            b: WEEKS_PER_PHASE + 1,
+            c: WEEKS,
+          })}
         </p>
       </nav>
 
@@ -343,25 +372,26 @@ function PlanPage() {
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="eyebrow text-muted-foreground">
-              Week {shownWeek} of {WEEKS} · Phase {phase.no} — {phase.name}
+              {t("home.weekOf", { week: shownWeek, total: WEEKS })} ·{" "}
+              {t("common.phaseN", { n: phase.no })} — {t.c(phase.name)}
             </p>
-            <p className="mt-1 font-display text-xl uppercase">{goal.title}</p>
-            <p className="mt-1 text-xs font-semibold text-muted-foreground">{goal.copy}</p>
+            <p className="mt-1 font-display text-xl uppercase">{t.c(goal.title)}</p>
+            <p className="mt-1 text-xs font-semibold text-muted-foreground">{t.c(goal.copy)}</p>
           </div>
           {!shownLocked && (
             <span className="shrink-0 rounded-full bg-ice px-2.5 py-1 text-[10px] font-bold text-ink uppercase">
-              Day 5, your call
+              {t("home.day5Call")}
             </span>
           )}
         </div>
         {!shownLocked && (
           <p className="mt-3 text-sm font-bold uppercase">
-            {wp.trained}/{wp.total} workouts
-            {wp.alt > 0 ? ` + ${wp.alt} challenge${wp.alt > 1 ? "s" : ""}` : ""}
+            {t("plan.workoutsCount", { done: wp.trained, total: wp.total })}
+            {wp.alt > 0 ? ` + ${t.plural("plan.challenges", wp.alt)}` : ""}
             {weekDone
               ? wp.trained >= wp.total
-                ? " — 5/5. That's the week ✓"
-                : " — still showed up. No drama. ✓"
+                ? ` — ${t("plan.fullWeek")}`
+                : ` — ${t("plan.showedUp")}`
               : ""}
           </p>
         )}
@@ -370,9 +400,9 @@ function PlanPage() {
       {shownLocked ? (
         <section className="surface mt-5 p-8 text-center">
           <Lock className="mx-auto size-7 text-muted-foreground" aria-hidden />
-          <h2 className="mt-2 text-xl">Phase 2 is still locked</h2>
+          <h2 className="mt-2 text-xl">{t("plan.phase2Locked")}</h2>
           <p className="mt-2 text-sm font-semibold text-muted-foreground">
-            Finish weeks 1–{WEEKS_PER_PHASE} and the new workouts open up.
+            {t("plan.finishWeeks", { n: WEEKS_PER_PHASE })}
           </p>
           {readyToUnlock && (
             <button
@@ -380,7 +410,7 @@ function PlanPage() {
               onClick={() => setUnlockCard(true)}
               className="mt-5 inline-flex rounded-full bg-spicy px-5 py-3.5 text-xs font-bold text-accent-foreground uppercase"
             >
-              Unlock phase 2 🌶️
+              {t("home.unlockPhase2")} 🌶️
             </button>
           )}
         </section>
@@ -406,29 +436,33 @@ function PlanPage() {
                       {String(dayInWeek(day.day)).padStart(2, "0")}
                     </span>
                     <div className="pt-1">
-                      <h2 className="text-xl leading-tight">{day.title}</h2>
-                      <p className="text-sm font-semibold text-muted-foreground">{day.focus}</p>
+                      <h2 className="text-xl leading-tight">{t.c(day.title)}</h2>
+                      <p className="text-sm font-semibold text-muted-foreground">
+                        {t.c(day.focus)}
+                      </p>
                       <p className="mt-2 flex items-center gap-3 text-[11px] font-bold text-muted-foreground uppercase">
                         <span className="inline-flex items-center gap-1">
-                          <Dumbbell className="size-3" aria-hidden /> {count} exercises
+                          <Dumbbell className="size-3" aria-hidden />{" "}
+                          {t.plural("common.exercises", count)}
                         </span>
                         <span className="inline-flex items-center gap-1">
-                          <Clock className="size-3" aria-hidden /> ~{estimateMinutes(day)} min
+                          <Clock className="size-3" aria-hidden />{" "}
+                          {t("common.aboutMin", { min: estimateMinutes(day) })}
                         </span>
                       </p>
                     </div>
                   </div>
                   {completed ? (
                     <span className="check-pop inline-flex items-center gap-1 rounded-full bg-success px-2.5 py-1 text-[10px] font-bold text-ink uppercase">
-                      <Check className="size-3" aria-hidden /> Complete
+                      <Check className="size-3" aria-hidden /> {t("plan.complete")}
                     </span>
                   ) : optionDone && option ? (
                     <span className="check-pop inline-flex items-center gap-1 rounded-full bg-success px-2.5 py-1 text-[10px] font-bold text-ink uppercase">
-                      <Check className="size-3" aria-hidden /> {option.doneLabel}
+                      <Check className="size-3" aria-hidden /> {t.c(option.doneLabel)}
                     </span>
                   ) : inProgress ? (
                     <span className="rounded-full bg-bubblegum px-2.5 py-1 text-[10px] font-bold text-ink uppercase">
-                      In progress
+                      {t("plan.inProgress")}
                     </span>
                   ) : null}
                 </div>
@@ -436,7 +470,7 @@ function PlanPage() {
                 {showChoice && option ? (
                   <div className="mt-4">
                     <p className="text-[11px] font-bold tracking-wide text-muted-foreground uppercase">
-                      What's the plan today?
+                      {t("plan.whatsThePlan")}
                     </p>
                     <div className="mt-2.5 flex gap-2.5">
                       <Link
@@ -445,22 +479,22 @@ function PlanPage() {
                         onClick={() => choosePlan(plan.id)}
                         className="flex-1 rounded-full bg-spicy px-4 py-3.5 text-center text-xs font-bold tracking-wide text-accent-foreground uppercase"
                       >
-                        I'll Train
+                        {t("plan.illTrain")}
                       </Link>
                       <button
                         type="button"
                         onClick={() => setAltTarget(day)}
                         className="flex-1 rounded-full border-2 border-pink px-4 py-3 text-xs font-bold tracking-wide text-pink uppercase"
                       >
-                        {option.button}
+                        {t.c(option.button)}
                       </button>
                     </div>
                   </div>
                 ) : optionChosen && option ? (
                   <div className="mt-4 rounded-2xl bg-bubblegum/35 p-4">
-                    <p className="font-display text-lg leading-tight">{option.headline}</p>
+                    <p className="font-display text-lg leading-tight">{t.c(option.headline)}</p>
                     <p className="mt-1 text-xs font-bold text-muted-foreground uppercase">
-                      {option.goal}
+                      {t.c(option.goal)}
                     </p>
                     {option.items && (
                       <ul className="mt-3 space-y-1.5">
@@ -469,8 +503,8 @@ function PlanPage() {
                             key={it.name}
                             className="flex items-center justify-between gap-3 text-xs font-semibold"
                           >
-                            <span>{it.name}</span>
-                            <span className="text-muted-foreground">{it.reps}</span>
+                            <span>{t.c(it.name)}</span>
+                            <span className="text-muted-foreground">{t.c(it.reps)}</span>
                           </li>
                         ))}
                       </ul>
@@ -485,11 +519,11 @@ function PlanPage() {
                     >
                       {optionDone ? (
                         <>
-                          <Check className="size-3.5" aria-hidden /> {option.doneLabel}
+                          <Check className="size-3.5" aria-hidden /> {t.c(option.doneLabel)}
                         </>
                       ) : (
                         <>
-                          <Footprints className="size-3.5" aria-hidden /> Mark it done
+                          <Footprints className="size-3.5" aria-hidden /> {t("plan.markDone")}
                         </>
                       )}
                     </button>
@@ -498,7 +532,7 @@ function PlanPage() {
                       onClick={() => chooseTrain(plan.id, day.day)}
                       className="mt-2 inline-flex w-full items-center justify-center rounded-full border border-border bg-card px-5 py-3 text-[11px] font-bold uppercase"
                     >
-                      Actually, I'll train
+                      {t("plan.actuallyTrain")}
                     </button>
                   </div>
                 ) : (
@@ -511,7 +545,11 @@ function PlanPage() {
                       (completed ? "bg-secondary text-ink" : "bg-spicy text-accent-foreground")
                     }
                   >
-                    {completed ? "Repeat Workout" : inProgress ? "Resume Workout" : "View Workout"}
+                    {completed
+                      ? t("plan.repeatWorkout")
+                      : inProgress
+                        ? t("plan.resumeWorkout")
+                        : t("common.viewWorkout")}
                   </Link>
                 )}
               </article>
@@ -529,16 +567,16 @@ function PlanPage() {
           <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-border bg-card text-center">
             <div className="spicy-wash px-6 py-8">
               <Sparkles className="mx-auto size-7" aria-hidden />
-              <h2 className="mt-2 text-3xl leading-[0.95]">Phase 2 unlocked 🌶️</h2>
+              <h2 className="mt-2 text-3xl leading-[0.95]">{t("plan.phase2Unlocked")}</h2>
               <p className="mt-3 text-xs font-bold uppercase opacity-90">
-                Same goal.
+                {t("plan.sameGoal")}
                 <br />
-                New energy.
+                {t("plan.newEnergy")}
               </p>
             </div>
             <div className="px-6 py-6">
               <p className="text-sm font-bold text-muted-foreground uppercase">
-                Weeks 5–8 are ready.
+                {t("plan.weeks58Ready")}
               </p>
               <button
                 type="button"
@@ -549,14 +587,14 @@ function PlanPage() {
                 }}
                 className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-spicy px-5 py-4 text-xs font-bold text-accent-foreground uppercase"
               >
-                Level it up
+                {t("plan.levelItUp")}
               </button>
               <button
                 type="button"
                 onClick={() => setUnlockCard(false)}
                 className="mt-3 w-full text-[11px] font-bold text-muted-foreground uppercase"
               >
-                Not yet
+                {t("plan.notYet")}
               </button>
             </div>
           </div>
@@ -567,8 +605,8 @@ function PlanPage() {
         <div className="fixed inset-0 z-30 grid place-items-center bg-ink/50 p-5">
           <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-5 text-center">
             <Footprints className="mx-auto size-7 text-pink" aria-hidden />
-            <h2 className="mt-2 text-xl">{altTargetOption.headline}</h2>
-            <p className="mt-1.5 text-sm text-muted-foreground">{altTargetOption.goal}</p>
+            <h2 className="mt-2 text-xl">{t.c(altTargetOption.headline)}</h2>
+            <p className="mt-1.5 text-sm text-muted-foreground">{t.c(altTargetOption.goal)}</p>
             <div className="mt-5 flex gap-3">
               <Link
                 to="/workout/$planId/$day"
@@ -579,7 +617,7 @@ function PlanPage() {
                 }}
                 className="flex-1 rounded-full bg-spicy px-4 py-3 text-xs font-bold text-accent-foreground uppercase"
               >
-                I'll Train
+                {t("plan.illTrain")}
               </Link>
               <button
                 type="button"
@@ -589,7 +627,7 @@ function PlanPage() {
                 }}
                 className="flex-1 rounded-full border-2 border-pink px-4 py-3 text-xs font-bold text-pink uppercase"
               >
-                {altTargetOption.button}
+                {t.c(altTargetOption.button)}
               </button>
             </div>
           </div>

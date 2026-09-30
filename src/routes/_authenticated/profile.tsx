@@ -4,6 +4,7 @@ import { ArrowLeft, History, LineChart, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { displayNameOf, initialsOf, useAuth } from "@/hooks/useAuth";
 import { getPlan } from "@/lib/program";
+import { useT } from "@/lib/i18n";
 import { currentStreak, totalVolume, useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/_authenticated/profile")({
@@ -25,6 +26,7 @@ function ProfilePage() {
   const { user } = useAuth();
   const state = useStore();
   const navigate = useNavigate();
+  const t = useT();
   const [name, setName] = useState("");
   const [goal, setGoal] = useState("");
   const [saved, setSaved] = useState(false);
@@ -80,7 +82,8 @@ function ProfilePage() {
     <main className="mx-auto max-w-2xl px-5 pb-16">
       <div className="pt-6">
         <Link to="/" className="inline-flex items-center gap-1.5 text-xs font-bold uppercase">
-          <ArrowLeft className="size-3.5 text-spicy" aria-hidden /> Home
+          <ArrowLeft className="size-3.5 text-spicy rtl:-scale-x-100" aria-hidden />{" "}
+          {t("common.home")}
         </Link>
       </div>
 
@@ -89,7 +92,7 @@ function ProfilePage() {
           {initialsOf(name || displayNameOf(user))}
         </span>
         <div>
-          <p className="eyebrow text-spicy">Profile</p>
+          <p className="eyebrow text-spicy">{t("menu.profile")}</p>
           <h1 className="mt-1 text-3xl leading-tight">{name || displayNameOf(user)}</h1>
           {user?.email && (
             <p className="text-[11px] font-semibold text-muted-foreground uppercase">
@@ -100,74 +103,74 @@ function ProfilePage() {
       </header>
 
       <section className="grid grid-cols-3 gap-3">
-        <Stat label="Workouts" value={String(state.history.length)} />
-        <Stat label="Streak" value={`${streak}`} accent="bg-acid text-ink" />
-        <Stat label="Volume" value={`${Math.round(totalVolume(state.history))}`} />
+        <Stat label={t("prog.workouts")} value={String(state.history.length)} />
+        <Stat label={t("profile.streak")} value={`${streak}`} accent="bg-acid text-ink" />
+        <Stat label={t("workout.volume")} value={t.num(Math.round(totalVolume(state.history)))} />
       </section>
 
       <section className="surface mt-5 p-5">
-        <p className="eyebrow text-muted-foreground">Quick summary</p>
+        <p className="eyebrow text-muted-foreground">{t("profile.summary")}</p>
         <div className="mt-3 grid grid-cols-3 gap-3">
-          <Mini label="Day streak" value={`${streak}`} />
-          <Mini label="Weeks done" value={`${completedWeeks}`} />
-          <Mini label="Records" value={`${prCount}`} />
+          <Mini label={t("profile.dayStreak")} value={`${streak}`} />
+          <Mini label={t("profile.weeksDone")} value={`${completedWeeks}`} />
+          <Mini label={t("profile.records")} value={`${prCount}`} />
         </div>
         <p className="mt-3 text-[11px] font-semibold text-muted-foreground uppercase">
-          {streak > 0 ? "No drama. Just reps." : "Log a workout to start your streak."}
+          {streak > 0 ? t("auth.eyebrow") : t("profile.startStreak")}
         </p>
       </section>
 
       <section className="surface mt-5 p-5">
-        <p className="eyebrow text-muted-foreground">Current plan</p>
-        <p className="mt-1.5 text-xl">{plan ? plan.name : "No plan picked yet"}</p>
+        <p className="eyebrow text-muted-foreground">{t("profile.currentPlan")}</p>
+        <p className="mt-1.5 text-xl">{plan ? t.c(plan.name) : t("profile.noPlan")}</p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Link
             to="/progress"
             className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 text-xs font-bold uppercase"
           >
-            <LineChart className="size-3.5 text-spicy" aria-hidden /> Progress
+            <LineChart className="size-3.5 text-spicy" aria-hidden /> {t("menu.progress")}
           </Link>
           <Link
             to="/history"
             className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 text-xs font-bold uppercase"
           >
-            <History className="size-3.5 text-spicy" aria-hidden /> History
+            <History className="size-3.5 text-spicy" aria-hidden /> {t("menu.history")}
           </Link>
         </div>
       </section>
 
       <form onSubmit={save} className="surface mt-5 space-y-3.5 p-5">
-        <p className="eyebrow text-muted-foreground">Your details</p>
+        <p className="eyebrow text-muted-foreground">{t("profile.details")}</p>
         <label className="block">
           <span className="text-[10px] font-bold tracking-wide text-muted-foreground uppercase">
-            Name
+            {t("auth.name")}
           </span>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="input-field mt-1.5"
-            placeholder="Your name"
+            placeholder={t("auth.namePlaceholder")}
           />
         </label>
         <label className="block">
           <span className="text-[10px] font-bold tracking-wide text-muted-foreground uppercase">
-            Goal
+            {t("edit.goal")}
           </span>
           <input
             value={goal}
             onChange={(e) => setGoal(e.target.value)}
             className="input-field mt-1.5"
-            placeholder="e.g. 5 days a week, no drama"
+            placeholder={t("profile.goalPlaceholder")}
           />
         </label>
         {error && <p className="text-xs font-bold text-spicy uppercase">{error}</p>}
-        {saved && <p className="text-xs font-bold text-success uppercase">✓ Saved</p>}
+        {saved && <p className="text-xs font-bold text-success uppercase">{t("profile.saved")}</p>}
         <button
           type="submit"
           disabled={busy}
           className="w-full rounded-full bg-spicy px-5 py-3.5 text-sm font-bold text-accent-foreground uppercase disabled:opacity-60"
         >
-          {busy ? "Saving…" : "Save changes"}
+          {busy ? t("admin.saving") : t("profile.saveChanges")}
         </button>
       </form>
 
@@ -176,7 +179,7 @@ function ProfilePage() {
         onClick={signOut}
         className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full border border-border px-5 py-3.5 text-xs font-bold uppercase"
       >
-        <LogOut className="size-4" aria-hidden /> Sign out
+        <LogOut className="size-4" aria-hidden /> {t("menu.signOut")}
       </button>
     </main>
   );

@@ -9,12 +9,14 @@ import {
   YAxis,
 } from "recharts";
 import type { BestSet } from "@/lib/store";
+import { useT } from "@/lib/i18n";
 
 export function WeightChart({ trend }: { trend: Record<string, BestSet[]> }) {
   const names = Object.keys(trend)
     .filter((n) => (trend[n]?.length ?? 0) > 0)
     .sort();
   const [selected, setSelected] = useState(names[0] ?? "");
+  const t = useT();
   const active = names.includes(selected) ? selected : (names[0] ?? "");
   const data = (trend[active] ?? []).map((p, i) => ({
     session: `S${i + 1}`,
@@ -23,17 +25,13 @@ export function WeightChart({ trend }: { trend: Record<string, BestSet[]> }) {
   }));
 
   if (!names.length) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        Log a few weighted sets and your progression per exercise appears here.
-      </p>
-    );
+    return <p className="text-sm text-muted-foreground">{t("chart.empty")}</p>;
   }
 
   return (
     <div>
       <label className="block">
-        <span className="eyebrow text-muted-foreground">Exercise</span>
+        <span className="eyebrow text-muted-foreground">{t("chart.exercise")}</span>
         <select
           value={active}
           onChange={(e) => setSelected(e.target.value)}
@@ -41,20 +39,23 @@ export function WeightChart({ trend }: { trend: Record<string, BestSet[]> }) {
         >
           {names.map((n) => (
             <option key={n} value={n}>
-              {n}
+              {t.c(n)}
             </option>
           ))}
         </select>
       </label>
-      <div className="mt-4 h-56">
+      <div className="mt-4 h-56" dir="ltr">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 6, right: 8, left: -18, bottom: 0 }}>
+            {/* Charts read left to right in both languages. */}
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis dataKey="session" tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
             <YAxis tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" unit="kg" />
             <Tooltip
               formatter={(value: number | string, name) =>
-                name === "weight" ? [`${value} kg`, "Top set"] : [String(value), "Reps"]
+                name === "weight"
+                  ? [`${value} ${t("unit.kg")}`, t("chart.topSet")]
+                  : [String(value), t("common.reps")]
               }
               contentStyle={{
                 borderRadius: 12,

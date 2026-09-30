@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useT } from "@/lib/i18n";
 
 const BITS = ["var(--acid)", "var(--pink)", "var(--ice)", "var(--spicy)", "var(--acid)"];
 
 /** Acid-yellow celebration burst shown when new personal records land. */
 export function PrCelebration({ prs, onDone }: { prs: string[]; onDone: () => void }) {
   const [leaving, setLeaving] = useState(false);
+  const t = useT();
 
   useEffect(() => {
     const t = setTimeout(() => setLeaving(true), 3200);
@@ -43,10 +45,8 @@ export function PrCelebration({ prs, onDone }: { prs: string[]; onDone: () => vo
         <span className="pr-bolt block text-4xl" aria-hidden>
           ⚡
         </span>
-        <h2 className="mt-2 text-3xl leading-[0.9]">New PR</h2>
-        <p className="mt-1 text-[11px] font-bold tracking-widest uppercase">
-          Strong looks good on you.
-        </p>
+        <h2 className="mt-2 text-3xl leading-[0.9]">{t("pr.title")}</h2>
+        <p className="mt-1 text-[11px] font-bold tracking-widest uppercase">{t("pr.tagline")}</p>
         <ul className="mt-4 space-y-1 text-xs font-bold uppercase">
           {prs.slice(0, 4).map((pr) => (
             <li key={pr} className="rounded-full bg-ink/10 px-3 py-1">
@@ -55,7 +55,7 @@ export function PrCelebration({ prs, onDone }: { prs: string[]; onDone: () => vo
           ))}
         </ul>
         <p className="mt-4 text-[10px] font-bold tracking-widest uppercase opacity-60">
-          Tap to close
+          {t("common.tapToClose")}
         </p>
       </div>
     </div>

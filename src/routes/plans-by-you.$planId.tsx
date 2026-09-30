@@ -5,6 +5,7 @@ import { PlanPreview } from "@/components/PlanPreview";
 import { useAuth } from "@/hooks/useAuth";
 import { errorText, getCommunityPlan, goalName, setFollow, type PublicPlan } from "@/lib/community";
 import { planAccent } from "@/lib/plan-theme";
+import { useT } from "@/lib/i18n";
 import { choosePlan, followIntoMyPlans, useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/plans-by-you/$planId")({
@@ -25,6 +26,7 @@ function CommunityPlanPage() {
   const state = useStore();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const t = useT();
   const [plan, setPlan] = useState<PublicPlan | null | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -36,7 +38,7 @@ function CommunityPlanPage() {
       .catch((e) => {
         if (!alive) return;
         setPlan(null);
-        setError(errorText(e));
+        setError(t.c(errorText(e)));
       });
     return () => {
       alive = false;
@@ -51,7 +53,7 @@ function CommunityPlanPage() {
   if (plan === undefined) {
     return (
       <main className="mx-auto max-w-2xl px-5 pt-24">
-        <p className="surface p-5 text-sm text-muted-foreground">Loading plan…</p>
+        <p className="surface p-5 text-sm text-muted-foreground">{t("pby.loadingOne")}</p>
       </main>
     );
   }
@@ -60,15 +62,13 @@ function CommunityPlanPage() {
     return (
       <main className="mx-auto grid min-h-screen max-w-md place-items-center px-5">
         <div className="surface p-8 text-center">
-          <h1 className="text-2xl">Plan not available</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {error ?? "It may have been unpublished, or it's still waiting for review."}
-          </p>
+          <h1 className="text-2xl">{t("pby.notAvailable")}</h1>
+          <p className="mt-2 text-sm text-muted-foreground">{error ?? t("pby.notAvailableBody")}</p>
           <Link
             to="/plans-by-you"
             className="mt-5 inline-flex rounded-full bg-spicy px-5 py-3 text-xs font-bold text-accent-foreground uppercase"
           >
-            Browse Plans by You
+            {t("pby.browse")}
           </Link>
         </div>
       </main>
@@ -98,7 +98,7 @@ function CommunityPlanPage() {
       choosePlan(id);
       navigate({ to: "/plan/$planId", params: { planId: id } });
     } catch (e) {
-      setError(errorText(e));
+      setError(t.c(errorText(e)));
     } finally {
       setBusy(false);
     }
@@ -106,27 +106,31 @@ function CommunityPlanPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-5 pb-28">
-      <div className="pt-6 pr-14">
+      <div className="pt-6 pe-40">
         <Link to="/plans-by-you" className="text-xs font-bold text-muted-foreground uppercase">
-          ← Plans by You
+          <span className="inline-block rtl:-scale-x-100">←</span> {t("menu.plansByYou")}
         </Link>
       </div>
 
       <header className={`surface mt-5 overflow-hidden`}>
         <div className={`${accent.bg} ${accent.on} px-5 py-6`}>
-          <p className="eyebrow opacity-80">{goalName(plan.base)} · 8 weeks · 5 days a week</p>
+          <p className="eyebrow opacity-80">
+            {t.c(goalName(plan.base))} · {t("pby.shapeLong")}
+          </p>
           <h1 className="mt-1.5 text-3xl leading-tight break-words">{plan.name}</h1>
-          <p className="mt-1.5 text-sm font-bold uppercase opacity-90">by {plan.author}</p>
+          <p className="mt-1.5 text-sm font-bold uppercase opacity-90">
+            {t("common.byAuthor", { author: plan.author })}
+          </p>
         </div>
         <div className="px-5 py-4">
           {plan.description && <p className="text-sm whitespace-pre-line">{plan.description}</p>}
           <p className="mt-2 inline-flex items-center gap-1 text-xs font-bold uppercase">
-            <Heart className="size-3.5 text-pink" aria-hidden /> {plan.followers}{" "}
-            {plan.followers === 1 ? "follower" : "followers"}
+            <Heart className="size-3.5 text-pink" aria-hidden />{" "}
+            {t.plural("pby.followers", plan.followers)}
           </p>
           {plan.status !== "approved" && (
             <p className="mt-2 rounded-lg bg-secondary p-2.5 text-xs font-semibold">
-              Only you can see this page until the plan is approved.
+              {t("pby.onlyYou")}
             </p>
           )}
         </div>
@@ -141,12 +145,12 @@ function CommunityPlanPage() {
           <p className="min-w-0 flex-1 text-[11px] font-bold text-muted-foreground uppercase">
             {error ??
               (isAuthor
-                ? "This is your plan"
+                ? t("pby.yourPlan")
                 : myCopy
-                  ? "You follow this plan"
+                  ? t("pby.youFollow")
                   : user
-                    ? "Copies into My Plans"
-                    : "Sign in so your follow counts")}
+                    ? t("pby.copiesInto")
+                    : t("pby.signInCount"))}
           </p>
           {myCopy ? (
             <Link
@@ -155,14 +159,14 @@ function CommunityPlanPage() {
               onClick={() => choosePlan(myCopy.id)}
               className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3.5 text-xs font-bold text-paper uppercase"
             >
-              <Check className="size-4" aria-hidden /> Open my copy
+              <Check className="size-4" aria-hidden /> {t("pby.openCopy")}
             </Link>
           ) : isAuthor ? (
             <Link
               to="/my-plans"
               className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3.5 text-xs font-bold text-paper uppercase"
             >
-              My Plans <ArrowRight className="size-4" aria-hidden />
+              {t("menu.myPlans")} <ArrowRight className="size-4 rtl:-scale-x-100" aria-hidden />
             </Link>
           ) : (
             <button
@@ -171,7 +175,7 @@ function CommunityPlanPage() {
               onClick={follow}
               className="inline-flex items-center gap-2 rounded-full bg-spicy px-5 py-3.5 text-xs font-bold text-accent-foreground uppercase shadow-[var(--shadow-lift)] disabled:opacity-50"
             >
-              <Heart className="size-4" aria-hidden /> {busy ? "Following…" : "Follow this plan"}
+              <Heart className="size-4" aria-hidden /> {busy ? t("pby.following") : t("pby.follow")}
             </button>
           )}
         </div>

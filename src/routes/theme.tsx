@@ -50,7 +50,7 @@ function ThemePage() {
     <main className="mx-auto max-w-2xl px-5 pb-16">
       <div className="pt-8">
         <Link to="/" className="text-xs font-bold text-muted-foreground uppercase">
-          ← Home
+          <span className="inline-block rtl:-scale-x-100">←</span> Home
         </Link>
       </div>
 

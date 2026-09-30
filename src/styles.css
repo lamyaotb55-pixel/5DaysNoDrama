@@ -289,3 +289,56 @@
   line-height: 0.82;
   letter-spacing: -0.05em;
 }
+
+/* ---- Arabic ---- */
+
+/* While the saved language is applied on load, keep the page hidden for that instant.
+   The animation reveals it anyway if scripts are slow or blocked. */
+@keyframes lang-reveal {
+  to {
+    opacity: 1;
+  }
+}
+html.lang-pending body {
+  opacity: 0;
+  animation: lang-reveal 0s linear 1.2s forwards;
+}
+
+/* Archivo Black / Inter Tight have no Arabic letters; Cairo carries the same weight. */
+html[lang="ar"] body,
+html[lang="ar"] .font-display,
+html[lang="ar"] .font-sans,
+html[lang="ar"] h1,
+html[lang="ar"] h2,
+html[lang="ar"] h3,
+html[lang="ar"] .day-number,
+html[lang="ar"] input,
+html[lang="ar"] textarea,
+html[lang="ar"] select,
+html[lang="ar"] button {
+  font-family: "Cairo", "Inter Tight", ui-sans-serif, system-ui, sans-serif;
+}
+html[lang="ar"] h1,
+html[lang="ar"] h2,
+html[lang="ar"] h3,
+html[lang="ar"] .font-display {
+  font-weight: 900;
+}
+
+/* Joined Arabic letters break apart with letter-spacing, and need taller lines. */
+html[lang="ar"] h1,
+html[lang="ar"] h2,
+html[lang="ar"] h3,
+html[lang="ar"] .eyebrow,
+html[lang="ar"] .font-display,
+html[lang="ar"] [class*="tracking-"] {
+  letter-spacing: 0 !important;
+}
+html[lang="ar"] h1,
+html[lang="ar"] h2,
+html[lang="ar"] h3 {
+  line-height: 1.25 !important;
+}
+html[lang="ar"] .eyebrow {
+  font-size: 0.72rem;
+}

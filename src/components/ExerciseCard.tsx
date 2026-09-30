@@ -1,5 +1,7 @@
 import { Check } from "lucide-react";
+import { ExerciseName } from "./ExerciseName";
 import { MediaBox } from "./MediaBox";
+import { useT } from "@/lib/i18n";
 import { RestTimer } from "./RestTimer";
 import { repRange, weekGoal, type Exercise } from "@/lib/program";
 import {
@@ -32,6 +34,7 @@ export function ExerciseCard({
   /** Day not started yet: show targets and demo, but logging is locked. */
   preview?: boolean;
 }) {
+  const t = useT();
   const session = state.active[`${planId}|${day}`];
   const hint = suggestion(planId, exercise.name, exercise.reps, state.lastSets);
   const prev = previousWeekSets(planId, week, exercise.name, state);
@@ -47,11 +50,12 @@ export function ExerciseCard({
   // Only nudge up in the "add a little" week, and only when the top of the
   // range was hit on every set last time.
   const suggestMore = goal.nudge === "load" && Boolean(hint?.progress);
+  const rangeText = `${range.min}${range.max !== range.min ? `–${range.max}` : ""}`;
   const today = suggestMore
-    ? `${hint?.target} kg × ${range.min}${range.max !== range.min ? `–${range.max}` : ""}`
+    ? t("ex.kgTimes", { kg: hint?.target ?? 0, reps: rangeText })
     : prevBest?.weight
-      ? `${prevBest.weight} kg × ${range.min}${range.max !== range.min ? `–${range.max}` : ""}`
-      : `${range.min}${range.max !== range.min ? `–${range.max}` : ""} reps`;
+      ? t("ex.kgTimes", { kg: prevBest.weight, reps: rangeText })
+      : t("ex.repsOnly", { reps: rangeText });
 
   return (
     <article
@@ -60,11 +64,13 @@ export function ExerciseCard({
       <MediaBox name={exercise.name} wide src={exercise.media} />
       <div className="mt-3 flex gap-3">
         <div className="min-w-0 flex-1">
-          {exercise.superset && <span className="eyebrow text-pink">{exercise.superset}</span>}
-          <h2 className="text-lg leading-tight">{exercise.name}</h2>
+          {exercise.superset && <span className="eyebrow text-pink">{t.c(exercise.superset)}</span>}
+          <h2 className="text-lg leading-tight">
+            <ExerciseName name={exercise.name} />
+          </h2>
           <p className="mt-1 text-xs font-bold text-muted-foreground uppercase">
-            {exercise.sets} sets × {exercise.reps}
-            {exercise.perSide ? " per side" : ""}
+            {t("ex.setsTimes", { sets: exercise.sets, reps: exercise.reps })}
+            {exercise.perSide ? ` ${t("ex.perSide")}` : ""}
           </p>
           <span className="mt-2 flex flex-wrap items-center gap-1.5">
             <span
@@ -75,11 +81,13 @@ export function ExerciseCard({
               }
             >
               {complete && <Check className="size-3" aria-hidden />}
-              {complete ? "✓ Exercise complete" : `${doneSets}/${exercise.sets} sets`}
+              {complete
+                ? t("ex.complete")
+                : t("ex.setsDone", { done: doneSets, total: exercise.sets })}
             </span>
             {exercise.anchor && (
               <span className="inline-flex items-center rounded-full border border-ice bg-ice/40 px-2 py-0.5 text-[10px] font-bold text-ink uppercase">
-                Progression lift
+                {t("ex.progressionLift")}
               </span>
             )}
           </span>
@@ -90,21 +98,27 @@ export function ExerciseCard({
         <div className="mt-3 grid grid-cols-2 gap-2 rounded-lg bg-secondary p-3 text-xs">
           <div>
             <p className="eyebrow text-muted-foreground">
-              {prev.week === week - 1 ? "Last week" : prev.week ? `Week ${prev.week}` : "Last time"}
+              {prev.week === week - 1
+                ? t("ex.lastWeek")
+                : prev.week
+                  ? t("common.weekN", { n: prev.week })
+                  : t("ex.lastTime")}
             </p>
             <p className="mt-0.5 font-bold uppercase">
               {prevBest.weight
-                ? `${prevBest.weight} kg × ${prevBest.reps}`
-                : `${prevBest.reps} reps`}
+                ? t("ex.kgTimes", { kg: prevBest.weight, reps: prevBest.reps })
+                : t("ex.repsOnly", { reps: prevBest.reps })}
             </p>
           </div>
           <div>
-            <p className="eyebrow text-muted-foreground">Today</p>
+            <p className="eyebrow text-muted-foreground">{t("ex.today")}</p>
             <p className={"mt-0.5 font-bold uppercase " + (suggestMore ? "text-spicy" : "")}>
               {today}
             </p>
             {suggestMore && (
-              <p className="mt-0.5 text-[10px] font-bold text-spicy uppercase">Add a little 🌶️</p>
+              <p className="mt-0.5 text-[10px] font-bold text-spicy uppercase">
+                {t("ex.addALittle")}
+              </p>
             )}
           </div>
         </div>
@@ -113,9 +127,11 @@ export function ExerciseCard({
       {anchor && anchor.points.length > 0 && (
         <div className="mt-3 rounded-lg border border-ice bg-ice/25 p-3">
           <div className="flex items-baseline justify-between gap-2">
-            <p className="eyebrow text-ink/70">Progression lift · week by week</p>
+            <p className="eyebrow text-ink/70">{t("ex.progressionWeekByWeek")}</p>
             {anchor.gain > 0 && (
-              <span className="text-[10px] font-bold text-ink uppercase">+{anchor.gain} kg</span>
+              <span className="text-[10px] font-bold text-ink uppercase">
+                +{anchor.gain} {t("unit.kg")}
+              </span>
             )}
           </div>
           <ul className="mt-2 flex flex-wrap gap-1.5">
@@ -127,9 +143,11 @@ export function ExerciseCard({
                   (p.week === anchor.best?.week ? "bg-acid text-ink" : "bg-card text-ink")
                 }
               >
-                W{p.week}
-                <span className="text-ink/60"> P{p.phase}</span> ·{" "}
-                {p.weight ? `${p.weight}kg ` : ""}×{p.reps}
+                {t("ex.weekShort", { n: p.week })}
+                <span className="text-ink/60"> {t("ex.phaseShort", { n: p.phase })}</span> ·{" "}
+                <bdi>
+                  {p.weight ? `${p.weight}${t("unit.kg")} ` : ""}×{p.reps}
+                </bdi>
               </li>
             ))}
           </ul>
@@ -138,10 +156,10 @@ export function ExerciseCard({
 
       <div className={"mt-4 space-y-2 " + (preview ? "opacity-60" : "")}>
         <div className="grid grid-cols-[2.6rem_1fr_1fr_2.5rem] items-center gap-2 px-1">
-          <span className="eyebrow text-muted-foreground">Set</span>
-          <span className="eyebrow text-muted-foreground">Weight</span>
-          <span className="eyebrow text-muted-foreground">Reps</span>
-          <span className="sr-only">Complete</span>
+          <span className="eyebrow text-muted-foreground">{t("ex.set")}</span>
+          <span className="eyebrow text-muted-foreground">{t("ex.weight")}</span>
+          <span className="eyebrow text-muted-foreground">{t("common.reps")}</span>
+          <span className="sr-only">{t("ex.completeCol")}</span>
         </div>
         {Array.from({ length: exercise.sets }).map((_, i) => {
           const log: SetLog = session?.sets[setKey(exIdx, i)] ?? {
@@ -168,8 +186,8 @@ export function ExerciseCard({
                   step={2.5}
                   min={0}
                   value={log.weight || ""}
-                  placeholder={prevSet ? String(prevSet.weight) : "kg"}
-                  aria-label={`Set ${i + 1} weight in kg`}
+                  placeholder={prevSet ? String(prevSet.weight) : t("unit.kg")}
+                  aria-label={t("ex.setWeightLabel", { n: i + 1 })}
                   disabled={preview}
                   onChange={(e) =>
                     updateSet(planId, day, exIdx, i, { weight: Number(e.target.value) || 0 })
@@ -178,7 +196,7 @@ export function ExerciseCard({
                 />
                 {prevSet && (
                   <span className="mt-0.5 text-center text-[10px] font-semibold text-muted-foreground">
-                    prev {prevSet.weight} kg
+                    {t("ex.prevKg", { kg: prevSet.weight })}
                   </span>
                 )}
               </label>
@@ -188,8 +206,8 @@ export function ExerciseCard({
                   inputMode="numeric"
                   min={0}
                   value={log.reps || ""}
-                  placeholder={prevSet ? String(prevSet.reps) : "reps"}
-                  aria-label={`Set ${i + 1} reps completed`}
+                  placeholder={prevSet ? String(prevSet.reps) : t("ex.repsPlaceholder")}
+                  aria-label={t("ex.setRepsLabel", { n: i + 1 })}
                   disabled={preview}
                   onChange={(e) =>
                     updateSet(planId, day, exIdx, i, { reps: Number(e.target.value) || 0 })
@@ -198,13 +216,13 @@ export function ExerciseCard({
                 />
                 {prevSet && (
                   <span className="mt-0.5 text-center text-[10px] font-semibold text-muted-foreground">
-                    prev × {prevSet.reps}
+                    {t("ex.prevReps", { reps: prevSet.reps })}
                   </span>
                 )}
               </label>
               <button
                 type="button"
-                aria-label={`Mark set ${i + 1} complete`}
+                aria-label={t("ex.markSet", { n: i + 1 })}
                 aria-pressed={log.done}
                 disabled={preview}
                 onClick={() => updateSet(planId, day, exIdx, i, { done: !log.done })}

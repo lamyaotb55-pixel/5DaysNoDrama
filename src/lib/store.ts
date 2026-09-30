@@ -1,6 +1,14 @@
 import { useSyncExternalStore } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
+  applyLang,
+  getLang,
+  translate,
+  translateContent,
+  translatePlural,
+  type Lang,
+} from "./i18n";
+import {
   DAYS_PER_WEEK,
   TOTAL_DAYS,
   WEEKS,
@@ -94,6 +102,8 @@ export type State = {
   tracks: TrackArchive[];
   /** Plans the user owns: their own copies, plans built from scratch, followed plans. */
   myPlans: Record<string, MyPlan>;
+  /** Chosen app language; follows a signed-in user across devices. */
+  language?: Lang;
 };
 
 /** Where a user plan came from. */
@@ -265,6 +275,7 @@ async function hydrateFromRemote(userId: string) {
     if (remoteState && Object.keys(remoteState).length > 0) {
       state = migrateState({ ...empty, ...remoteState });
       syncUserPlans(state);
+      if (state.language) applyLang(state.language);
       persist();
       listeners.forEach((l) => l());
     } else {
@@ -889,23 +900,32 @@ export function encouragement(planId: PlanId, dayNo: number, s: State): string {
   const weeksDone = plan ? completedWeeks(plan, s.completed, s.walks) : 0;
   const remaining = wp ? wp.total - wp.done : 0;
 
-  const parts = [`Week ${weekNo}, Day ${inWeek} of ${plan?.name ?? "your plan"} — done. ${base}`];
+  const l = getLang();
+  const planName = plan ? translateContent(l, plan.name) : translate(l, "cheer.yourPlan");
+  const parts = [
+    translate(l, "cheer.done", { week: weekNo, day: inWeek, plan: planName }),
+    translateContent(l, base),
+  ];
 
   if (weeksDone >= WEEKS) {
-    parts.push("All 8 weeks complete. Restart the plan whenever you're ready to go again.");
+    parts.push(translate(l, "cheer.allWeeks"));
   } else if (remaining <= 0) {
-    parts.push(`Week ${weekNo} closed out — ${WEEKS - weeksDone} weeks to go.`);
+    parts.push(
+      translate(l, "cheer.weekClosed", {
+        week: weekNo,
+        left: translatePlural(l, "cheer.weeksToGo", WEEKS - weeksDone),
+      }),
+    );
   } else if (remaining === 1) {
-    parts.push(`One day left in week ${weekNo}. No drama.`);
+    parts.push(translate(l, "cheer.oneDayLeft", { week: weekNo }));
   } else {
-    parts.push(`${remaining} days left in week ${weekNo}.`);
+    parts.push(translate(l, "cheer.daysLeft", { n: remaining, week: weekNo }));
   }
 
-  if (streak >= 3) parts.push(`${streak} days in a row — that streak is doing the work.`);
-  else if (week.thisWeek >= 5) parts.push("Five workouts this week. Full consistency.");
-  else if (week.thisWeek >= 2)
-    parts.push(`${week.thisWeek} workouts this week — momentum is real.`);
-  else if (s.history.length === 1) parts.push("First one logged. The hardest one is behind you.");
+  if (streak >= 3) parts.push(translate(l, "cheer.streak", { n: streak }));
+  else if (week.thisWeek >= 5) parts.push(translate(l, "cheer.fiveThisWeek"));
+  else if (week.thisWeek >= 2) parts.push(translate(l, "cheer.momentum", { n: week.thisWeek }));
+  else if (s.history.length === 1) parts.push(translate(l, "cheer.first"));
 
   return parts.join(" ");
 }
@@ -1281,4 +1301,12 @@ export function applyCommunityUpdate(
       },
     },
   });
+}
+
+/* ---------- Language ---------- */
+
+/** Switch the app language and remember it (device + account). */
+export function setLanguage(language: Lang) {
+  applyLang(language);
+  if (state.language !== language) set({ ...state, language });
 }

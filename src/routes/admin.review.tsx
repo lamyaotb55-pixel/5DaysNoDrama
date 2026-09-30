@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Check, Eye, EyeOff, X } from "lucide-react";
 import { PlanPreview } from "@/components/PlanPreview";
+import { useT } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import {
   adminPlans,
@@ -25,6 +26,7 @@ type Pending = Awaited<ReturnType<typeof pendingSubmissions>>[number];
 
 function ReviewPage() {
   const { user, loading } = useAuth();
+  const t = useT();
   const [admin, setAdmin] = useState<boolean | null>(null);
   const [queue, setQueue] = useState<Pending[]>([]);
   const [live, setLive] = useState<PublicPlan[]>([]);
@@ -49,7 +51,7 @@ function ReviewPage() {
     checkIsAdmin().then((ok) => {
       if (!alive) return;
       setAdmin(ok);
-      if (ok) refresh().catch((e) => setMessage(errorText(e)));
+      if (ok) refresh().catch((e) => setMessage(t.c(errorText(e))));
     });
     return () => {
       alive = false;
@@ -65,7 +67,7 @@ function ReviewPage() {
       setMessage(done);
       setOpen(null);
     } catch (e) {
-      setMessage(errorText(e));
+      setMessage(t.c(errorText(e)));
     } finally {
       setBusy(null);
     }
@@ -74,7 +76,7 @@ function ReviewPage() {
   if (admin === null) {
     return (
       <main className="mx-auto max-w-2xl px-5 pt-24">
-        <p className="surface p-5 text-sm text-muted-foreground">Checking access…</p>
+        <p className="surface p-5 text-sm text-muted-foreground">{t("admin.checking")}</p>
       </main>
     );
   }
@@ -83,17 +85,15 @@ function ReviewPage() {
     return (
       <main className="mx-auto grid min-h-screen max-w-md place-items-center px-5">
         <div className="surface p-8 text-center">
-          <h1 className="text-2xl">Team only</h1>
+          <h1 className="text-2xl">{t("admin.teamOnly")}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            {user
-              ? "This account can't review plans."
-              : "Sign in with the admin account to review plans."}
+            {user ? t("admin.cantReview") : t("admin.signInAdmin")}
           </p>
           <Link
             to={user ? "/" : "/auth"}
             className="mt-5 inline-flex rounded-full bg-spicy px-5 py-3 text-xs font-bold text-accent-foreground uppercase"
           >
-            {user ? "Home" : "Sign in"}
+            {user ? t("common.home") : t("common.signIn")}
           </Link>
         </div>
       </main>
@@ -102,18 +102,15 @@ function ReviewPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-5 pb-16">
-      <div className="pt-6 pr-14">
+      <div className="pt-6 pe-40">
         <Link to="/" className="text-xs font-bold text-muted-foreground uppercase">
-          ← Home
+          <span className="inline-block rtl:-scale-x-100">←</span> {t("common.home")}
         </Link>
       </div>
       <header className="pt-8 pb-6">
-        <p className="eyebrow text-spicy">Admin</p>
-        <h1 className="mt-2 text-4xl leading-[0.9]">Review</h1>
-        <p className="mt-3 text-sm font-semibold text-muted-foreground">
-          Plans and edits wait here until you approve them. Nothing reaches Plans by You without
-          your OK.
-        </p>
+        <p className="eyebrow text-spicy">{t("admin.eyebrow")}</p>
+        <h1 className="mt-2 text-4xl leading-[0.9]">{t("admin.title")}</h1>
+        <p className="mt-3 text-sm font-semibold text-muted-foreground">{t("admin.lede")}</p>
       </header>
 
       {message && (
@@ -124,23 +121,21 @@ function ReviewPage() {
 
       <section>
         <div className="flex items-baseline justify-between">
-          <h2 className="text-2xl">Waiting</h2>
+          <h2 className="text-2xl">{t("admin.waiting")}</h2>
           <span className="text-xs font-bold text-muted-foreground uppercase tabular-nums">
-            {queue.length} to review
+            {t("admin.toReview", { n: queue.length })}
           </span>
         </div>
         {queue.length === 0 && (
-          <p className="surface mt-3 p-5 text-sm text-muted-foreground">
-            All clear. Nothing waiting.
-          </p>
+          <p className="surface mt-3 p-5 text-sm text-muted-foreground">{t("admin.allClear")}</p>
         )}
         <ul className="mt-3 space-y-3">
           {queue.map((s) => (
             <li key={s.id} className="surface p-5">
               <p className="eyebrow text-muted-foreground">
-                {goalName(s.base)} · by {s.author} ·{" "}
-                {s.liveVersion > 0 ? `update to live v${s.liveVersion}` : "new plan"} ·{" "}
-                {new Date(s.createdAt).toLocaleDateString()}
+                {t.c(goalName(s.base))} · {t("common.byAuthor", { author: s.author })} ·{" "}
+                {s.liveVersion > 0 ? t("admin.updateTo", { v: s.liveVersion }) : t("admin.newPlan")}{" "}
+                · {t.date(s.createdAt)}
               </p>
               <h3 className="mt-1 text-xl leading-tight break-words">{s.name}</h3>
               {s.description && (
@@ -154,7 +149,7 @@ function ReviewPage() {
                 onClick={() => setOpen(open === s.id ? null : s.id)}
                 className="mt-3 text-xs font-bold text-spicy uppercase"
               >
-                {open === s.id ? "Hide plan" : "Review all 10 days"}
+                {open === s.id ? t("admin.hidePlan") : t("admin.reviewAll")}
               </button>
               {open === s.id && s.content && (
                 <div className="mt-4">
@@ -163,12 +158,12 @@ function ReviewPage() {
               )}
 
               <label className="mt-4 block">
-                <span className="eyebrow text-muted-foreground">Note to author (optional)</span>
+                <span className="eyebrow text-muted-foreground">{t("admin.noteLabel")}</span>
                 <input
                   id={`note-${s.id}`}
                   value={notes[s.id] ?? ""}
                   onChange={(e) => setNotes({ ...notes, [s.id]: e.target.value })}
-                  placeholder="e.g. Please replace the Day 3 video"
+                  placeholder={t("admin.notePlaceholder")}
                   maxLength={300}
                   className="mt-1.5 w-full rounded-xl border border-input bg-card px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
                 />
@@ -181,12 +176,12 @@ function ReviewPage() {
                     act(
                       s.id,
                       () => reviewSubmission(s.id, false, notes[s.id] ?? ""),
-                      `Sent back: ${s.name}`,
+                      t("admin.sentBack", { name: s.name }),
                     )
                   }
                   className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-border px-4 py-3 text-xs font-bold uppercase disabled:opacity-50"
                 >
-                  <X className="size-4" aria-hidden /> Reject
+                  <X className="size-4" aria-hidden /> {t("admin.reject")}
                 </button>
                 <button
                   type="button"
@@ -195,12 +190,13 @@ function ReviewPage() {
                     act(
                       s.id,
                       () => reviewSubmission(s.id, true, notes[s.id] ?? ""),
-                      `Approved: ${s.name} is live`,
+                      t("admin.approvedMsg", { name: s.name }),
                     )
                   }
                   className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-success px-4 py-3 text-xs font-bold text-ink uppercase disabled:opacity-50"
                 >
-                  <Check className="size-4" aria-hidden /> {busy === s.id ? "Saving…" : "Approve"}
+                  <Check className="size-4" aria-hidden />{" "}
+                  {busy === s.id ? t("admin.saving") : t("admin.approve")}
                 </button>
               </div>
             </li>
@@ -209,9 +205,9 @@ function ReviewPage() {
       </section>
 
       <section className="mt-10">
-        <h2 className="text-2xl">Published</h2>
+        <h2 className="text-2xl">{t("admin.published")}</h2>
         {live.length === 0 && (
-          <p className="surface mt-3 p-5 text-sm text-muted-foreground">No approved plans yet.</p>
+          <p className="surface mt-3 p-5 text-sm text-muted-foreground">{t("admin.noApproved")}</p>
         )}
         <ul className="mt-3 space-y-2">
           {live.map((p) => {
@@ -227,8 +223,9 @@ function ReviewPage() {
                     {p.name}
                   </Link>
                   <p className="text-[11px] font-bold text-muted-foreground uppercase">
-                    by {p.author} · v{p.version} · {p.followers} followers
-                    {hidden ? " · hidden" : ""}
+                    {t("common.byAuthor", { author: p.author })} · v{p.version} ·{" "}
+                    {t.plural("pby.followers", p.followers)}
+                    {hidden ? ` · ${t("admin.hiddenTag")}` : ""}
                   </p>
                 </div>
                 <button
@@ -238,18 +235,20 @@ function ReviewPage() {
                     act(
                       p.id,
                       () => setHidden(p.id, !hidden),
-                      hidden ? `${p.name} is visible again` : `${p.name} is hidden`,
+                      hidden
+                        ? t("admin.visibleAgain", { name: p.name })
+                        : t("admin.isHidden", { name: p.name }),
                     )
                   }
                   className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-2 text-[11px] font-bold uppercase disabled:opacity-50"
                 >
                   {hidden ? (
                     <>
-                      <Eye className="size-3.5" aria-hidden /> Show
+                      <Eye className="size-3.5" aria-hidden /> {t("admin.show")}
                     </>
                   ) : (
                     <>
-                      <EyeOff className="size-3.5" aria-hidden /> Hide
+                      <EyeOff className="size-3.5" aria-hidden /> {t("admin.hide")}
                     </>
                   )}
                 </button>
