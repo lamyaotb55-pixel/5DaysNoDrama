@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useHydrated } from "@/hooks/useHydrated";
+import { useAuth } from "@/hooks/useAuth";
 import { Check, Flame, Footprints, Play, Timer, Trophy } from "lucide-react";
 import { ExerciseCard } from "@/components/ExerciseCard";
 import { RestBar, useRest } from "@/components/RestTimer";
@@ -73,6 +74,8 @@ function WorkoutPage() {
   const t = useT();
   const w = useWeights();
   const rest = useRest();
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const [guestNotice, setGuestNotice] = useState(false);
 
   if (isUserPlanId(planId) && !hydrated) return null;
 
@@ -97,7 +100,30 @@ function WorkoutPage() {
   // Browsing a day is free; it only counts as in progress after Start.
   const started = Boolean(session?.started);
   const doneBefore = Boolean(state.completed[key]);
-  const start = () => startSession(plan.id, day.day);
+  const GUEST_OK = "fdnd-guest-ok";
+  const start = () => {
+    // Guests: say once per visit that progress lives on this phone only.
+    let acknowledged = false;
+    try {
+      acknowledged = sessionStorage.getItem(GUEST_OK) === "1";
+    } catch {
+      /* storage blocked */
+    }
+    if (!authLoading && !isAuthenticated && !acknowledged) {
+      setGuestNotice(true);
+      return;
+    }
+    startSession(plan.id, day.day);
+  };
+  const continueAsGuest = () => {
+    try {
+      sessionStorage.setItem(GUEST_OK, "1");
+    } catch {
+      /* storage blocked */
+    }
+    setGuestNotice(false);
+    startSession(plan.id, day.day);
+  };
   const summary = summarize(plan.id, day, session, state.prs);
   const total = day.exercises.length;
   const doneExercises = day.exercises.filter((ex, exIdx) =>
@@ -267,6 +293,37 @@ function WorkoutPage() {
 
   return (
     <main className={"mx-auto max-w-2xl px-5 " + (rest.rest ? "pb-48" : "pb-28")}>
+      {guestNotice && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="guest-title"
+          className="fixed inset-0 z-50 grid place-items-center bg-ink/60 p-5"
+        >
+          <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 text-center">
+            <p className="eyebrow text-spicy">{t("guest.eyebrow")}</p>
+            <h2 id="guest-title" className="mt-2 text-2xl leading-tight">
+              {t("guest.title")}
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">{t("guest.body")}</p>
+            <div className="mt-5 space-y-2.5">
+              <Link
+                to="/auth"
+                className="spicy-wash inline-flex w-full items-center justify-center rounded-full px-5 py-3.5 text-xs font-bold uppercase"
+              >
+                {t("guest.register")}
+              </Link>
+              <button
+                type="button"
+                onClick={continueAsGuest}
+                className="w-full rounded-full border border-border px-5 py-3 text-xs font-bold uppercase"
+              >
+                {t("guest.continue")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="pt-8">
         <Link
           to="/plan/$planId"

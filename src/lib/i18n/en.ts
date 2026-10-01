@@ -505,4 +505,9 @@ export const en = {
   "rest.setting.exercises": "Between exercises",
   "rest.setting.less": "Shorter: {what}",
   "rest.setting.more": "Longer: {what}",
+  "guest.eyebrow": "Not signed in",
+  "guest.title": "Your progress stays on this phone only",
+  "guest.body": "Without an account, your workouts are saved only in this browser. Clear it or change phones and they're gone. Register free to keep them safe and use them on any device.",
+  "guest.register": "Register / Sign in",
+  "guest.continue": "Continue as guest",
 };

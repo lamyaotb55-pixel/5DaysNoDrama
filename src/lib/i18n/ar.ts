@@ -496,4 +496,9 @@ export const ar: Record<string, string> = {
   "rest.setting.exercises": "بين التمارين",
   "rest.setting.less": "أقصر: {what}",
   "rest.setting.more": "أطول: {what}",
+  "guest.eyebrow": "ما سجّلتي دخول",
+  "guest.title": "تقدّمك ينحفظ في هالجوال بس",
+  "guest.body": "بدون حساب، تمارينك تنحفظ في هالمتصفح بس. لو مسحتيه أو غيّرتي جوالك تروح. سجّلي مجاناً عشان تنحفظ وتقدرين تستخدمينها من أي جهاز.",
+  "guest.register": "سجّلي / ادخلي",
+  "guest.continue": "كمّلي كزائرة",
 };
