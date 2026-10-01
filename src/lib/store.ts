@@ -106,6 +106,9 @@ export type State = {
   language?: Lang;
   /** How weights are shown and typed. Weights are always stored in kg. */
   unit?: WeightUnit;
+  /** Rest timer lengths in seconds (defaults: 60 between sets, 90 between exercises). */
+  restSet?: number;
+  restExercise?: number;
 };
 
 export type WeightUnit = "kg" | "lb";
@@ -1319,4 +1322,18 @@ export function setLanguage(language: Lang) {
 
 export function setUnit(unit: WeightUnit) {
   if (state.unit !== unit) set({ ...state, unit });
+}
+
+/* ---------- Rest timers ---------- */
+
+export const DEFAULT_REST_SET = 60;
+export const DEFAULT_REST_EXERCISE = 90;
+
+export function setRestTimes(patch: { restSet?: number; restExercise?: number }) {
+  const clamp = (n: number) => Math.min(600, Math.max(15, Math.round(n / 15) * 15));
+  set({
+    ...state,
+    ...(patch.restSet !== undefined ? { restSet: clamp(patch.restSet) } : {}),
+    ...(patch.restExercise !== undefined ? { restExercise: clamp(patch.restExercise) } : {}),
+  });
 }

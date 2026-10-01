@@ -3,7 +3,6 @@ import { ExerciseName } from "./ExerciseName";
 import { MediaBox } from "./MediaBox";
 import { useT } from "@/lib/i18n";
 import { useWeights } from "@/lib/units";
-import { RestTimer } from "./RestTimer";
 import { repRange, weekGoal, type Exercise } from "@/lib/program";
 import {
   anchorHistory,
@@ -22,8 +21,8 @@ export function ExerciseCard({
   exIdx,
   exercise,
   state,
-  restSeconds,
   preview = false,
+  onSetDone,
 }: {
   planId: string;
   day: number;
@@ -31,9 +30,10 @@ export function ExerciseCard({
   exIdx: number;
   exercise: Exercise;
   state: State;
-  restSeconds: number;
   /** Day not started yet: show targets and demo, but logging is locked. */
   preview?: boolean;
+  /** A set was ticked done; `exerciseDone` when it was the last one. Starts the rest timer. */
+  onSetDone?: (exerciseDone: boolean) => void;
 }) {
   const t = useT();
   const w = useWeights();
@@ -233,7 +233,10 @@ export function ExerciseCard({
                 aria-label={t("ex.markSet", { n: i + 1 })}
                 aria-pressed={log.done}
                 disabled={preview}
-                onClick={() => updateSet(planId, day, exIdx, i, { done: !log.done })}
+                onClick={() => {
+                  updateSet(planId, day, exIdx, i, { done: !log.done });
+                  if (!log.done) onSetDone?.(doneSets + 1 >= exercise.sets);
+                }}
                 className={
                   "grid size-10 place-items-center rounded-full border transition-colors " +
                   (log.done
@@ -251,8 +254,6 @@ export function ExerciseCard({
           );
         })}
       </div>
-
-      {!preview && <RestTimer seconds={restSeconds} />}
     </article>
   );
 }

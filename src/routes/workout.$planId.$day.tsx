@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useHydrated } from "@/hooks/useHydrated";
 import { Check, Flame, Footprints, Play, Timer, Trophy } from "lucide-react";
 import { ExerciseCard } from "@/components/ExerciseCard";
+import { RestBar, useRest } from "@/components/RestTimer";
 import {
   WEEKS,
   dayInWeek,
@@ -71,6 +72,7 @@ function WorkoutPage() {
   const hydrated = useHydrated();
   const t = useT();
   const w = useWeights();
+  const rest = useRest();
 
   if (isUserPlanId(planId) && !hydrated) return null;
 
@@ -103,7 +105,6 @@ function WorkoutPage() {
   ).length;
   const pct = total ? Math.round((doneExercises / total) * 100) : 0;
   const allDone = total > 0 && doneExercises === total;
-  const restSeconds = 60;
   const option = dayOption(plan.id, day.day);
   const optionAvailable = altAllowed(day.day) && summary.sets === 0 && !allDone;
   const weekNo = weekOf(day.day);
@@ -265,7 +266,7 @@ function WorkoutPage() {
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-5 pb-28">
+    <main className={"mx-auto max-w-2xl px-5 " + (rest.rest ? "pb-48" : "pb-28")}>
       <div className="pt-8">
         <Link
           to="/plan/$planId"
@@ -394,7 +395,19 @@ function WorkoutPage() {
             exIdx={exIdx}
             exercise={ex}
             state={state}
-            restSeconds={restSeconds}
+            onSetDone={(exerciseDone) => {
+              if (!exerciseDone) return rest.start("set");
+              // Rest before the next exercise that still has sets to do.
+              const next = day.exercises.find(
+                (e, j) =>
+                  j !== exIdx &&
+                  !Array.from({ length: e.sets }).every(
+                    (_, k) => session?.sets[setKey(j, k)]?.done,
+                  ),
+              );
+              if (next) rest.start("exercise", next.name);
+              else rest.close();
+            }}
             preview={!started}
           />
         ))}
@@ -440,6 +453,14 @@ function WorkoutPage() {
       )}
 
       <div className="fixed inset-x-0 bottom-0 border-t border-border bg-card/95 px-5 py-3 backdrop-blur">
+        {rest.rest && started && (
+          <RestBar
+            rest={rest.rest}
+            onClose={rest.close}
+            onRestart={rest.restart}
+            onTogglePause={rest.togglePause}
+          />
+        )}
         <div className="mx-auto flex max-w-2xl items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="truncate text-[11px] font-bold text-muted-foreground uppercase">
@@ -460,7 +481,10 @@ function WorkoutPage() {
             </button>
           ) : (
             <button
-              onClick={() => setReview(true)}
+              onClick={() => {
+                rest.close();
+                setReview(true);
+              }}
               key={allDone ? "done" : "todo"}
               className={
                 "inline-flex items-center gap-2 rounded-full px-5 py-3.5 text-xs font-bold tracking-wide uppercase shadow-[var(--shadow-lift)] " +

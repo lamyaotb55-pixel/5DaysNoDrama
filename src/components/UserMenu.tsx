@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { displayNameOf, initialsOf, useAuth } from "@/hooks/useAuth";
 import { useT } from "@/lib/i18n";
 import { UnitSwitch } from "./UnitSwitch";
+import { RestSettings } from "./RestSettings";
 
 export function UserMenu() {
   const { user, isAuthenticated } = useAuth();
@@ -103,6 +104,9 @@ export function UserMenu() {
 
             <div className="mt-6 rounded-2xl bg-secondary px-4 py-3">
               <UnitSwitch />
+              <div className="mt-3 border-t border-border pt-3">
+                <RestSettings />
+              </div>
             </div>
 
             <nav className="mt-4 space-y-2.5">
