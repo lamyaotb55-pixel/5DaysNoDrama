@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Check, Dumbbell, Footprints } from "lucide-react";
 import { DAYS_PER_WEEK, dayInWeek, dayOption, getPlan, weekOf } from "@/lib/program";
-import { sessionRound, useStore, type TrackArchive } from "@/lib/store";
+import { finishedLate, sessionRound, useStore, type TrackArchive } from "@/lib/store";
 import { useT } from "@/lib/i18n";
 import { useWeights } from "@/lib/units";
 
@@ -214,9 +214,17 @@ function HistoryPage() {
                                   </span>
                                 )}
                               </div>
-                              <span className="check-pop inline-flex items-center gap-1 rounded-full bg-success px-2.5 py-1 text-[10px] font-bold text-ink uppercase">
-                                <Check className="size-3" aria-hidden />{" "}
-                                {item.kind === "trained" ? t("hist.done") : t.c(item.doneLabel)}
+                              <span className="flex shrink-0 flex-col items-end gap-1">
+                                <span className="check-pop inline-flex items-center gap-1 rounded-full bg-success px-2.5 py-1 text-[10px] font-bold text-ink uppercase">
+                                  <Check className="size-3" aria-hidden />{" "}
+                                  {item.kind === "trained" ? t("hist.done") : t.c(item.doneLabel)}
+                                </span>
+                                {(state.rounds[item.planId] ?? 1) === item.round &&
+                                  finishedLate(item.planId, item.day, item.at, state) && (
+                                    <span className="rounded-full bg-ice/40 px-2.5 py-0.5 text-[10px] font-bold text-ink uppercase">
+                                      {t("cal.late")}
+                                    </span>
+                                  )}
                               </span>
                             </div>
 

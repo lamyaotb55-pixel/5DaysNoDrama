@@ -10,6 +10,7 @@ import {
   Pencil,
   Sparkles,
   Trophy,
+  CalendarClock,
 } from "lucide-react";
 import {
   PHASES,
@@ -27,8 +28,11 @@ import {
 } from "@/lib/program";
 import { planAccent } from "@/lib/plan-theme";
 import { useT } from "@/lib/i18n";
+import { WeekCounter } from "@/components/WeekCounter";
 import { useWeights } from "@/lib/units";
 import {
+  weekArrived,
+  planCalendar,
   altAllowed,
   chooseAlt,
   choosePlan,
@@ -115,6 +119,14 @@ function PlanPage() {
   const finishedProgram = programComplete(plan, state);
   const readyToUnlock = phase2Ready(plan, state);
   const shownLocked = weekLocked(plan, shownWeek, state);
+  const cal = planCalendar(plan.id, state);
+  // Each week is 7 days: a future week opens on its first day.
+  const notYet = (w: number) => !weekArrived(plan.id, w, state);
+  const opensLabel = (w: number) =>
+    cal.started
+      ? t.date(cal.weekStartsAt(w), { weekday: "short", day: "numeric", month: "short" })
+      : null;
+  const shownNotYet = !shownLocked && notYet(shownWeek);
   const days = weekDays(plan, shownWeek).map((d) => effectiveDay(plan.id, d, state.customDays));
   const wp = weekProgress(plan, shownWeek, state.completed, state.walks);
   const weekDone = wp.done >= wp.total;
@@ -246,8 +258,10 @@ function PlanPage() {
         <h1 className="mt-1.5 text-4xl leading-[0.9] break-words sm:text-5xl">{t.c(plan.name)}</h1>
         <p className="mt-2 text-sm font-bold text-muted-foreground uppercase">{t.c(plan.slogan)}</p>
         <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{t.c(plan.goal)}</p>
-        <p className="mt-4 text-[11px] font-bold uppercase">
-          {t("home.weekOf", { week: openWeek, total: WEEKS })} ·{" "}
+        <div className="mt-4 rounded-xl bg-secondary px-4 py-3">
+          <WeekCounter plan={plan} state={state} />
+        </div>
+        <p className="mt-3 text-[11px] font-bold uppercase">
           <span className={phaseOf(openWeek) === 2 ? "text-pink" : "text-spicy"}>
             {t("common.phaseN", { n: phaseOf(openWeek) })} —{" "}
             {t.c(phaseInfo(phaseOf(openWeek)).name)}
@@ -326,6 +340,7 @@ function PlanPage() {
             const full = p.done >= p.total;
             const isActive = w === shownWeek;
             const isLocked = weekLocked(plan, w, state);
+            const waiting = !isLocked && notYet(w);
             return (
               <li key={w}>
                 <button
@@ -338,21 +353,23 @@ function PlanPage() {
                       ? "border-transparent bg-spicy text-accent-foreground"
                       : full
                         ? "border-transparent bg-success text-ink"
-                        : isLocked
+                        : isLocked || waiting
                           ? "border-border bg-secondary text-muted-foreground"
                           : "border-border bg-card text-muted-foreground")
                   }
                 >
                   <span className="font-display text-base leading-none">
-                    {isLocked ? "🔒" : ""}
+                    {isLocked ? "🔒" : waiting ? "⏳" : ""}
                     {t("ex.weekShort", { n: w })}
                   </span>
                   <span className="mt-1">
                     {isLocked
                       ? t("plan.locked")
-                      : full
-                        ? t("plan.weekDone")
-                        : `${p.done}/${p.total}`}
+                      : waiting
+                        ? (opensLabel(w) ?? t("plan.locked"))
+                        : full
+                          ? t("plan.weekDone")
+                          : `${p.done}/${p.total}`}
                   </span>
                 </button>
               </li>
@@ -397,7 +414,26 @@ function PlanPage() {
         )}
       </section>
 
-      {shownLocked ? (
+      {shownNotYet ? (
+        <section className="surface mt-5 p-8 text-center">
+          <CalendarClock className="mx-auto size-7 text-muted-foreground" aria-hidden />
+          <h2 className="mt-2 text-xl">
+            {cal.started
+              ? t("cal.weekOpensTitle", {
+                  week: shownWeek,
+                  date: t.date(cal.weekStartsAt(shownWeek), {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "short",
+                  }),
+                })
+              : t("cal.afterFirst")}
+          </h2>
+          <p className="mt-2 text-sm font-semibold text-muted-foreground">
+            {t("cal.weekOpensBody")}
+          </p>
+        </section>
+      ) : shownLocked ? (
         <section className="surface mt-5 p-8 text-center">
           <Lock className="mx-auto size-7 text-muted-foreground" aria-hidden />
           <h2 className="mt-2 text-xl">{t("plan.phase2Locked")}</h2>

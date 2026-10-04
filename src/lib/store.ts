@@ -109,6 +109,8 @@ export type State = {
   /** Rest timer lengths in seconds (defaults: 60 between sets, 90 between exercises). */
   restSet?: number;
   restExercise?: number;
+  /** `${planId}` -> when the first workout of the current track was finished (Week 1, Day 1). */
+  trackStart?: Record<string, number>;
 };
 
 export type WeightUnit = "kg" | "lb";
@@ -597,6 +599,7 @@ export function finishSession(planId: PlanId, dayNo: number): string | null {
     ...state,
     active,
     completed: { ...state.completed, [key]: at },
+    trackStart: withTrackStart(planId, at),
     history: [finished, ...state.history].slice(0, 400),
     lastSets,
     weekSets,
@@ -747,6 +750,9 @@ export function restartPlan(planId: PlanId) {
     phase2,
     programSeen,
     tracks: archive ? [archive, ...(state.tracks ?? [])] : (state.tracks ?? []),
+    trackStart: Object.fromEntries(
+      Object.entries(state.trackStart ?? {}).filter(([id]) => id !== planId),
+    ),
     rounds: { ...state.rounds, [planId]: round + 1 },
   });
 }
@@ -791,24 +797,27 @@ export function chooseTrain(planId: string, dayNo: number) {
 
 export function completeAlt(planId: string, dayNo: number, done: boolean) {
   const walks = { ...state.walks };
-  if (done) walks[sessionKey(planId, dayNo)] = Date.now();
+  const at = Date.now();
+  if (done) walks[sessionKey(planId, dayNo)] = at;
   else delete walks[sessionKey(planId, dayNo)];
-  set({ ...state, walks });
+  set({ ...state, walks, ...(done ? { trackStart: withTrackStart(planId, at) } : {}) });
 }
 
 /* ---------- Next workout ---------- */
 
-/** First day of the 8 weeks that is not finished (training or the day 5 alternative). */
-export function nextWorkout(
-  plan: Plan,
-  completedMap: Record<string, number>,
-  altDone: State["walks"] = {},
-): Day {
+/**
+ * First workout that can be done now and isn't finished: earlier weeks first
+ * (catch-up), then this week. Null when this week is done and the next week
+ * hasn't opened yet (rest days).
+ */
+export function nextWorkout(plan: Plan, s: State, now = Date.now()): Day | null {
   for (let abs = 1; abs <= TOTAL_DAYS; abs++) {
+    const week = weekOf(abs);
+    if (!weekOpen(plan, week, s, now)) break;
     const key = sessionKey(plan.id, abs);
-    if (!completedMap[key] && !altDone[key]) return getDay(plan, abs)!;
+    if (!s.completed[key] && !s.walks[key]) return getDay(plan, abs)!;
   }
-  return getDay(plan, 1)!;
+  return null;
 }
 
 export function planProgress(
@@ -986,14 +995,12 @@ export function phase2Ready(plan: Plan, s: State) {
   return !isPhase2Unlocked(plan.id, s) && phase1Complete(plan, s.completed, s.walks);
 }
 
-/** Furthest week the user can currently open. */
-export function currentWeek(plan: Plan, s: State) {
-  for (let w = 1; w <= WEEKS; w++) {
-    if (weekLocked(plan, w, s)) return Math.max(1, w - 1);
-    const p = weekProgress(plan, w, s.completed, s.walks);
-    if (p.done < p.total) return w;
-  }
-  return WEEKS;
+/** The calendar week the user is in (1 before the first workout), capped by the phase lock. */
+export function currentWeek(plan: Plan, s: State, now = Date.now()) {
+  const cal = planCalendar(plan.id, s, now);
+  let week = cal.started ? cal.week : 1;
+  while (week > 1 && weekLocked(plan, week, s)) week -= 1;
+  return week;
 }
 
 /** Progress inside one phase (20 days). */
@@ -1336,4 +1343,132 @@ export function setRestTimes(patch: { restSet?: number; restExercise?: number })
     ...(patch.restSet !== undefined ? { restSet: clamp(patch.restSet) } : {}),
     ...(patch.restExercise !== undefined ? { restExercise: clamp(patch.restExercise) } : {}),
   });
+}
+
+/* ---------- Calendar weeks ----------
+ * The 8 weeks run on the calendar from the day the first workout of the
+ * current track is finished: Week 1 is that day plus the next 6. Days follow
+ * the phone's local midnight. Missed workouts can be caught up later; the
+ * next week opens on its first day. */
+
+const DAY_MS = 86400000;
+
+/** Local calendar day number (days since 1970 in the phone's time zone). */
+export function localDay(ts: number) {
+  const d = new Date(ts);
+  return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / DAY_MS);
+}
+
+/** Local midnight of a local day number, as a timestamp. */
+function dayStart(day: number) {
+  const d = new Date(day * DAY_MS);
+  return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()).getTime();
+}
+
+function planTimestamps(planId: string, s: State): number[] {
+  const prefix = `${planId}|`;
+  return [...Object.entries(s.completed), ...Object.entries(s.walks)]
+    .filter(([k]) => k.startsWith(prefix))
+    .map(([, at]) => at);
+}
+
+/** When Week 1 began: stored, or (for plans started before this existed) the first finished workout. */
+export function planStartedAt(planId: string, s: State): number | null {
+  const stored = s.trackStart?.[planId];
+  if (stored) return stored;
+  const times = planTimestamps(planId, s);
+  return times.length ? Math.min(...times) : null;
+}
+
+function withTrackStart(planId: string, at: number) {
+  const current = state.trackStart ?? {};
+  if (current[planId]) return current;
+  return { ...current, [planId]: planStartedAt(planId, state) ?? at };
+}
+
+export type PlanCalendar = {
+  started: boolean;
+  /** Days since Week 1, Day 1 (0-based). */
+  dayIndex: number;
+  /** Calendar week 1–8 (8 after the 56 days are up). */
+  week: number;
+  /** Day of the week 1–7. */
+  dayOfWeek: number;
+  /** Days left in this week after today. */
+  daysLeft: number;
+  /** All 56 days have passed. */
+  over: boolean;
+  /** Local midnight that starts a given week. */
+  weekStartsAt: (week: number) => number;
+  /** Local day numbers of this calendar week (7). */
+  weekDays: number[];
+};
+
+export function planCalendar(planId: string, s: State, now = Date.now()): PlanCalendar {
+  const startAt = planStartedAt(planId, s);
+  const today = localDay(now);
+  if (startAt === null) {
+    return {
+      started: false,
+      dayIndex: 0,
+      week: 1,
+      dayOfWeek: 1,
+      daysLeft: 6,
+      over: false,
+      weekStartsAt: () => dayStart(today),
+      weekDays: Array.from({ length: 7 }, (_, i) => today + i),
+    };
+  }
+  const first = localDay(startAt);
+  const dayIndex = Math.max(0, today - first);
+  const over = dayIndex >= WEEKS * 7;
+  const week = Math.min(WEEKS, Math.floor(dayIndex / 7) + 1);
+  const dayOfWeek = over ? 7 : (dayIndex % 7) + 1;
+  const weekFirst = first + (week - 1) * 7;
+  return {
+    started: true,
+    dayIndex,
+    week,
+    dayOfWeek,
+    daysLeft: over ? 0 : 7 - dayOfWeek,
+    over,
+    weekStartsAt: (w) => dayStart(first + (w - 1) * 7),
+    weekDays: Array.from({ length: 7 }, (_, i) => weekFirst + i),
+  };
+}
+
+/** Week has arrived on the calendar (Week 1 is always open). */
+export function weekArrived(planId: string, week: number, s: State, now = Date.now()) {
+  if (week <= 1) return true;
+  const cal = planCalendar(planId, s, now);
+  return cal.started && (cal.over || week <= cal.week);
+}
+
+/** A week can be trained: it has arrived and (for weeks 5–8) phase 2 is unlocked. */
+export function weekOpen(plan: Plan, week: number, s: State, now = Date.now()) {
+  return weekArrived(plan.id, week, s, now) && !weekLocked(plan, week, s);
+}
+
+/** Local days (this plan) with a finished workout or day 5 alternative. */
+export function trainedDays(planId: string, s: State): Set<number> {
+  return new Set(planTimestamps(planId, s).map(localDay));
+}
+
+/** Done after its calendar week had ended (a catch-up). */
+export function finishedLate(planId: string, dayNo: number, at: number, s: State) {
+  const startAt = planStartedAt(planId, s);
+  if (startAt === null) return false;
+  return Math.floor((localDay(at) - localDay(startAt)) / 7) + 1 > weekOf(dayNo);
+}
+
+/** Earliest open week before the current one that still has workouts left. */
+export function catchUpWeek(plan: Plan, s: State, now = Date.now()) {
+  const cal = planCalendar(plan.id, s, now);
+  if (!cal.started) return null;
+  for (let w = 1; w < cal.week; w++) {
+    if (!weekOpen(plan, w, s, now)) break;
+    const p = weekProgress(plan, w, s.completed, s.walks);
+    if (p.done < p.total) return { week: w, left: p.total - p.done };
+  }
+  return null;
 }

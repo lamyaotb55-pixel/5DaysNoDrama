@@ -22,7 +22,11 @@ import {
 } from "@/lib/program";
 import { planAccent } from "@/lib/plan-theme";
 import { useT } from "@/lib/i18n";
+import { WeekCounter } from "@/components/WeekCounter";
 import {
+  planCalendar,
+  phase2Ready,
+  currentWeek,
   choosePlan,
   clearPlan,
   completedWeeks,
@@ -32,8 +36,6 @@ import {
   programProgress,
   restartPlan,
   useStore,
-  weekLocked,
-  weekProgress,
 } from "@/lib/store";
 
 export const Route = createFileRoute("/")({
@@ -161,20 +163,18 @@ function CurrentPlanCard({
   const [confirm, setConfirm] = useState<"restart" | "change" | null>(null);
   const accent = planAccent(plan.id);
   const progress = programProgress(plan, state);
-  const next = effectiveDay(
-    plan.id,
-    nextWorkout(plan, state.completed, state.walks),
-    state.customDays,
-  );
+  const rawNext = nextWorkout(plan, state);
+  const next = rawNext ? effectiveDay(plan.id, rawNext, state.customDays) : null;
+  const cal = planCalendar(plan.id, state);
   const streak = currentStreak(state.history);
   const round = state.rounds[plan.id] ?? 1;
   const planDone = progress.done >= progress.total;
   const weeksDone = completedWeeks(plan, state.completed, state.walks);
-  const currentWeek = weekOf(next.day);
-  const wp = weekProgress(plan, currentWeek, state.completed, state.walks);
-  const phase = phaseInfo(phaseOf(currentWeek));
-  const goal = weekGoal(currentWeek);
-  const nextLocked = weekLocked(plan, weekOf(next.day), state);
+  const weekNow = currentWeek(plan, state);
+  const phase = phaseInfo(phaseOf(weekNow));
+  const goal = weekGoal(weekNow);
+  const needsUnlock = !next && phase2Ready(plan, state);
+  const nextWeekAt = cal.started && cal.week < WEEKS ? cal.weekStartsAt(cal.week + 1) : null;
 
   return (
     <>
@@ -199,14 +199,13 @@ function CurrentPlanCard({
               style={{ width: `${progress.phase2Share}%` }}
             />
           </div>
+          <div className="mt-3">
+            <WeekCounter plan={plan} state={state} tone="onColor" />
+          </div>
           <p className="mt-2.5 flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase">
             <span>
-              {t("home.weekOf", { week: currentWeek, total: WEEKS })} ·{" "}
               {t.plural("home.weeksDone", weeksDone)} · {progress.pct}%
               {planDone ? ` ${t("home.allWeeks")}` : ""}
-            </span>
-            <span className="rounded-full bg-paper/25 px-2 py-0.5">
-              {t("home.thisWeekCount", { done: wp.done, total: wp.total })}
             </span>
             <span className="rounded-full bg-paper/25 px-2 py-0.5">
               {t("common.phaseN", { n: phase.no })} · {t.c(phase.name)} ·{" "}
@@ -227,7 +226,27 @@ function CurrentPlanCard({
             <p className="mt-0.5 font-display text-base uppercase">{t.c(goal.title)}</p>
             <p className="mt-0.5 text-xs font-semibold text-muted-foreground">{t.c(goal.copy)}</p>
           </div>
-          {nextLocked ? (
+          {!next && !needsUnlock ? (
+            <div className="mt-4">
+              <p className="font-display text-xl uppercase">
+                {planDone ? t("cal.allDoneTitle") : t("cal.restTitle")}
+              </p>
+              <p className="mt-1 text-sm font-semibold text-muted-foreground">
+                {planDone
+                  ? t("cal.allDoneBody")
+                  : nextWeekAt
+                    ? t("cal.restBody", {
+                        week: cal.week + 1,
+                        date: t.date(nextWeekAt, {
+                          weekday: "long",
+                          day: "numeric",
+                          month: "short",
+                        }),
+                      })
+                    : t("cal.restBodyNoDate")}
+              </p>
+            </div>
+          ) : needsUnlock || !next ? (
             <div className="mt-4">
               <p className="font-display text-xl uppercase">{t("home.phase1Done")}</p>
               <p className="mt-1 text-sm font-semibold text-muted-foreground">

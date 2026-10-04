@@ -23,6 +23,8 @@ import { useWeights } from "@/lib/units";
 import { UnitSwitch } from "@/components/UnitSwitch";
 import { ExerciseName } from "@/components/ExerciseName";
 import {
+  weekArrived,
+  planCalendar,
   altAllowed,
   chooseAlt,
   effectiveDay,
@@ -137,6 +139,13 @@ function WorkoutPage() {
   const goal = weekGoal(weekNo);
   const phase = phaseInfo(phaseOf(weekNo));
   const locked = weekLocked(plan, weekNo, state);
+  // Each week is 7 days: days of a week that hasn't arrived can be viewed, not started.
+  const notYet = !weekArrived(plan.id, weekNo, state);
+  const calendar = planCalendar(plan.id, state);
+  const opensOn =
+    notYet && calendar.started
+      ? t.date(calendar.weekStartsAt(weekNo), { weekday: "long", day: "numeric", month: "short" })
+      : null;
   const dayLabel = t("common.weekDay", { week: weekNo, day: dayInWeek(day.day) });
 
   if (locked) {
@@ -358,7 +367,7 @@ function WorkoutPage() {
         <p className="mt-1 text-xs font-semibold text-muted-foreground">{t.c(goal.copy)}</p>
       </section>
 
-      {option && optionAvailable && (
+      {option && optionAvailable && !notYet && (
         <button
           type="button"
           onClick={() => {
@@ -372,7 +381,18 @@ function WorkoutPage() {
         </button>
       )}
 
-      {!started && (
+      {!started && notYet && (
+        <section className="mt-4 rounded-2xl border border-border bg-secondary p-4 text-center">
+          <p className="text-sm font-bold">
+            {opensOn ? t("cal.dayOpens", { date: opensOn }) : t("cal.afterFirst")}
+          </p>
+          <p className="mt-1 text-xs font-semibold text-muted-foreground">
+            {t("cal.weekOpensBody")}
+          </p>
+        </section>
+      )}
+
+      {!started && !notYet && (
         <section className="mt-4 rounded-2xl border border-border bg-card p-4">
           <p className="text-sm font-semibold">{t("workout.lookAround")}</p>
           <button
@@ -528,7 +548,11 @@ function WorkoutPage() {
               })}
             </p>
           </div>
-          {!started ? (
+          {!started && notYet ? (
+            <span className="rounded-full bg-secondary px-4 py-3 text-[11px] font-bold text-muted-foreground uppercase">
+              {opensOn ? t("cal.opens", { date: opensOn }) : t("plan.locked")}
+            </span>
+          ) : !started ? (
             <button
               type="button"
               onClick={start}
