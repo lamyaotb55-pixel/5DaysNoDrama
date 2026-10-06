@@ -31,6 +31,8 @@ import { useT } from "@/lib/i18n";
 import { WeekCounter } from "@/components/WeekCounter";
 import { useWeights } from "@/lib/units";
 import {
+  trainedToday,
+  finishedLate,
   weekArrived,
   planCalendar,
   altAllowed,
@@ -484,13 +486,22 @@ function PlanPage() {
                       </p>
                     </div>
                   </div>
-                  {completed ? (
-                    <span className="check-pop inline-flex items-center gap-1 rounded-full bg-success px-2.5 py-1 text-[10px] font-bold text-ink uppercase">
-                      <Check className="size-3" aria-hidden /> {t("plan.complete")}
-                    </span>
-                  ) : optionDone && option ? (
-                    <span className="check-pop inline-flex items-center gap-1 rounded-full bg-success px-2.5 py-1 text-[10px] font-bold text-ink uppercase">
-                      <Check className="size-3" aria-hidden /> {t.c(option.doneLabel)}
+                  {completed || (optionDone && option) ? (
+                    <span className="flex shrink-0 flex-col items-end gap-1">
+                      <span className="check-pop inline-flex items-center gap-1 rounded-full bg-success px-2.5 py-1 text-[10px] font-bold text-ink uppercase">
+                        <Check className="size-3" aria-hidden />{" "}
+                        {completed ? t("plan.complete") : t.c(option!.doneLabel)}
+                      </span>
+                      {finishedLate(
+                        plan.id,
+                        day.day,
+                        completed ? state.completed[key]! : state.walks[key]!,
+                        state,
+                      ) && (
+                        <span className="rounded-full bg-acid px-2.5 py-0.5 text-[10px] font-bold text-ink uppercase">
+                          ⏰ {t("cal.late")}
+                        </span>
+                      )}
                     </span>
                   ) : inProgress ? (
                     <span className="rounded-full bg-bubblegum px-2.5 py-1 text-[10px] font-bold text-ink uppercase">
@@ -541,11 +552,17 @@ function PlanPage() {
                         ))}
                       </ul>
                     )}
+                    {!optionDone && trainedToday(plan.id, state) && (
+                      <p className="mt-3 rounded-lg bg-card px-3 py-2 text-xs font-semibold">
+                        {t("plan.trainedTodayNote", { option: t.c(option.button) })}
+                      </p>
+                    )}
                     <button
                       type="button"
+                      disabled={!optionDone && trainedToday(plan.id, state)}
                       onClick={() => completeAlt(plan.id, day.day, !optionDone)}
                       className={
-                        "mt-3.5 inline-flex w-full items-center justify-center gap-1.5 rounded-full px-5 py-3.5 text-xs font-bold uppercase " +
+                        "mt-3.5 inline-flex w-full items-center justify-center gap-1.5 rounded-full px-5 py-3.5 text-xs font-bold uppercase disabled:opacity-40 " +
                         (optionDone ? "bg-success text-ink" : "bg-spicy text-accent-foreground")
                       }
                     >

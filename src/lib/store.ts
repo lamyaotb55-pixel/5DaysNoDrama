@@ -796,11 +796,14 @@ export function chooseTrain(planId: string, dayNo: number) {
 }
 
 export function completeAlt(planId: string, dayNo: number, done: boolean) {
-  const walks = { ...state.walks };
   const at = Date.now();
+  // The Day 5 challenge replaces a workout, so it can't share a day with one.
+  if (done && trainedToday(planId, state, at)) return false;
+  const walks = { ...state.walks };
   if (done) walks[sessionKey(planId, dayNo)] = at;
   else delete walks[sessionKey(planId, dayNo)];
   set({ ...state, walks, ...(done ? { trackStart: withTrackStart(planId, at) } : {}) });
+  return true;
 }
 
 /* ---------- Next workout ---------- */
@@ -1471,4 +1474,13 @@ export function catchUpWeek(plan: Plan, s: State, now = Date.now()) {
     if (p.done < p.total) return { week: w, left: p.total - p.done };
   }
   return null;
+}
+
+/** A workout of this plan was finished today (phone's local day). */
+export function trainedToday(planId: string, s: State, now = Date.now()) {
+  const today = localDay(now);
+  const prefix = `${planId}|`;
+  return Object.entries(s.completed).some(
+    ([k, at]) => k.startsWith(prefix) && localDay(at) === today,
+  );
 }

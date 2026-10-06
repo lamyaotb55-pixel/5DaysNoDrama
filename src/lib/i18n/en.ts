@@ -544,5 +544,7 @@ export const en = {
     "Each week is 7 days. Finish this week's workouts and rest; the next week opens on its first day.",
   "cal.afterFirst": "Opens 7 days after your first workout",
   "cal.dayOpens": "This day opens on {date}",
-  "cal.late": "Catch-up",
+  "cal.late": "Late",
+  "plan.trainedTodayNote":
+    "You trained today. {option} counts from tomorrow — one or the other each day.",
 };

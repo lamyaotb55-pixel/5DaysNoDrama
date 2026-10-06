@@ -221,8 +221,8 @@ function HistoryPage() {
                                 </span>
                                 {(state.rounds[item.planId] ?? 1) === item.round &&
                                   finishedLate(item.planId, item.day, item.at, state) && (
-                                    <span className="rounded-full bg-ice/40 px-2.5 py-0.5 text-[10px] font-bold text-ink uppercase">
-                                      {t("cal.late")}
+                                    <span className="rounded-full bg-acid px-2.5 py-0.5 text-[10px] font-bold text-ink uppercase">
+                                      ⏰ {t("cal.late")}
                                     </span>
                                   )}
                               </span>
