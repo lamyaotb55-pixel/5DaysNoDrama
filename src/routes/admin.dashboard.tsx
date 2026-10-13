@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ClipboardCheck, RefreshCw } from "lucide-react";
+import { ClipboardCheck, Mail, RefreshCw } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { adminStats, checkIsAdmin, errorText, goalName, type AdminStats } from "@/lib/community";
 import { useT, type T } from "@/lib/i18n";
@@ -100,7 +100,7 @@ function DashboardPage() {
             </p>
           )}
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Link
             to="/admin/review"
             className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-2 text-xs font-bold uppercase"
@@ -111,6 +111,12 @@ function DashboardPage() {
                 {stats.community.waiting}
               </span>
             )}
+          </Link>
+          <Link
+            to="/admin/messages"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-2 text-xs font-bold uppercase"
+          >
+            <Mail className="size-3.5 text-spicy" aria-hidden /> {t("menu.messages")}
           </Link>
           <button
             type="button"

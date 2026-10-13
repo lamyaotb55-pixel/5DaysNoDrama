@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   LayoutList,
+  Lightbulb,
   LineChart,
   Pencil,
   RotateCcw,
@@ -147,6 +148,19 @@ function Home() {
           })}
         </div>
       )}
+
+      <Link
+        to="/contact"
+        className="mt-8 flex items-center justify-center gap-2 rounded-2xl border border-dashed border-border px-4 py-3.5 text-xs font-semibold text-muted-foreground"
+      >
+        <Lightbulb className="size-4 shrink-0 text-spicy" aria-hidden />
+        <span>
+          {t("contact.homeCta")}{" "}
+          <span className="font-bold text-ink underline underline-offset-2">
+            {t("contact.homeLink")}
+          </span>
+        </span>
+      </Link>
     </main>
   );
 }

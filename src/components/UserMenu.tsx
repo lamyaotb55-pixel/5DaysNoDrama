@@ -8,6 +8,8 @@ import {
   LineChart,
   LogIn,
   LogOut,
+  Mail,
+  MessageCircle,
   User as UserIcon,
   Users,
   X,
@@ -155,6 +157,13 @@ export function UserMenu() {
               >
                 {t("menu.plansByYou")}
               </MenuLink>
+              <MenuLink
+                to="/contact"
+                onClick={() => setOpen(false)}
+                icon={<MessageCircle className="size-4" aria-hidden />}
+              >
+                {t("menu.contact")}
+              </MenuLink>
               {isAdmin && (
                 <MenuLink
                   to="/admin/dashboard"
@@ -171,6 +180,15 @@ export function UserMenu() {
                   icon={<ClipboardCheck className="size-4" aria-hidden />}
                 >
                   {t("menu.review")}
+                </MenuLink>
+              )}
+              {isAdmin && (
+                <MenuLink
+                  to="/admin/messages"
+                  onClick={() => setOpen(false)}
+                  icon={<Mail className="size-4" aria-hidden />}
+                >
+                  {t("menu.messages")}
                 </MenuLink>
               )}
             </nav>
@@ -204,6 +222,8 @@ function MenuLink({
     | "/auth"
     | "/my-plans"
     | "/plans-by-you"
+    | "/contact"
+    | "/admin/messages"
     | "/admin/review"
     | "/admin/dashboard";
   icon: React.ReactNode;

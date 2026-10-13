@@ -167,11 +167,54 @@ export type Database = {
         }
         Relationships: []
       }
+      support_messages: {
+        Row: {
+          body: string
+          created_at: string
+          done_at: string | null
+          email: string
+          id: string
+          kind: string
+          lang: string
+          name: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          done_at?: string | null
+          email: string
+          id?: string
+          kind: string
+          lang?: string
+          name?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          done_at?: string | null
+          email?: string
+          id?: string
+          kind?: string
+          lang?: string
+          name?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      admin_messages: {
+        Args: never
+        Returns: Database["public"]["Tables"]["support_messages"]["Row"][]
+      }
       admin_stats: { Args: never; Returns: Json }
       follow_plan: {
         Args: { p_follow: boolean; p_plan_id: string }
@@ -180,6 +223,14 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       review_submission: {
         Args: { p_approve: boolean; p_note: string; p_submission_id: string }
+        Returns: undefined
+      }
+      send_support_message: {
+        Args: { p_body: string; p_kind: string; p_lang: string }
+        Returns: Json
+      }
+      set_message_done: {
+        Args: { p_done: boolean; p_id: string }
         Returns: undefined
       }
       set_plan_status: {

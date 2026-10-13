@@ -12,12 +12,14 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as MyPlansRouteImport } from './routes/my-plans'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as ThemeRouteImport } from './routes/theme'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
+import { Route as AdminMessagesRouteImport } from './routes/admin.messages'
 import { Route as AdminReviewRouteImport } from './routes/admin.review'
 import { Route as CustomizePlanIdRouteImport } from './routes/customize.$planId'
 import { Route as PlanPlanIdRouteImport } from './routes/plan.$planId'
@@ -37,6 +39,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoryRoute = HistoryRouteImport.update({
@@ -67,6 +74,11 @@ const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/admin/dashboard',
   path: '/admin/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMessagesRoute = AdminMessagesRouteImport.update({
+  id: '/admin/messages',
+  path: '/admin/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminReviewRoute = AdminReviewRouteImport.update({
@@ -103,12 +115,14 @@ const WorkoutPlanIdDayRoute = WorkoutPlanIdDayRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
   '/history': typeof HistoryRoute
   '/my-plans': typeof MyPlansRoute
   '/progress': typeof ProgressRoute
   '/theme': typeof ThemeRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/messages': typeof AdminMessagesRoute
   '/admin/review': typeof AdminReviewRoute
   '/customize/$planId': typeof CustomizePlanIdRoute
   '/plan/$planId': typeof PlanPlanIdRoute
@@ -119,12 +133,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
   '/history': typeof HistoryRoute
   '/my-plans': typeof MyPlansRoute
   '/progress': typeof ProgressRoute
   '/theme': typeof ThemeRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/messages': typeof AdminMessagesRoute
   '/admin/review': typeof AdminReviewRoute
   '/customize/$planId': typeof CustomizePlanIdRoute
   '/plan/$planId': typeof PlanPlanIdRoute
@@ -137,12 +153,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
   '/history': typeof HistoryRoute
   '/my-plans': typeof MyPlansRoute
   '/progress': typeof ProgressRoute
   '/theme': typeof ThemeRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/messages': typeof AdminMessagesRoute
   '/admin/review': typeof AdminReviewRoute
   '/customize/$planId': typeof CustomizePlanIdRoute
   '/plan/$planId': typeof PlanPlanIdRoute
@@ -155,12 +173,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/contact'
     | '/history'
     | '/my-plans'
     | '/progress'
     | '/theme'
     | '/profile'
     | '/admin/dashboard'
+    | '/admin/messages'
     | '/admin/review'
     | '/customize/$planId'
     | '/plan/$planId'
@@ -171,12 +191,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/contact'
     | '/history'
     | '/my-plans'
     | '/progress'
     | '/theme'
     | '/profile'
     | '/admin/dashboard'
+    | '/admin/messages'
     | '/admin/review'
     | '/customize/$planId'
     | '/plan/$planId'
@@ -188,12 +210,14 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/contact'
     | '/history'
     | '/my-plans'
     | '/progress'
     | '/theme'
     | '/_authenticated/profile'
     | '/admin/dashboard'
+    | '/admin/messages'
     | '/admin/review'
     | '/customize/$planId'
     | '/plan/$planId'
@@ -206,11 +230,13 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ContactRoute: typeof ContactRoute
   HistoryRoute: typeof HistoryRoute
   MyPlansRoute: typeof MyPlansRoute
   ProgressRoute: typeof ProgressRoute
   ThemeRoute: typeof ThemeRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminMessagesRoute: typeof AdminMessagesRoute
   AdminReviewRoute: typeof AdminReviewRoute
   CustomizePlanIdRoute: typeof CustomizePlanIdRoute
   PlanPlanIdRoute: typeof PlanPlanIdRoute
@@ -240,6 +266,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/history': {
@@ -282,6 +315,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/dashboard'
       fullPath: '/admin/dashboard'
       preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/messages': {
+      id: '/admin/messages'
+      path: '/admin/messages'
+      fullPath: '/admin/messages'
+      preLoaderRoute: typeof AdminMessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/review': {
@@ -344,11 +384,13 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ContactRoute: ContactRoute,
   HistoryRoute: HistoryRoute,
   MyPlansRoute: MyPlansRoute,
   ProgressRoute: ProgressRoute,
   ThemeRoute: ThemeRoute,
   AdminDashboardRoute: AdminDashboardRoute,
+  AdminMessagesRoute: AdminMessagesRoute,
   AdminReviewRoute: AdminReviewRoute,
   CustomizePlanIdRoute: CustomizePlanIdRoute,
   PlanPlanIdRoute: PlanPlanIdRoute,
